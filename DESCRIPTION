@@ -1,6 +1,6 @@
 Package: onestep.survival
 Title: One-step TMLE for survival analysis
-Version: 0.6.0
+Version: 1.0.0
 Authors@R: as.person(c(
     "Wilson Cai <wcai@berkeley.edu> [aut, cre]",
     "Mark J. van der Laan <laan@berkeley.edu> [aut]"))
@@ -8,7 +8,8 @@ Description: Estimate counterfactual survival curve under static or dynamic inte
 Depends:
     R (>= 3.0.0),
     SuperLearner,
-    Matrix
+    Matrix,
+    R6
 Imports:
     tmle,
     foreach,

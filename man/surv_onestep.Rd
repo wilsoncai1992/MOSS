@@ -8,7 +8,7 @@ surv_onestep(dat, dW = rep(1, nrow(dat)), g.SL.Lib = c("SL.glm", "SL.step",
   "SL.glm.interaction"), Delta.SL.Lib = c("SL.mean", "SL.glm", "SL.gam",
   "SL.earth"), ht.SL.Lib = c("SL.mean", "SL.glm", "SL.gam", "SL.earth"),
   epsilon.step = 1e-05, max.iter = 1000, tol = 1/nrow(dat),
-  T.cutoff = NULL, verbose = TRUE, ...)
+  T.cutoff = NULL, verbose = FALSE, ...)
 }
 \arguments{
 \item{dat}{A data.frame with columns T.tilde, delta, A, W. T.tilde = min(T, C) is either the failure time of censor time, whichever happens first. 'delta'= I(T <= C) is the indicator of whether we observe failure time. A is binary treatment. W is baseline covariates. All columns with character "W" will be treated as baseline covariates.}
