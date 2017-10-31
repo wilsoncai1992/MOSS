@@ -29,4 +29,10 @@ head(dat)
 
 # R6
 onestepfit = MOSS$new(dat, dW = 1, verbose = TRUE, epsilon.step = 1e-3, max.iter = 1e3)
+onestepfit$fit_g_initial()
+onestepfit$fit_failure_hazard()
+onestepfit$fit_censoring_cdf()
+onestepfit$transform_failure_hazard_to_survival()
+onestepfit$transform_failure_hazard_to_pdf()
+
 onestepfit$display()

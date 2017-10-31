@@ -2,6 +2,7 @@
 
 S3method(plot,surv_onestep)
 S3method(plot,surv_survtmle)
+export(MOSS)
 export(check_and_preprocess_data)
 export(check_positivity)
 export(compute_onestep_update_matrix)

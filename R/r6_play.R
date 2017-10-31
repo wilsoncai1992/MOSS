@@ -1,5 +1,6 @@
 require("R6")
 
+#' @export
 MOSS <- R6Class("MOSS",
                 public = list(
                   dat = NULL,
@@ -59,6 +60,7 @@ MOSS <- R6Class("MOSS",
                   },
                   check_and_preprocess_data = function(nbin = 4, T.cutoff = NULL){
                     message('check data validity')
+                    self$W_names <- grep('W', colnames(self$dat), value = TRUE)
                     # colnames should exist
                     if (!('T.TILDE' %in% toupper(colnames(self$dat)))) stop('T.tilde should exist')
                     if (!('A' %in% colnames(self$dat))) stop('A should exist')
@@ -67,7 +69,7 @@ MOSS <- R6Class("MOSS",
                       self$dat$Delta <- rep(1, nrow(self$dat))
                     }
                     # keep necessary columns
-                    self$dat <- self$dat[,c('T.tilde', 'A', self$W_names)]
+                    self$dat <- self$dat[,c('T.tilde', 'A', 'Delta', self$W_names)]
                     # dW length should be same
                     if (is.null(self$dW)) stop('Input dW!')
                     if (length(self$dW) == 1) self$dW <- rep(self$dW, nrow(self$dat))
@@ -79,8 +81,6 @@ MOSS <- R6Class("MOSS",
                     self$dat <- self$dat[to_keep,]
 
                     self$n_sample <- nrow(self$dat)
-                    self$W_names <- grep('W', colnames(self$dat), value = TRUE)
-
                     # number of samples should be same
                     if (length(self$dW) != self$n_sample) stop('The length of input dW is not same as the sample size!')
 
@@ -103,17 +103,17 @@ MOSS <- R6Class("MOSS",
                   fit_g_initial = function(){
                     message('fit g')
                     self$gHatSL <- SuperLearner(Y = self$A,
-                                           X = self$W,
-                                           SL.library = g.SL.Lib,
-                                           family = "binomial")
+                                               X = self$W,
+                                               SL.library = self$g.SL.Lib,
+                                               family = "binomial")
                     # g.hat for each observation
                     self$g.fitted <- self$gHatSL$SL.predict
                   },
                   fit_failure_hazard = function(){
                     message('fit failure hazard')
-                    self$h.hat.t <- estimate_hazard_SL(dat = self$dat,
-                                                       T.uniq = self$T.uniq,
-                                                       ht.SL.Lib = self$ht.SL.Lib)
+                    h.hat.t <- estimate_hazard_SL(dat = self$dat,
+                                                 T.uniq = self$T.uniq,
+                                                 ht.SL.Lib = self$ht.SL.Lib)
                     # h.hat at all time t=[0,t.max]
                     self$h.hat.t_full <- as.matrix(h.hat.t$out_haz_full)
                     # h.hat at observed unique time t = T.grid
@@ -141,15 +141,15 @@ MOSS <- R6Class("MOSS",
                       Qn.A1.t_full[it,] <- cumprod(1 - self$h.hat.t_full[it,])
                     }
                     self$Qn.A1.t_full <- Qn.A1.t_full
-                    self$Qn.A1.t <- Qn.A1.t_full[,self$T.uniq]
+                    self$Qn.A1.t <- Qn.A1.t_full[, self$T.uniq]
                   },
                   transform_failure_hazard_to_pdf = function(){
                     qn.A1.t_full <- matrix(0, nrow = self$n_sample, ncol = ncol(self$Qn.A1.t_full))
                     for (it in 1:self$n_sample) {
-                      qn.A1.t_full[it,] <- h.hat.t_full[it,] * self$Qn.A1.t_full[it,]
+                      qn.A1.t_full[it,] <- self$h.hat.t_full[it,] * self$Qn.A1.t_full[it,]
                     }
                     self$qn.A1.t_full <- qn.A1.t_full
-                    self$qn.A1.t <- qn.A1.t_full[,T.uniq]
+                    self$qn.A1.t <- qn.A1.t_full[, self$T.uniq]
                   },
                   display = function() {
                     cat("Make = ", self$make,

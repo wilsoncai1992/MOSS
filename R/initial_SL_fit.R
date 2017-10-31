@@ -20,7 +20,7 @@ estimate_hazard_SL <- function(dat,
   # transform original data into SL-friendly format
   dat_david <- dat
   dat_david <- rename(dat_david, Z = A)
-  
+
   if ('ID' %in% toupper(colnames(dat_david))) {
     # if there are already id in the dataset
     dat_david <- rename(dat_david, id = ID)
@@ -29,15 +29,15 @@ estimate_hazard_SL <- function(dat,
     # create 'id' on our own
     dat_david$id <- 1:nrow(dat_david)
   }
-  
+
   # censoring
-  dat_david <- rename(dat_david, Delta.J = delta)
-  
+  dat_david <- rename(dat_david, Delta.J = Delta)
+
   # remove all other useless columns
   baseline_name <- grep('W', colnames(dat_david), value = TRUE)
   keeps <- c("id", baseline_name, 'T.tilde', 'Delta.J', 'Z')
   dat_david <- dat_david[,keeps]
-  
+
   # first fit SL on the max time point
   T.it <- max(T.uniq)
   # =======================================================================================
@@ -58,24 +58,24 @@ estimate_hazard_SL <- function(dat,
                              bounds = NULL)
   # Haz_hat[[1]][Haz_hat[[1]]$t == T.it,'Q1Haz']
   # mean(Haz_hat[[1]][Haz_hat[[1]]$t == T.it,'Q1Haz'])
-  
+
   # turn into wide format
-  
+
   out_haz <- Haz_hat[[3]]
   out_haz <- out_haz[,c('id', 't', 'Q1Haz')]
   out_haz <- tidyr::spread(out_haz, t, Q1Haz)
   # the colname number correspond to h_{T>t-1 | T>=t-1}
   rownames(out_haz) <- out_haz$id
-  
+
   # turn NA entries (after failure) into zero hazard
   out_haz[is.na(out_haz)] <- 0
-  
+
   # remove the id column
   out_haz_2 <- out_haz[,-1]
-  
+
   # subset the columns for those only in T.uniq
   out_haz <- out_haz_2[,T.uniq]
-  
+
   return(list(out_haz = out_haz,
               out_haz_full = out_haz_2))
 }
@@ -103,10 +103,10 @@ estimate_censoring_SL <- function(dat,
                                   Delta.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth")) {
   # transform original data into SL-friendly format
   dat_david <- dat
-  
+
   dat_david <- rename(dat_david, ftime = T.tilde)
   dat_david <- rename(dat_david, trt = A)
-  
+
   if ('ID' %in% toupper(colnames(dat_david))) {
     # if there are already id in the dataset
     dat_david <- rename(dat_david, id = ID)
@@ -115,18 +115,18 @@ estimate_censoring_SL <- function(dat,
     # create 'id' on our own
     dat_david$id <- 1:nrow(dat_david)
   }
-  
+
   # censoring
-  if ('delta' %in% colnames(dat_david)) dat_david <- rename(dat_david, ftype = delta)
-  
+  if ('Delta' %in% colnames(dat_david)) dat_david <- rename(dat_david, ftype = Delta)
+
   # remove all other useless columns
   baseline_name <- grep('W', colnames(dat_david), value = TRUE)
   keeps <- c("id", baseline_name, 'ftime', 'ftype', 'trt')
   dat_david <- dat_david[, keeps]
-  
+
   T.uniq <- unique(sort(dat_david$ftime))
   T.max <- max(T.uniq)
-  
+
   adjustVars <- dat_david[,baseline_name]
   # ====================================================================================================
   # dataList
@@ -155,16 +155,16 @@ estimate_censoring_SL <- function(dat,
   out_censor <- tidyr::spread(out_censor, t, G_dC)
   # the colname number correspond to h_{T>t-1 | T>=t-1}
   rownames(out_censor) <- out_censor$id
-  
+
   # turn NA entries (after failure) into zero hazard
   out_censor[is.na(out_censor)] <- 0
-  
+
   # remove the id column
   out_censor_2 <- out_censor[,-1]
-  
+
   # subset the columns for those only in T.uniq
   out_censor <- out_censor_2[,T.uniq]
-  
+
   return(list(out_censor = out_censor,
               out_censor_full = out_censor_2))
 }
@@ -192,7 +192,7 @@ estimate_censoring_SL <- function(dat,
 makeDataList <- function(dat, J, nZ, Z, t0, bounds=NULL){
   n <- nrow(dat)
   dataList <- vector(mode="list",length=nZ+1)
-  
+
   # first element used for estimation
   dataList[[1]] <- dat[rep(1:nrow(dat),dat$T.tilde),]
   for(j in J){
@@ -201,11 +201,11 @@ makeDataList <- function(dat, J, nZ, Z, t0, bounds=NULL){
   }
   dataList[[1]]$C <- 0
   dataList[[1]]$C[cumsum(dat$T.tilde)] <- as.numeric(dat$Delta.J==0)
-  
+
   n.row.ii <- nrow(dataList[[1]])
   row.names(dataList[[1]])[row.names(dataList[[1]]) %in% paste(row.names(dat))] <- paste(row.names(dat),".0",sep="")
   dataList[[1]]$t <- as.numeric(paste(unlist(strsplit(row.names(dataList[[1]]),".",fixed=T))[seq(2,n.row.ii*2,2)]))+1
-  
+
   if(!is.null(bounds)){
     boundFormat <- data.frame(t=bounds$t)
     for(j in J){
@@ -229,7 +229,7 @@ makeDataList <- function(dat, J, nZ, Z, t0, bounds=NULL){
       eval(parse(text=paste("dataList[[1]]$u",j," <- 1",sep="")))
     }
   }
-  
+
   # subsequent elements used for prediction
   for(i in 1:nZ){
     dataList[[i+1]] <- dat[sort(rep(1:nrow(dat),t0)),]
@@ -244,7 +244,7 @@ makeDataList <- function(dat, J, nZ, Z, t0, bounds=NULL){
     dataList[[i+1]]$C[dataList[[i+1]]$id %in% censEvents & dataList[[i+1]]$t >= dataList[[i+1]]$T.tilde] <- 1
     dataList[[i+1]]$Z <- Z[i]
     dataList[[i+1]]$T.tilde <- t0
-    
+
     if(!is.null(bounds)){
       suppressMessages(
         dataList[[i+1]] <- join(x=dataList[[i+1]],y=boundFormat,type="left")
@@ -286,14 +286,14 @@ makeDataList <- function(dat, J, nZ, Z, t0, bounds=NULL){
 #'
 #' @examples
 #' # TO DO
-estimateHazards <- function(dataList, 
-                            J, 
+estimateHazards <- function(dataList,
+                            J,
                             verbose,
                             strata=NULL,
                             adjustVars,
-                            SLlibrary.event, 
+                            SLlibrary.event,
                             glmFormula.event,
-                            superLearnerSummary, 
+                            superLearnerSummary,
                             bounds){
   # check for missing inputs
   if(is.null(SLlibrary.event) & is.null(glmFormula.event) & is.null(strata)){
@@ -301,22 +301,22 @@ estimateHazards <- function(dataList,
             with empirical estimates")
     glmFormula.event <- "Z*factor(t)"
   }
-  
+
   if(is.null(SLlibrary.event) & is.null(strata)){
     if(is.null(bounds)){
       for(j in J){
         # formula
         Qj.form <- sprintf("%s ~ %s", paste("N",j,sep=""), glmFormula.event)
-        
+
         # add up all events less than current j to see who to include in regression
         NlessthanJ <- rep(0, nrow(dataList[[1]]))
         for(i in J[J<j]){
           eval(parse(text=paste("NlessthanJ <- NlessthanJ + dataList[[1]]$N",i,sep="")))
         }
-        
+
         # fit glm
         Qj.mod <- glm(as.formula(Qj.form), data=dataList[[1]][NlessthanJ==0,], family="binomial")
-        
+
         # get predictions back
         dataList <- lapply(dataList, function(x,j){
           eval(parse(text=paste("x$Q",j,"PseudoHaz <- predict(Qj.mod, type='response', newdata=x)",sep="")))
@@ -333,12 +333,12 @@ estimateHazards <- function(dataList,
       for(j in J){
         Qj.form <- sprintf("%s ~ %s", paste("N",j,sep=""), glmFormula.event)
         X <- model.matrix(as.formula(Qj.form),data=dataList[[1]])
-        
+
         NlessthanJ <- rep(0, nrow(dataList[[1]]))
         for(i in J[J<j]){
           eval(parse(text=paste("NlessthanJ <- NlessthanJ + dataList[[1]]$N",i,sep="")))
         }
-        
+
         dataList <- lapply(dataList, function(x,j){
           if(j != min(J)){
             eval(parse(text=paste("x$hazLessThan",j," <- rowSums(cbind(rep(0, nrow(x)),x[,paste0('Q',J[J<j],'Haz')]))",sep="")))
@@ -347,7 +347,7 @@ estimateHazards <- function(dataList,
           }
           x
         },j=j)
-        
+
         eval(parse(text=paste("Ytilde <- (dataList[[1]]$N",j,"-dataList[[1]]$l",j,")/(pmin(dataList[[1]]$u",j,", 1 - dataList[[1]]$hazLessThan",j,")  - dataList[[1]]$l",j,")",sep="")))
         fm <- optim(par=rep(0,ncol(X)), fn=LogLikelihood, Y=Ytilde, X=X,
                     method="BFGS",gr=grad,
@@ -356,7 +356,7 @@ estimateHazards <- function(dataList,
           return("convergence failure")
         }else{
           beta <- fm$par
-          
+
           dataList <- lapply(dataList, function(x,j){
             newX <- model.matrix(as.formula(Qj.form),data=x)
             eval(parse(text=paste("x$Q",j,"PseudoHaz <- plogis(newX%*%beta)",sep="")))
@@ -373,14 +373,14 @@ estimateHazards <- function(dataList,
       for(i in J[J<j]){
         eval(parse(text=paste("NlessthanJ <- NlessthanJ + dataList[[1]]$N",i,sep="")))
       }
-      
+
       Qj.mod <- eval(parse(text=paste("SuperLearner(Y=dataList[[1]]$N",j,"[NlessthanJ==0],
                              X=dataList[[1]][NlessthanJ==0,c('t', 'Z', names(adjustVars))],
                              id=dataList[[1]]$id[NlessthanJ==0],
                              family=binomial(),
                              SL.library=SLlibrary.event,
                              verbose=verbose)",sep="")))
-      
+
       # get predictions back
       dataList <- lapply(dataList, function(x,j){
         eval(parse(text=paste("x$Q",j,"PseudoHaz <- predict(Qj.mod, onlySL=T, newdata=x)[[1]]",sep="")))
@@ -405,7 +405,7 @@ estimateHazards <- function(dataList,
     }
   }
   dataList
-  
+
 }
 
 
