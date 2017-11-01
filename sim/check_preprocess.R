@@ -34,5 +34,6 @@ onestepfit$fit_failure_hazard()
 onestepfit$fit_censoring_cdf()
 onestepfit$transform_failure_hazard_to_survival()
 onestepfit$transform_failure_hazard_to_pdf()
+onestepfit$compute_EIC()
 
 onestepfit$display()
