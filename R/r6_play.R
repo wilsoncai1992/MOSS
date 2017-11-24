@@ -204,12 +204,17 @@ MOSS <- R6Class("MOSS",
       self$h.hat.t <- hazard_new[, self$T.uniq]
     },
     onestep_curve_update = function(){
+      browser()
       update_mat <- compute_onestep_update_matrix(D1.t.func.prev = self$D1.t,
                                                   Pn.D1.func.prev = self$Pn.D1.t,
                                                   dat = self$dat,
                                                   T.uniq = self$T.uniq,
                                                   W_names = self$W_names,
                                                   dW = self$dW)
+      colSums(update_mat)
+
+
+
       self$update_tensor <- self$update_tensor + update_mat
       self$update_tensor[is.na(self$update_tensor)] <- 0
 
