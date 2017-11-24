@@ -82,6 +82,8 @@ while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter)) {
 
   onestepfit$compute_Psi()
   onestepfit$print_onestep_curve(add = TRUE)
+  print(onestepfit$Pn.D1.t)
+  # print(onestepfit$D1.t)
 }
 
 if (iter_count == onestepfit$max.iter) {
@@ -91,4 +93,3 @@ if (iter_count == onestepfit$max.iter) {
 onestepfit$compute_Psi()
 onestepfit$Psi.hat
 
-onestepfit$display()

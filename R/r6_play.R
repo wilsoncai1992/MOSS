@@ -169,6 +169,7 @@ MOSS <- R6Class("MOSS",
       self$qn.A1.t <- qn.A1.t_full[, self$T.uniq]
     },
     compute_EIC = function(){
+      browser()
       I.A.dW <- self$A == self$dW
 
       # D_1* in paper
@@ -181,9 +182,9 @@ MOSS <- R6Class("MOSS",
         t.vec <- create_Yt_vector(Time = self$T.tilde[it],
                                   t.vec = 1:self$T.max)
         alpha2 <- t_Delta1.vec - t.vec * self$h.hat.t_full[it,]
-        alpha1 <- -I.A.dW[it]/self$g.fitted[it]/self$Gn.A1.t_full[it,]/self$Qn.A1.t_full[it,]
+        h1 <- -I.A.dW[it]/self$g.fitted[it]/self$Gn.A1.t_full[it,]/self$Qn.A1.t_full[it,]
 
-        not_complete <- alpha1 * alpha2
+        not_complete <- h1 * alpha2
         # D1 matrix
         D1.t[it, ] <- cumsum(not_complete)[self$T.uniq] * self$Qn.A1.t[it,] # complete influence curve
       }
@@ -216,7 +217,6 @@ MOSS <- R6Class("MOSS",
 
     },
     onestep_curve_update = function(){
-      browser()
       update <- compute_onestep_update_matrix(D1.t.func.prev = self$D1.t,
                                               Pn.D1.func.prev = self$Pn.D1.t,
                                               dat = self$dat,
@@ -227,18 +227,6 @@ MOSS <- R6Class("MOSS",
       # self$inside_exp[is.na(self$inside_exp)] <- 0
       self$qn.A1.t <- self$qn.A1.t * exp(self$epsilon.step * self$inside_exp)
       self$qn.A1.t_full <- self$qn.A1.t_full * exp(self$epsilon.step * self$inside_exp)
-
-      # update_mat <- compute_onestep_update_matrix(D1.t.func.prev = self$D1.t,
-      #                                             Pn.D1.func.prev = self$Pn.D1.t,
-      #                                             dat = self$dat,
-      #                                             T.uniq = self$T.uniq,
-      #                                             W_names = self$W_names,
-      #                                             dW = self$dW)
-      # self$update_tensor <- self$update_tensor + update_mat
-      # self$update_tensor[is.na(self$update_tensor)] <- 0
-
-      # self$qn.A1.t <- self$qn.A1.t * exp(self$epsilon.step * self$update_tensor)
-      # self$qn.A1.t_full <- self$qn.A1.t_full * exp(self$epsilon.step * replicate(self$T.max, self$update_tensor[,1]))
 
       # For density sum > 1: normalize the updated qn
       # norm.factor <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)[,1]

@@ -28,11 +28,10 @@ create_step_func <- function(y.vec, t.vec) {
 #' @examples
 #' # TO DO
 create_Yt_vector <- function(Time, t.vec) {
-  out.vec <- (Time >= t.vec) + 0
-  return(out.vec)
+  (Time >= t.vec) + 0
 }
 
-#' compute \eqn{I\{T.tilde >= t, Delta = 1\}}
+#' compute \eqn{I\{T.tilde == t, Delta = 1\}}
 #'
 #' loop over t.vec
 #'
@@ -46,8 +45,7 @@ create_Yt_vector <- function(Time, t.vec) {
 #' @examples
 #' # TO DO
 create_Yt_vector_with_censor <- function(Time, Delta, t.vec) {
-  out.vec <- ((Time == t.vec) & (Delta == 1)) + 0
-  return(out.vec)
+  ((Time == t.vec) & (Delta == 1)) + 0
 }
 
 #' compute cumulative distribution function of a step-shaped (empirical) density
@@ -66,20 +64,20 @@ compute_step_cdf <- function(pdf.mat, t.vec, start = -Inf) {
   interval.size <- diff(t.vec)
   # interval.size <- c(0, interval.size)
   interval.size <- c(interval.size, 0) # 09-07
-  
+
   # compute the mass
   if(is.matrix(pdf.mat)){
     # if input with multi-sample
     mass.by.interval <- sweep(pdf.mat,MARGIN=2, interval.size, `*`)
     # multiplies the interval length to each row of the y-values
     # the result is a matrix, each row is a single pdf, and entries are the mass
-    
+
   }else{
     # if input with one-sample
     mass.by.interval <- pdf.mat * interval.size
   }
-  
-  
+
+
   if(is.infinite(start) & (start < 0)){
     # ======================================================================
     # start from -Inf
