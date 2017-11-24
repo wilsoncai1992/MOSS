@@ -76,20 +76,20 @@ surv_onestep <- function(dat,
   dW <- after_check$dW
   n.data <- after_check$n.data
   W_names <- after_check$W_names
-  
+
   W <- dat[,W_names]
   W <- as.data.frame(W)
-  
+
   # dW check
   if(all(dW == 0)) {
     dat$A <- 1 - dat$A # when dW is all zero
     dW <- 1 - dW
   }else if(all(dW == 1)){
-    
+
   }else{
     stop('not implemented!')
   }
-  
+
   T.uniq <- sort(unique(dat$T.tilde))
   T.max <- max(T.uniq)
   # ===================================================================================
@@ -102,7 +102,7 @@ surv_onestep <- function(dat,
   # conditional hazard (by SL)
   # ===================================================================================
   message('estimating conditional hazard')
-  
+
   h.hat.t <- estimate_hazard_SL(dat = dat, T.uniq = T.uniq, ht.SL.Lib = ht.SL.Lib)
   # h.hat at all time t=[0,t.max]
   h.hat.t_full <- as.matrix(h.hat.t$out_haz_full)
@@ -121,7 +121,7 @@ surv_onestep <- function(dat,
     G.hat.t$out_censor_full[G.hat.t$out_censor_full < cutoff] <- cutoff
     G.hat.t$out_censor[G.hat.t$out_censor < cutoff] <- cutoff
   }
-  
+
   Gn.A1.t_full <- as.matrix(G.hat.t$out_censor_full)
   Gn.A1.t <- as.matrix(G.hat.t$out_censor)
   # ===================================================================================
@@ -133,7 +133,7 @@ surv_onestep <- function(dat,
   # Qn.A1.t
   # ===================================================================================
   Qn.A1.t <- matrix(0, nrow = n.data, ncol = length(T.uniq))
-  
+
   # compute cumulative hazard
   # cum-product approach (2016-10-05)
   Qn.A1.t_full <- matrix(NA, nrow = n.data, ncol = ncol(h.hat.t_full))
@@ -141,7 +141,7 @@ surv_onestep <- function(dat,
     Qn.A1.t_full[it,] <- cumprod(1 - h.hat.t_full[it,])
   }
   Qn.A1.t <- Qn.A1.t_full[,T.uniq]
-  
+
   # plot initial fit
   if (verbose) lines(colMeans(Qn.A1.t) ~ T.uniq, ...)
   # ===================================================================================
@@ -153,7 +153,7 @@ surv_onestep <- function(dat,
     qn.A1.t_full[it.n,] <- h.hat.t_full[it.n,] * Qn.A1.t_full[it.n,]
   }
   qn.A1.t <- qn.A1.t_full[,T.uniq]
-  
+
   # ===================================================================================
   # D1.t: calculate IC
   # D1.A1.t: calculate IC under intervention
@@ -161,34 +161,34 @@ surv_onestep <- function(dat,
   compute_IC <- function(dat, dW, T.uniq, h.hat.t_full, g.fitted, Gn.A1.t_full, Qn.A1.t, Qn.A1.t_full) {
     I.A.dW <- dat$A == dW
     n.data <- nrow(dat)
-    
+
     D1.t <- matrix(0, nrow = n.data, ncol = length(T.uniq))
     D1.A1.t <- matrix(0, nrow = n.data, ncol = length(T.uniq))
-    
+
     for (it.n in 1:n.data) {
-      
+
       t_Delta1.vec <- create_Yt_vector_with_censor(Time = dat$T.tilde[it.n], Delta = dat$delta[it.n], t.vec = 1:max(T.uniq))
       t.vec <- create_Yt_vector(Time = dat$T.tilde[it.n], t.vec = 1:max(T.uniq))
       alpha2 <- (t_Delta1.vec - t.vec * h.hat.t_full[it.n,])
-      
+
       alpha1 <- -I.A.dW[it.n]/g.fitted[it.n]/Gn.A1.t_full[it.n,]/Qn.A1.t_full[it.n,]
       alpha1_A1 <- -1/g.fitted[it.n]/Gn.A1.t_full[it.n,]/Qn.A1.t_full[it.n,]
-      
+
       not_complete <- alpha1 * alpha2
       not_complete_A1 <- alpha1_A1 * alpha2
       # D1 matrix
       D1.t[it.n, ] <- cumsum(not_complete)[T.uniq] * Qn.A1.t[it.n,] # complete influence curve
       D1.A1.t[it.n, ] <- cumsum(not_complete_A1)[T.uniq] * Qn.A1.t[it.n,] # also update those A = 0.
     }
-    
+
     # turn unstable results to 0
     D1.t[is.na(D1.t)] <- 0
     D1.A1.t[is.na(D1.A1.t)] <- 0
-    
+
     return(list(D1.t = D1.t,
                 D1.A1.t = D1.A1.t))
   }
-  
+
   initial_IC <- compute_IC(dat = dat,
                            dW = dW,
                            T.uniq = T.uniq,
@@ -210,13 +210,13 @@ surv_onestep <- function(dat,
   message('targeting')
   stopping.criteria <- sqrt(l2_inner_prod_step(Pn.D1.t, Pn.D1.t, T.uniq))/length(T.uniq) # 10-17
   if(verbose) print(stopping.criteria)
-  
+
   update.tensor <- matrix(0, nrow = n.data, ncol = length(T.uniq))
   iter.count <- 0
   stopping.prev <- Inf
   all_stopping <- numeric(stopping.criteria)
   all_loglikeli <- numeric()
-  
+
   while ((stopping.criteria >= tol) & (iter.count <= max.iter)) { # ORGINAL
     # while ((stopping.criteria >= tol) & (iter.count <= max.iter) & ((stopping.prev - stopping.criteria) >= max(-tol, -1e-5))) { #WILSON: TEMPORARY
     if(verbose) print(stopping.criteria)
@@ -231,22 +231,22 @@ surv_onestep <- function(dat,
                                                 dW = dW)
     # ------------------------------------------------------------------------
     update.tensor <- update.tensor + update.mat
-    
+
     # accelerate when log-like becomes flat
     # if((stopping.prev - stopping.criteria) > 0 & (stopping.prev - stopping.criteria) < 1e-3) update.tensor <- update.tensor + update.mat*10
-    
+
     # intergrand <- rowSums(update.tensor)
     # intergrand <- apply(update.tensor, c(1,2), sum)
     intergrand <- update.tensor
     intergrand[is.na(intergrand)] <- 0
     qn.current <- qn.A1.t * exp(epsilon.step * intergrand)
     qn.current_full <- qn.A1.t_full * exp(epsilon.step * replicate(T.max, intergrand[,1])) #10-23
-    
+
     # For density sum > 1: normalize the updated qn
     norm.factor <- compute_step_cdf(pdf.mat = qn.current, t.vec = T.uniq, start = Inf)[,1] #09-06
     qn.current[norm.factor > 1,] <- qn.current[norm.factor > 1,] / norm.factor[norm.factor > 1] #09-06
     qn.current_full[norm.factor > 1,] <- qn.current_full[norm.factor > 1,] / norm.factor[norm.factor > 1] #10-23
-    
+
     # 11-26
     # For density sum > 1: truncate the density outside sum = 1 to be zero
     # i.e. flat cdf beyond sum to 1
@@ -254,7 +254,7 @@ surv_onestep <- function(dat,
     # qn.current[cdf_per_subj > 1] <- 0
     # cdf_per_subj <- compute_step_cdf(pdf.mat = qn.current_full, t.vec = 1:max(T.uniq), start = -Inf)
     # qn.current_full[cdf_per_subj > 1] <- 0
-    
+
     # if some qn becomes all zero, prevent NA exisitence
     qn.current[is.na(qn.current)] <- 0
     qn.current_full[is.na(qn.current_full)] <- 0 #10-23
@@ -263,11 +263,11 @@ surv_onestep <- function(dat,
     Qn.current <- compute_step_cdf(pdf.mat = qn.current, t.vec = T.uniq, start = Inf) # 2016-09-06
     cdf_offset <- 1 - Qn.current[,1] # 2016-09-06
     Qn.current <- Qn.current + cdf_offset # 2016-09-06
-    
+
     Qn.current_full <- compute_step_cdf(pdf.mat = qn.current_full, t.vec = 1:max(T.uniq), start = Inf) # 10-23
     cdf_offset <- 1 - Qn.current_full[,1] # 10-23
     Qn.current_full <- Qn.current_full + cdf_offset # 10-23
-    
+
     # check error
     # all.equal(compute_step_cdf(pdf.vec = qn.current[1,], t.vec = T.uniq, start = Inf), Qn.current[1,])
     # =============================================================================
@@ -285,10 +285,10 @@ surv_onestep <- function(dat,
                              Gn.A1.t_full = Gn.A1.t_full,
                              Qn.A1.t = Qn.current,
                              Qn.A1.t_full = Qn.current_full)
-    
+
     D1.t <- updated_IC$D1.t
     D1.A1.t <- updated_IC$D1.A1.t
-    
+
     # compute new Pn.D1
     Pn.D1.t <- colMeans(D1.t)
     # ===================================================================================
@@ -300,7 +300,7 @@ surv_onestep <- function(dat,
     iter.count <- iter.count + 1
     # ===================================================================================
     # evaluate log-likelihood
-    
+
     # construct obj
     obj <- list()
     obj$qn.current_full <- qn.current_full
@@ -311,8 +311,8 @@ surv_onestep <- function(dat,
     loglike_here <- eval_loglike(obj, dW)
     all_loglikeli <- c(all_loglikeli, loglike_here)
     all_stopping <- c(all_stopping, stopping.criteria)
-    
-    
+
+
     ########################################################################
     # FOR DEBUG ONLY
     # if (TRUE) {
@@ -348,7 +348,7 @@ surv_onestep <- function(dat,
       warning('Max Iter count reached, stop iteration.')
     }
   }
-  
+
   if (!exists('Qn.current')) {
     # if the iteration immediately converge
     message('converge suddenly!')
@@ -356,7 +356,7 @@ surv_onestep <- function(dat,
     updated_IC <- initial_IC
     Psi.hat <- colMeans(Qn.current)
   }
-  
+
   # ===================================================================================
   # compute the target parameter
   # ===================================================================================
@@ -366,25 +366,25 @@ surv_onestep <- function(dat,
   var_CI <- apply(updated_IC$D1.t, 2, var)/n.data
   # sup norm for each dim of EIC
   sup_norm_EIC <- abs(Pn.D1.t)
-  
-  variables <- list(T.uniq = T.uniq, 
-                    Qn.current = Qn.current, 
-                    D1.A1.t = D1.A1.t, 
-                    D1.t = D1.t, 
-                    Pn.D1.t = Pn.D1.t, 
+
+  variables <- list(T.uniq = T.uniq,
+                    Qn.current = Qn.current,
+                    D1.A1.t = D1.A1.t,
+                    D1.t = D1.t,
+                    Pn.D1.t = Pn.D1.t,
                     sup_norm_EIC = sup_norm_EIC)
-  params <- list(stopping.criteria = stopping.criteria, 
-                 epsilon.step = epsilon.step, 
-                 iter.count = iter.count, 
-                 max.iter = max.iter, 
-                 dat = dat, 
+  params <- list(stopping.criteria = stopping.criteria,
+                 epsilon.step = epsilon.step,
+                 iter.count = iter.count,
+                 max.iter = max.iter,
+                 dat = dat,
                  dW = dW)
-  initial_fit <- list(h.hat.t = h.hat.t, 
-                      Qn.A1.t = Qn.A1.t, 
-                      qn.A1.t = qn.A1.t, 
-                      G.hat.t = G.hat.t, 
+  initial_fit <- list(h.hat.t = h.hat.t,
+                      Qn.A1.t = Qn.A1.t,
+                      qn.A1.t = qn.A1.t,
+                      G.hat.t = G.hat.t,
                       g.fitted = g.fitted)
-  convergence <- list(all_loglikeli = all_loglikeli, 
+  convergence <- list(all_loglikeli = all_loglikeli,
                       all_stopping = all_stopping)
   # --------------------------------------------------
   to.return <- list(Psi.hat = Psi.hat,
@@ -446,15 +446,15 @@ surv_onestep_complete <- function(dat,
   dW <- after_check$dW
   n.data <- after_check$n.data
   W_names <- after_check$W_names
-  
+
   W <- dat[,W_names]
   W <- as.data.frame(W)
-  
+
   if(all(dW == 0)) {
     dat$A <- 1 - dat$A # when dW is all zero
     dW <- 1 - dW
   }else if(all(dW == 1)){
-    
+
   }else{
     stop('not implemented!')
   }
@@ -470,7 +470,7 @@ surv_onestep_complete <- function(dat,
   message('estimating conditional hazard')
   T.uniq <- sort(unique(dat$T.tilde))
   T.max <- max(T.uniq)
-  
+
   h.hat.t <- estimate_hazard_SL(dat = dat, T.uniq = T.uniq, ht.SL.Lib = ht.SL.Lib)
   # h.hat at all time t=[0,t.max]
   h.hat.t_full <- as.matrix(h.hat.t$out_haz_full)
@@ -480,7 +480,7 @@ surv_onestep_complete <- function(dat,
   # Qn.A1.t
   # ================================================================================================
   Qn.A1.t <- matrix(0, nrow = n.data, ncol = length(T.uniq))
-  
+
   # compute cumulative hazard
   # cum-product approach (2016-10-05)
   Qn.A1.t_full <- matrix(NA, nrow = n.data, ncol = ncol(h.hat.t_full))
@@ -488,7 +488,7 @@ surv_onestep_complete <- function(dat,
     Qn.A1.t_full[it,] <- cumprod(1 - h.hat.t_full[it,])
   }
   Qn.A1.t <- Qn.A1.t_full[,T.uniq]
-  
+
   # plot initial fit
   if (verbose) lines(colMeans(Qn.A1.t) ~ T.uniq, ...)
   # ================================================================================================
@@ -500,16 +500,16 @@ surv_onestep_complete <- function(dat,
     qn.A1.t_full[it.n,] <- h.hat.t_full[it.n,] * Qn.A1.t_full[it.n,]
   }
   qn.A1.t <- qn.A1.t_full[,T.uniq]
-  
+
   # ================================================================================================
   # D1.t: calculate IC
   # D1.A1.t: calculate IC under intervention
   # ================================================================================================
   I.A.dW <- dat$A == dW
-  
+
   D1.t <- matrix(0, nrow = n.data, ncol = length(T.uniq))
   D1.A1.t <- matrix(0, nrow = n.data, ncol = length(T.uniq))
-  
+
   for (it.n in 1:n.data) {
     Y.vec <- create_Yt_vector(Time = dat$T.tilde[it.n], t.vec = T.uniq)
     temp <- Y.vec - Qn.A1.t[it.n,]
@@ -519,7 +519,7 @@ surv_onestep_complete <- function(dat,
     D1.t[it.n,] <- D1
     D1.A1.t[it.n,] <- D1.A1
   }
-  
+
   # ================================================================================================
   # Pn.D1: efficient IC average
   # ================================================================================================
@@ -530,11 +530,11 @@ surv_onestep_complete <- function(dat,
   # ================================================================================================
   message('targeting')
   stopping.criteria <- sqrt(l2_inner_prod_step(Pn.D1.t, Pn.D1.t, T.uniq))/length(T.uniq) # 10-17
-  
+
   update.tensor <- matrix(0, nrow = n.data, ncol = length(T.uniq))
   iter.count <- 0
   stopping.prev <- Inf
-  
+
   # while ((stopping.criteria >= tol) & (iter.count <= max.iter)) { # ORGINAL
   while ((stopping.criteria >= tol) & (iter.count <= max.iter) & ((stopping.prev - stopping.criteria) >= max(-tol, -1e-5))) { #WILSON: TEMPORARY
     if(verbose) print(stopping.criteria)
@@ -548,38 +548,38 @@ surv_onestep_complete <- function(dat,
                                                 W_names = W_names,
                                                 dW = dW)
     update.tensor <- update.tensor + update.mat
-    
+
     # intergrand <- rowSums(update.tensor)
     # intergrand <- apply(update.tensor, c(1,2), sum)
     intergrand <- update.tensor
     intergrand[is.na(intergrand)] <- 0
     qn.current <- qn.A1.t * exp(epsilon.step * intergrand)
-    
+
     # normalize the updated qn
     norm.factor <- compute_step_cdf(pdf.mat = qn.current, t.vec = T.uniq, start = Inf)[,1] #09-06
     qn.current[norm.factor > 1,] <- qn.current[norm.factor > 1,] / norm.factor[norm.factor > 1] #09-06
-    
+
     # 11-26
     # For density sum > 1: truncate the density outside sum = 1 to be zero
     # i.e. flat cdf beyond sum to 1
     # cdf_per_subj <- compute_step_cdf(pdf.mat = qn.current, t.vec = T.uniq, start = -Inf)
     # qn.current[cdf_per_subj > 1] <- 0
-    
+
     # if some qn becomes all zero, prevent NA exisitence
     qn.current[is.na(qn.current)] <- 0
     # =============================================================================
     # compute new Qn
-    
+
     Qn.current <- compute_step_cdf(pdf.mat = qn.current, t.vec = T.uniq, start = Inf) # 2016-09-06
     cdf_offset <- 1 - Qn.current[,1] # 2016-09-06
     Qn.current <- Qn.current + cdf_offset # 2016-09-06
-    
+
     # Qn.current <- apply(qn.current, 1, function(x) compute_step_cdf(pdf.vec = x, t.vec = T.uniq, start = Inf))
     # Qn.current <- t(Qn.current)
-    
+
     # check error
     # all.equal(compute_step_cdf(pdf.vec = qn.current[1,], t.vec = T.uniq, start = Inf), Qn.current[1,])
-    
+
     # < 2016-09-06
     # Qn.current <- matrix(NA, nrow = n.data, ncol = length(T.uniq))
     # for (it.n in 1:n.data) {
@@ -606,7 +606,7 @@ surv_onestep_complete <- function(dat,
     # new stopping criteria
     stopping.criteria <- sqrt(l2_inner_prod_step(Pn.D1.t, Pn.D1.t, T.uniq))/length(T.uniq)
     iter.count <- iter.count + 1
-    
+
     ########################################################################
     # FOR DEBUG ONLY
     # if (TRUE) {
@@ -642,7 +642,7 @@ surv_onestep_complete <- function(dat,
       warning('Max Iter count reached, stop iteration.')
     }
   }
-  
+
   if (!exists('Qn.current')) {
     # if the iteration immediately converge
     message('converge suddenly!')
@@ -656,13 +656,13 @@ surv_onestep_complete <- function(dat,
   Psi.hat <- colMeans(Qn.current)
   # --------------------------------------------------
   variables <- list(T.uniq = T.uniq)
-  params <- list(stopping.criteria = stopping.criteria, 
-                 epsilon.step = epsilon.step, 
-                 iter.count = iter.count, 
-                 max.iter = max.iter, 
+  params <- list(stopping.criteria = stopping.criteria,
+                 epsilon.step = epsilon.step,
+                 iter.count = iter.count,
+                 max.iter = max.iter,
                  dat = dat)
-  initial_fit <- list(h.hat.t = h.hat.t, 
-                      Qn.A1.t = Qn.A1.t, 
+  initial_fit <- list(h.hat.t = h.hat.t,
+                      Qn.A1.t = Qn.A1.t,
                       qn.A1.t = qn.A1.t)
   to.return <- list(Psi.hat = Psi.hat,
                     T.uniq = T.uniq,
@@ -752,10 +752,10 @@ surv_onestep_difference <- function(dat,
   dW <- after_check$dW
   n.data <- after_check$n.data
   W_names <- after_check$W_names
-  
+
   W <- dat[,W_names]
   W <- as.data.frame(W)
-  
+
   # dW check
   dW = rep(1, nrow(dat))
   dat0 <- dat
@@ -764,11 +764,11 @@ surv_onestep_difference <- function(dat,
   #     dat$A <- 1 - dat$A # when dW is all zero
   #     dW <- 1 - dW
   # }else if(all(dW == 1)){
-  
+
   # }else{
   #     stop('not implemented!')
   # }
-  
+
   T.uniq <- sort(unique(dat$T.tilde))
   T.max <- max(T.uniq)
   # ===================================================================================
@@ -783,7 +783,7 @@ surv_onestep_difference <- function(dat,
   # conditional hazard (by SL)
   # ===================================================================================
   message('estimating conditional hazard')
-  
+
   h.hat.t_1 <- estimate_hazard_SL(dat = dat, T.uniq = T.uniq, ht.SL.Lib = ht.SL.Lib)
   h.hat.t_0 <- estimate_hazard_SL(dat = dat0, T.uniq = T.uniq, ht.SL.Lib = ht.SL.Lib)
   # h.hat at all time t=[0,t.max]
@@ -812,7 +812,7 @@ surv_onestep_difference <- function(dat,
     G.hat.t_0$out_censor_full[G.hat.t_0$out_censor_full < cutoff] <- cutoff
     G.hat.t_0$out_censor[G.hat.t_0$out_censor < cutoff] <- cutoff
   }
-  
+
   Gn.A1.t_full_1 <- as.matrix(G.hat.t_1$out_censor_full)
   Gn.A1.t_1 <- as.matrix(G.hat.t_1$out_censor)
   Gn.A1.t_full_0 <- as.matrix(G.hat.t_0$out_censor_full)
@@ -828,7 +828,7 @@ surv_onestep_difference <- function(dat,
   # ===================================================================================
   Qn.A1.t_1 <- matrix(0, nrow = n.data, ncol = length(T.uniq))
   Qn.A1.t_0 <- matrix(0, nrow = n.data, ncol = length(T.uniq))
-  
+
   # compute cumulative hazard
   # cum-product approach (2016-10-05)
   Qn.A1.t_full_1 <- matrix(NA, nrow = n.data, ncol = ncol(h.hat.t_full_1))
@@ -837,13 +837,13 @@ surv_onestep_difference <- function(dat,
     Qn.A1.t_full_1[it,] <- cumprod(1 - h.hat.t_full_1[it,])
   }
   Qn.A1.t_1 <- Qn.A1.t_full_1[,T.uniq]
-  
+
   for (it in 1:n.data) {
     Qn.A1.t_full_0[it,] <- cumprod(1 - h.hat.t_full_0[it,])
   }
   Qn.A1.t_1 <- Qn.A1.t_full_1[,T.uniq]
   Qn.A1.t_0 <- Qn.A1.t_full_0[,T.uniq]
-  
+
   # plot initial fit
   if (verbose) lines(colMeans(Qn.A1.t_1) ~ T.uniq)
   if (verbose) lines(colMeans(Qn.A1.t_0) ~ T.uniq)
@@ -856,13 +856,13 @@ surv_onestep_difference <- function(dat,
     qn.A1.t_full_1[it.n,] <- h.hat.t_full_1[it.n,] * Qn.A1.t_full_1[it.n,]
   }
   qn.A1.t_1 <- qn.A1.t_full_1[,T.uniq]
-  
+
   qn.A1.t_full_0 <- matrix(0, nrow = n.data, ncol = ncol(Qn.A1.t_full_0))
   for (it.n in 1:n.data) {
     qn.A1.t_full_0[it.n,] <- h.hat.t_full_0[it.n,] * Qn.A1.t_full_0[it.n,]
   }
   qn.A1.t_0 <- qn.A1.t_full_0[,T.uniq]
-  
+
   # ===================================================================================
   # D1.t: calculate IC
   # D1.A1.t: calculate IC under intervention
@@ -870,34 +870,34 @@ surv_onestep_difference <- function(dat,
   compute_IC <- function(dat, dW, T.uniq, h.hat.t_full, g.fitted, Gn.A1.t_full, Qn.A1.t, Qn.A1.t_full) {
     I.A.dW <- dat$A == dW
     n.data <- nrow(dat)
-    
+
     D1.t <- matrix(0, nrow = n.data, ncol = length(T.uniq))
     D1.A1.t <- matrix(0, nrow = n.data, ncol = length(T.uniq))
-    
+
     for (it.n in 1:n.data) {
-      
+
       t_Delta1.vec <- create_Yt_vector_with_censor(Time = dat$T.tilde[it.n], Delta = dat$delta[it.n], t.vec = 1:max(T.uniq))
       t.vec <- create_Yt_vector(Time = dat$T.tilde[it.n], t.vec = 1:max(T.uniq))
       alpha2 <- (t_Delta1.vec - t.vec * h.hat.t_full[it.n,])
-      
+
       alpha1 <- -I.A.dW[it.n]/g.fitted[it.n]/Gn.A1.t_full[it.n,]/Qn.A1.t_full[it.n,]
       alpha1_A1 <- -1/g.fitted[it.n]/Gn.A1.t_full[it.n,]/Qn.A1.t_full[it.n,]
-      
+
       not_complete <- alpha1 * alpha2
       not_complete_A1 <- alpha1_A1 * alpha2
       # D1 matrix
       D1.t[it.n, ] <- cumsum(not_complete)[T.uniq] * Qn.A1.t[it.n,] # complete influence curve
       D1.A1.t[it.n, ] <- cumsum(not_complete_A1)[T.uniq] * Qn.A1.t[it.n,] # also update those A = 0.
     }
-    
+
     # turn unstable results to 0
     D1.t[is.na(D1.t)] <- 0
     D1.A1.t[is.na(D1.A1.t)] <- 0
-    
+
     return(list(D1.t = D1.t,
                 D1.A1.t = D1.A1.t))
   }
-  
+
   initial_IC_1 <- compute_IC(dat = dat,
                              dW = rep(1, nrow(dat)),
                              T.uniq = T.uniq,
@@ -914,7 +914,7 @@ surv_onestep_difference <- function(dat,
                              Gn.A1.t_full = Gn.A1.t_full_0,
                              Qn.A1.t = Qn.A1.t_0,
                              Qn.A1.t_full = Qn.A1.t_full_0)
-  
+
   D1.t <- initial_IC_1$D1.t - initial_IC_0$D1.t
   D1.A1.t <- initial_IC_1$D1.A1.t - initial_IC_0$D1.A1.t
   # ===================================================================================
@@ -928,13 +928,13 @@ surv_onestep_difference <- function(dat,
   message('targeting')
   stopping.criteria <- sqrt(l2_inner_prod_step(Pn.D1.t, Pn.D1.t, T.uniq))/length(T.uniq) # 10-17
   if(verbose) print(stopping.criteria)
-  
+
   update.tensor <- matrix(0, nrow = n.data, ncol = length(T.uniq))
   iter.count <- 0
   stopping.prev <- Inf
   all_stopping <- numeric(stopping.criteria)
   all_loglikeli <- numeric()
-  
+
   while ((stopping.criteria >= tol) & (iter.count <= max.iter)) { # ORGINAL
     # while ((stopping.criteria >= tol) & (iter.count <= max.iter) & ((stopping.prev - stopping.criteria) >= max(-tol, -1e-5))) { #WILSON: TEMPORARY
     if(verbose) print(stopping.criteria)
@@ -949,10 +949,10 @@ surv_onestep_difference <- function(dat,
                                                 W_names = W_names,
                                                 dW = dW)
     update.tensor <- update.tensor + update.mat
-    
+
     # accelerate when log-like becomes flat
     # if((stopping.prev - stopping.criteria) > 0 & (stopping.prev - stopping.criteria) < 1e-3) update.tensor <- update.tensor + update.mat*10
-    
+
     # intergrand <- rowSums(update.tensor)
     # intergrand <- apply(update.tensor, c(1,2), sum)
     intergrand <- update.tensor
@@ -965,7 +965,7 @@ surv_onestep_difference <- function(dat,
     qn.current_full_0 <- qn.A1.t_full_0
     qn.current_1 <- qn.A1.t_1 * exp(epsilon.step * intergrand)
     qn.current_full_1 <- qn.A1.t_full_1 * exp(epsilon.step * replicate(T.max, intergrand[,1])) #10-23
-    
+
     # For density sum > 1: normalize the updated qn
     norm.factor_1 <- compute_step_cdf(pdf.mat = qn.current_1, t.vec = T.uniq, start = Inf)[,1] #09-06
     # qn.current_1[norm.factor_1 > 1,] <- qn.current_1[norm.factor_1 > 1,] / norm.factor_1[norm.factor_1 > 1] #09-06
@@ -973,7 +973,7 @@ surv_onestep_difference <- function(dat,
     norm.factor_0 <- compute_step_cdf(pdf.mat = qn.current_0, t.vec = T.uniq, start = Inf)[,1] #09-06
     # qn.current_0[norm.factor_0 > 1,] <- qn.current_0[norm.factor_0 > 1,] / norm.factor_0[norm.factor_0 > 1] #09-06
     # qn.current_full_0[norm.factor_0 > 1,] <- qn.current_full_0[norm.factor_0 > 1,] / norm.factor_0[norm.factor_0 > 1] #10-23
-    
+
     # 11-26
     # For density sum > 1: truncate the density outside sum = 1 to be zero
     # i.e. flat cdf beyond sum to 1
@@ -981,7 +981,7 @@ surv_onestep_difference <- function(dat,
     # qn.current[cdf_per_subj > 1] <- 0
     # cdf_per_subj <- compute_step_cdf(pdf.mat = qn.current_full, t.vec = 1:max(T.uniq), start = -Inf)
     # qn.current_full[cdf_per_subj > 1] <- 0
-    
+
     # if some qn becomes all zero, prevent NA exisitence
     qn.current_0[is.na(qn.current_0)] <- 0
     qn.current_full_0[is.na(qn.current_full_0)] <- 0 #10-23
@@ -989,23 +989,23 @@ surv_onestep_difference <- function(dat,
     qn.current_full_1[is.na(qn.current_full_1)] <- 0 #10-23
     # =============================================================================
     # compute new Qn
-    
+
     Qn.current_1 <- compute_step_cdf(pdf.mat = qn.current_1, t.vec = T.uniq, start = Inf) # 2016-09-06
     cdf_offset_1 <- 1 - Qn.current_1[,1] # 2016-09-06
     Qn.current_1 <- Qn.current_1 + cdf_offset_1 # 2016-09-06
-    
+
     Qn.current_full_1 <- compute_step_cdf(pdf.mat = qn.current_full_1, t.vec = 1:max(T.uniq), start = Inf) # 10-23
     cdf_offset_1 <- 1 - Qn.current_full_1[,1] # 10-23
     Qn.current_full_1 <- Qn.current_full_1 + cdf_offset_1 # 10-23
-    
+
     Qn.current_0 <- compute_step_cdf(pdf.mat = qn.current_0, t.vec = T.uniq, start = Inf) # 2016-09-06
     cdf_offset_0 <- 1 - Qn.current_0[,1] # 2016-09-06
     Qn.current_0 <- Qn.current_0 + cdf_offset_0 # 2016-09-06
-    
+
     Qn.current_full_0 <- compute_step_cdf(pdf.mat = qn.current_full_0, t.vec = 1:max(T.uniq), start = Inf) # 10-23
     cdf_offset_0 <- 1 - Qn.current_full_0[,1] # 10-23
     Qn.current_full_0 <- Qn.current_full_0 + cdf_offset_0 # 10-23
-    
+
     Psin.current <- Qn.current_1 - Qn.current_0
     # check error
     # all.equal(compute_step_cdf(pdf.vec = qn.current[1,], t.vec = T.uniq, start = Inf), Qn.current[1,])
@@ -1028,8 +1028,8 @@ surv_onestep_difference <- function(dat,
                                Gn.A1.t_full = Gn.A1.t_full_1,
                                Qn.A1.t = Qn.current_1,
                                Qn.A1.t_full = Qn.current_full_1)
-    
-    
+
+
     updated_IC_0 <- compute_IC(dat = dat0,
                                dW = 1,
                                T.uniq = T.uniq,
@@ -1038,10 +1038,10 @@ surv_onestep_difference <- function(dat,
                                Gn.A1.t_full = Gn.A1.t_full_0,
                                Qn.A1.t = Qn.current_0,
                                Qn.A1.t_full = Qn.current_full_0)
-    
+
     D1.t <- updated_IC_1$D1.t - updated_IC_0$D1.t
     D1.A1.t <- updated_IC_1$D1.A1.t - updated_IC_0$D1.A1.t
-    
+
     # compute new Pn.D1
     Pn.D1.t <- colMeans(D1.t)
     # ===================================================================================
@@ -1053,7 +1053,7 @@ surv_onestep_difference <- function(dat,
     iter.count <- iter.count + 1
     # ===================================================================================
     # evaluate log-likelihood
-    
+
     # construct obj
     # obj <- list()
     # obj$qn.current_full_1 <- qn.current_full_1
@@ -1064,15 +1064,15 @@ surv_onestep_difference <- function(dat,
     # obj$Qn.current_full_0 <- Qn.current_full_0
     # obj$h.hat.t_full_current_0 <- h.hat.t_full_current_0
     # obj$dat <- dat
-    
+
     # obj$Psin.current <- Psin.current
-    
+
     # eval loglikeli
     # loglike_here <- eval_loglike(obj, dW)
     # all_loglikeli <- c(all_loglikeli, loglike_here)
     # all_stopping <- c(all_stopping, stopping.criteria)
-    
-    
+
+
     ########################################################################
     # FOR DEBUG ONLY
     # if (TRUE) {
@@ -1110,7 +1110,7 @@ surv_onestep_difference <- function(dat,
       warning('Max Iter count reached, stop iteration.')
     }
   }
-  
+
   if (!exists('Qn.current_1')) {
     # if the iteration immediately converge
     message('converge suddenly!')
@@ -1118,7 +1118,7 @@ surv_onestep_difference <- function(dat,
     updated_IC <- initial_IC_1 - initial_IC_0
     Psi.hat <- colMeans(Qn.current)
   }
-  
+
   # ===================================================================================
   # compute the target parameter
   # ===================================================================================
@@ -1131,28 +1131,28 @@ surv_onestep_difference <- function(dat,
   # --------------------------------------------------
   # sup norm for each dim of EIC
   sup_norm_EIC <- abs(Pn.D1.t)
-  
-  variables <- list(T.uniq = T.uniq, 
-                    Psin.current = Psin.current, 
-                    D1.A1.t = D1.A1.t, 
-                    D1.t = D1.t, 
-                    Pn.D1.t = Pn.D1.t, 
+
+  variables <- list(T.uniq = T.uniq,
+                    Psin.current = Psin.current,
+                    D1.A1.t = D1.A1.t,
+                    D1.t = D1.t,
+                    Pn.D1.t = Pn.D1.t,
                     sup_norm_EIC = sup_norm_EIC)
-  params <- list(stopping.criteria = stopping.criteria, 
-                 epsilon.step = epsilon.step, 
-                 iter.count = iter.count, 
-                 max.iter = max.iter, 
-                 dat = dat, 
+  params <- list(stopping.criteria = stopping.criteria,
+                 epsilon.step = epsilon.step,
+                 iter.count = iter.count,
+                 max.iter = max.iter,
+                 dat = dat,
                  dW = dW)
-  initial_fit_1 <- list(h.hat.t_1 = h.hat.t_1, 
-                        Qn.A1.t_1 = Qn.A1.t_1, 
-                        qn.A1.t_1 = qn.A1.t_1, 
+  initial_fit_1 <- list(h.hat.t_1 = h.hat.t_1,
+                        Qn.A1.t_1 = Qn.A1.t_1,
+                        qn.A1.t_1 = qn.A1.t_1,
                         G.hat.t_1 = G.hat.t_1)
-  initial_fit_0 <- list(h.hat.t_0 = h.hat.t_0, 
-                        Qn.A1.t_0 = Qn.A1.t_0, 
-                        qn.A1.t_0 = qn.A1.t_0, 
+  initial_fit_0 <- list(h.hat.t_0 = h.hat.t_0,
+                        Qn.A1.t_0 = Qn.A1.t_0,
+                        qn.A1.t_0 = qn.A1.t_0,
                         G.hat.t_0 = G.hat.t_0)
-  convergence <- list(all_loglikeli = all_loglikeli, 
+  convergence <- list(all_loglikeli = all_loglikeli,
                       all_stopping = all_stopping)
   # --------------------------------------------------
   to.return <- list(Psi.hat = Psi.hat,
@@ -1165,7 +1165,7 @@ surv_onestep_difference <- function(dat,
                     convergence = convergence)
   class(to.return) <- 'surv_onestep'
   return(to.return)
-  
+
 }
 
 
@@ -1191,17 +1191,17 @@ compute_onestep_update_matrix <- function(D1.t.func.prev, Pn.D1.func.prev, dat, 
   # formula on p.28
   # result <- l2_inner_prod_step(Pn.D1.func.prev, D1.t.func.prev, T.uniq) /
   # sqrt(l2_inner_prod_step(Pn.D1.func.prev, Pn.D1.func.prev, T.uniq))
-  
+
   # WILSON MADE: MAY BE WRONG
   # result <- l2_inner_prod_step(abs(Pn.D1.func.prev), D1.t.func.prev, T.uniq) /
   # sqrt(l2_inner_prod_step(Pn.D1.func.prev, Pn.D1.func.prev, T.uniq))
-  
+
   # WILSON 2: MAY BE WRONG
   # calculate the number inside exp{} expression in submodel
   # numerator <- sweep(D1.t.func.prev, MARGIN=2, abs(Pn.D1.func.prev),`*`)
   # result <- numerator /
   # sqrt(l2_inner_prod_step(Pn.D1.func.prev, Pn.D1.func.prev, T.uniq))
-  
+
   # ORIGINAL PAPER
   # calculate the number inside exp{} expression in submodel
   # each strata of Q is updated the same
@@ -1209,33 +1209,33 @@ compute_onestep_update_matrix <- function(D1.t.func.prev, Pn.D1.func.prev, dat, 
   # numerator <- sweep(D1.t.func.prev, MARGIN=2, abs(Pn.D1.func.prev),`*`) # WROOOOOONG
   result <- numerator /
     sqrt(l2_inner_prod_step(Pn.D1.func.prev, Pn.D1.func.prev, T.uniq))
-  
+
   strata <- data.frame(A = dat$A, W = dat[,W_names])
   names(strata) <- c('A', W_names)
   colnames(result) <- paste('X', 1:ncol(result), sep = '')
   result2 <- cbind(strata, result)
-  
+
   Xname <- paste(colnames(result), collapse = ' ,')
   # calculate the update value for each strata
   # eval the following command automatically with all columns in the result matrix
   # df2=aggregate(cbind(x1, x2)~A+W, data=result2, sum, na.rm=TRUE)
   eval(parse(text = paste('df2=aggregate(cbind(' , Xname, ')~A+',paste(W_names, collapse = ' +') , ', data=result2, sum, na.rm=TRUE)')))
-  
+
   # MAY FAIL
   # 09-18: also update those who are not A == dW
   strata[dat$A != dW,'A'] <- dW[dat$A != dW]
-  
+
   # assign the update value to each unique strata. within each strata, all update value are the same
   result_new <- left_join(strata, df2, by=c("A",W_names))
   # remove the strata dummies
   eval(
     parse(text = paste('result_new <- as.matrix(subset(result_new, select=-c(A,', paste(W_names, collapse = ','), ')))'))
   )
-  
+
   # 2016-10-05: adjust back to ORIGINAL PAPER method
   one_col <- compute_step_cdf(pdf.mat = result_new, t.vec = T.uniq, start = Inf)[,1]
   result_new <- matrix(one_col,nrow = nrow(dat),ncol = ncol(result_new))
-  
+
   # if (is.na(result)) {
   # result <- NA
   # }
@@ -1291,18 +1291,18 @@ onestep_single_t <- function(dat, tk, dW = rep(1, nrow(dat)),
   # ====================================================================================================
   # transform original data into SL-friendly format
   dat_david <- dat
-  
+
   dat_david <- rename(dat_david, ftime = T.tilde)
   dat_david <- rename(dat_david, trt = A)
-  
+
   if(all(dW == 0)) {
     dat_david$trt <- 1 - dat_david$trt # when dW is all zero
   }else if(all(dW == 1)){
-    
+
   }else{
     stop('not implemented!')
   }
-  
+
   if ('ID' %in% toupper(colnames(dat_david))) {
     # if there are already id in the dataset
     dat_david <- rename(dat_david, id = ID)
@@ -1310,10 +1310,10 @@ onestep_single_t <- function(dat, tk, dW = rep(1, nrow(dat)),
     warning('no id exist, create \'id\' on our own')
     dat_david$id <- 1:nrow(dat_david)
   }
-  
+
   # censoring
   dat_david <- rename(dat_david, ftype = delta)
-  
+
   # remove all other useless columns
   baseline_name <- W_names
   keeps <- c("id", baseline_name, 'ftime', 'ftype', 'trt')
@@ -1323,7 +1323,7 @@ onestep_single_t <- function(dat, tk, dW = rep(1, nrow(dat)),
   # ====================================================================================================
   T.uniq <- unique(sort(dat_david$ftime))
   T.max <- max(T.uniq)
-  
+
   adjustVars <- dat_david[,baseline_name, drop = FALSE]
   # ====================================================================================================
   # estimate g
@@ -1390,32 +1390,32 @@ onestep_single_t <- function(dat, tk, dW = rep(1, nrow(dat)),
   calcLoss <- function(Y, QAW){
     -mean(Y * log(QAW) + (1-Y) * log(1 - QAW))
   }
-  
-  
+
+
   # if the derivative of the loss the positive, change the tergeting direction
   epsilon_step1 <- epsilon_step2 <- epsilon_step
   if (meanIC[2] < 0) { epsilon_step2 <- -epsilon_step2}
   if (meanIC[1] < 0) { epsilon_step1 <- -epsilon_step1}
-  
+
   loss_old <- Inf
   # loss_new <- calcLoss(Y = dataList2$`1`$N1, QAW = dataList2$`1`$Q1Haz)
   loss_new <- calcLoss(Y = dataList2$obs$N1, QAW = dataList2$obs$Q1Haz)
   message('targeting')
   iter_count <- 0
-  
+
   # while (any(abs(meanIC) > tol) & iter_count <= maxIter) {
   # while (any(abs(meanIC[2]) > tol) & iter_count <= maxIter) {
   while ((loss_new <= loss_old) & iter_count <= maxIter) {
     iter_count <- iter_count + 1
     # print(loss_new)
     # print(meanIC[1,])
-    
+
     # fluctuate -> update to dataList2
     dataList2$`1`$Q1Haz <- plogis(qlogis(dataList2$`1`$Q1Haz) + epsilon_step2 * dataList2$`1`$H1.jSelf.z1 + epsilon_step1 * dataList2$`1`$H1.jSelf.z0)
     dataList2$`0`$Q1Haz <- plogis(qlogis(dataList2$`0`$Q1Haz) + epsilon_step2 * dataList2$`0`$H1.jSelf.z1 + epsilon_step1 * dataList2$`0`$H1.jSelf.z0)
     dataList2$obs$Q1Haz <- plogis(qlogis(dataList2$obs$Q1Haz) + epsilon_step2 * dataList2$obs$H1.jSelf.z1 + epsilon_step1 * dataList2$obs$H1.jSelf.z0)
-    
-    
+
+
     # calculate survival again
     dataList2 <- updateVariables(dataList = dataList2, allJ = 1,
                                  ofInterestJ = 1, nJ = 2, uniqtrt = c(0,1),
@@ -1427,12 +1427,12 @@ onestep_single_t <- function(dat, tk, dW = rep(1, nrow(dat)),
     infCurves <- dat_david2[, grep("D.j", names(dat_david2))]
     meanIC_old <- meanIC
     meanIC <- colMeans(infCurves)
-    
+
     # loss_new <- calcLoss(Y = dataList2$`1`$N1, QAW = dataList2$`1`$Q1Haz)
     loss_old <- loss_new
     loss_new <- calcLoss(Y = dataList2$obs$N1, QAW = dataList2$obs$Q1Haz)
-    
-    
+
+
     # if one converges, then stop update
     if ((abs(meanIC[1]) < tol) | (meanIC_old[1] * meanIC[1] <= 0)) {
       # if changes sign or converges, then stop update
@@ -1453,7 +1453,7 @@ onestep_single_t <- function(dat, tk, dW = rep(1, nrow(dat)),
       break()
     }
   }
-  
+
   if (iter_count == maxIter + 1) {
     warning("TMLE fluctuations did not converge. Check that meanIC is adequately small and proceed with caution.")
   }
@@ -1461,7 +1461,7 @@ onestep_single_t <- function(dat, tk, dW = rep(1, nrow(dat)),
   # get final estimates
   # ====================================================================================================
   est <- rowNames <- NULL
-  
+
   # parameter estimates
   for (j in 1) {
     for (z in c(0,1)) {
@@ -1473,11 +1473,11 @@ onestep_single_t <- function(dat, tk, dW = rep(1, nrow(dat)),
   row.names(est) <- rowNames
   var <- t(as.matrix(infCurves)) %*% as.matrix(infCurves)/n.data^2
   row.names(var) <- colnames(var) <- rowNames
-  
+
   # output static interventions
   est <- 1 - est['1 1',]
   var <- var['1 1', '1 1']
-  
+
   # if (all(dW == 1)) {
   #     est <- 1 - est['1 1',]
   #     var <- var['1 1', '1 1']
@@ -1485,7 +1485,7 @@ onestep_single_t <- function(dat, tk, dW = rep(1, nrow(dat)),
   #     est <- 1 - est['0 1',]
   #     var <- var['0 1', '0 1']
   # }
-  
+
   return(list(est = est, var = var, meanIC = meanIC, ic = infCurves))
 }
 
@@ -1533,18 +1533,18 @@ onestep_single_t_loopall <- function(dat, dW = rep(1, nrow(dat)),
   # ====================================================================================================
   # transform original data into SL-friendly format
   dat_david <- dat
-  
+
   dat_david <- rename(dat_david, ftime = T.tilde)
   dat_david <- rename(dat_david, trt = A)
-  
+
   if(all(dW == 0)) {
     dat_david$trt <- 1 - dat_david$trt # when dW is all zero
   }else if(all(dW == 1)){
-    
+
   }else{
     stop('not implemented!')
   }
-  
+
   if ('ID' %in% toupper(colnames(dat_david))) {
     # if there are already id in the dataset
     dat_david <- rename(dat_david, id = ID)
@@ -1552,10 +1552,10 @@ onestep_single_t_loopall <- function(dat, dW = rep(1, nrow(dat)),
     warning('no id exist, create \'id\' on our own')
     dat_david$id <- 1:nrow(dat_david)
   }
-  
+
   # censoring
   dat_david <- rename(dat_david, ftype = delta)
-  
+
   # remove all other useless columns
   baseline_name <- W_names
   keeps <- c("id", baseline_name, 'ftime', 'ftype', 'trt')
@@ -1565,7 +1565,7 @@ onestep_single_t_loopall <- function(dat, dW = rep(1, nrow(dat)),
   # ====================================================================================================
   T.uniq <- unique(sort(dat_david$ftime))
   T.max <- max(T.uniq)
-  
+
   adjustVars <- dat_david[,baseline_name, drop = FALSE]
   # ====================================================================================================
   # estimate g
@@ -1624,7 +1624,7 @@ onestep_single_t_loopall <- function(dat, dW = rep(1, nrow(dat)),
   for (tk in T.uniq) {
     tk_count <- tk_count + 1
     dataList2 <- dataList2_before_target
-    
+
     # ====================================================================================================
     # get IC
     # ====================================================================================================
@@ -1639,31 +1639,31 @@ onestep_single_t_loopall <- function(dat, dW = rep(1, nrow(dat)),
     calcLoss <- function(Y, QAW){
       -mean(Y * log(QAW) + (1-Y) * log(1 - QAW))
     }
-    
+
     # if the derivative of the loss the positive, change the tergeting direction
     epsilon_step1 <- epsilon_step2 <- epsilon_step
     if (meanIC[2] < 0) { epsilon_step2 <- -epsilon_step2}
     if (meanIC[1] < 0) { epsilon_step1 <- -epsilon_step1}
-    
+
     loss_old <- Inf
     # loss_new <- calcLoss(Y = dataList2$`1`$N1, QAW = dataList2$`1`$Q1Haz)
     loss_new <- calcLoss(Y = dataList2$obs$N1, QAW = dataList2$obs$Q1Haz)
     message(paste('targeting', tk))
     iter_count <- 0
-    
+
     # while (any(abs(meanIC) > tol) & iter_count <= maxIter) {
     # while (any(abs(meanIC[2]) > tol) & iter_count <= maxIter) {
     while ((loss_new <= loss_old) & iter_count <= maxIter) {
       iter_count <- iter_count + 1
       if(verbose) print(loss_new)
       # print(meanIC[1,])
-      
+
       # fluctuate -> update to dataList2
       dataList2$`1`$Q1Haz <- plogis(qlogis(dataList2$`1`$Q1Haz) + epsilon_step2 * dataList2$`1`$H1.jSelf.z1 + epsilon_step1 * dataList2$`1`$H1.jSelf.z0)
       dataList2$`0`$Q1Haz <- plogis(qlogis(dataList2$`0`$Q1Haz) + epsilon_step2 * dataList2$`0`$H1.jSelf.z1 + epsilon_step1 * dataList2$`0`$H1.jSelf.z0)
       dataList2$obs$Q1Haz <- plogis(qlogis(dataList2$obs$Q1Haz) + epsilon_step2 * dataList2$obs$H1.jSelf.z1 + epsilon_step1 * dataList2$obs$H1.jSelf.z0)
-      
-      
+
+
       # calculate survival again
       dataList2 <- updateVariables(dataList = dataList2, allJ = 1,
                                    ofInterestJ = 1, nJ = 2, uniqtrt = c(0,1),
@@ -1675,12 +1675,12 @@ onestep_single_t_loopall <- function(dat, dW = rep(1, nrow(dat)),
       infCurves <- dat_david2[, grep("D.j", names(dat_david2))]
       meanIC_old <- meanIC
       meanIC <- colMeans(infCurves)
-      
+
       # loss_new <- calcLoss(Y = dataList2$`1`$N1, QAW = dataList2$`1`$Q1Haz)
       loss_old <- loss_new
       loss_new <- calcLoss(Y = dataList2$obs$N1, QAW = dataList2$obs$Q1Haz)
-      
-      
+
+
       # if one converges, then stop update
       if ((abs(meanIC[1]) < tol) | (meanIC_old[1] * meanIC[1] <= 0)) {
         # if changes sign or converges, then stop update
@@ -1690,7 +1690,7 @@ onestep_single_t_loopall <- function(dat, dW = rep(1, nrow(dat)),
         # if changes sign or converges, then stop update
         epsilon_step2 <- 0
       }
-      
+
       # if (all(abs(meanIC) < tol)) {
       # print(abs(meanIC))
       if (abs(meanIC)[2] < tol) {
@@ -1703,17 +1703,17 @@ onestep_single_t_loopall <- function(dat, dW = rep(1, nrow(dat)),
         break()
       }
     }
-    
+
     if (iter_count == maxIter + 1) {
       message("TMLE fluctuations did not converge. Check that meanIC is adequately small and proceed with caution.")
     }
-    
-    
+
+
     # ====================================================================================================
     # get final estimates
     # ====================================================================================================
     est <- rowNames <- NULL
-    
+
     # parameter estimates
     for (j in 1) {
       for (z in c(0,1)) {
@@ -1725,11 +1725,11 @@ onestep_single_t_loopall <- function(dat, dW = rep(1, nrow(dat)),
     row.names(est) <- rowNames
     var <- t(as.matrix(infCurves)) %*% as.matrix(infCurves)/n.data^2
     row.names(var) <- colnames(var) <- rowNames
-    
+
     # output static interventions
     est <- 1 - est['1 1',]
     var <- var['1 1', '1 1']
-    
+
     # if (all(dW == 1)) {
     #     est <- 1 - est['1 1',]
     #     var <- var['1 1', '1 1']
@@ -1739,11 +1739,11 @@ onestep_single_t_loopall <- function(dat, dW = rep(1, nrow(dat)),
     # }
     onestep_out_all[[tk_count]] <- list(est = est, var = var, meanIC = meanIC, ic = infCurves)
   }
-  
+
   s_vec <- sapply(onestep_out_all, function(x) x$est)
   survival_df <- data.frame(s_vec, T.uniq)
   class(survival_df) <- 'surv_survtmle'
-  
+
   return(list(survival_df = survival_df, onestep_out_all = onestep_out_all))
 }
 

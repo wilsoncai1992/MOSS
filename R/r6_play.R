@@ -1,4 +1,5 @@
 require("R6")
+require("SuperLearner")
 
 #' @export
 MOSS <- R6Class("MOSS",
@@ -19,6 +20,7 @@ MOSS <- R6Class("MOSS",
     W = NULL,
     A = NULL,
     T.tilde = NULL,
+    Delta = NULL,
     T.uniq = NULL,
     K = NULL,
     T.max = NULL,
@@ -39,6 +41,12 @@ MOSS <- R6Class("MOSS",
     # EIC
     D1.t = NULL,
     D1.A1.t = NULL,
+    Pn.D1.t = NULL,
+    # targeting
+    stopping_criteria = NULL,
+    update_tensor = NULL,
+    Psi.hat = NULL,
+    EIC_var = NULL,
     initialize = function(dat,
                           dW,
                           g.SL.Lib = c("SL.glm", "SL.step", "SL.glm.interaction"),
@@ -61,6 +69,7 @@ MOSS <- R6Class("MOSS",
       self$verbose <- verbose
 
       self$check_and_preprocess_data()
+      self$update_tensor <- matrix(0, nrow = self$n_sample, ncol = length(self$T.uniq))
     },
     check_and_preprocess_data = function(nbin = 4, T.cutoff = NULL){
       message('check data validity')
@@ -92,6 +101,7 @@ MOSS <- R6Class("MOSS",
         self$W <- self$dat[,self$W_names]
         self$W <- as.data.frame(self$W)
         self$A <- self$dat$A
+        self$Delta <- self$dat$Delta
         self$T.tilde <- self$dat$T.tilde
         self$T.uniq <- sort(unique(self$dat$T.tilde))
         self$K <- length(self$T.uniq)
@@ -159,8 +169,10 @@ MOSS <- R6Class("MOSS",
     compute_EIC = function(){
       I.A.dW <- self$A == self$dW
 
+      # D_1* in paper
       D1.t <- matrix(0, nrow = self$n_sample, ncol = self$K)
-      D1.A1.t <- matrix(0, nrow = self$n_sample, ncol = self$K)
+      # D_1* + remove indicator
+      # D1.A1.t <- matrix(0, nrow = self$n_sample, ncol = self$K)
 
       for (it in 1:self$n_sample) {
         t_Delta1.vec <- create_Yt_vector_with_censor(Time = self$T.tilde[it],
@@ -171,22 +183,109 @@ MOSS <- R6Class("MOSS",
         alpha2 <- t_Delta1.vec - t.vec * self$h.hat.t_full[it,]
 
         alpha1 <- -I.A.dW[it]/self$g.fitted[it]/self$Gn.A1.t_full[it,]/self$Qn.A1.t_full[it,]
-        alpha1_A1 <- -1/self$g.fitted[it]/self$Gn.A1.t_full[it,]/self$Qn.A1.t_full[it,]
+        # alpha1_A1 <- -1/self$g.fitted[it]/self$Gn.A1.t_full[it,]/self$Qn.A1.t_full[it,]
 
         not_complete <- alpha1 * alpha2
-        not_complete_A1 <- alpha1_A1 * alpha2
+        # not_complete_A1 <- alpha1_A1 * alpha2
         # D1 matrix
         D1.t[it, ] <- cumsum(not_complete)[self$T.uniq] * self$Qn.A1.t[it,] # complete influence curve
-        D1.A1.t[it, ] <- cumsum(not_complete_A1)[self$T.uniq] * self$Qn.A1.t[it,] # also update those A = 0.
+        # D1.A1.t[it, ] <- cumsum(not_complete_A1)[self$T.uniq] * self$Qn.A1.t[it,] # also update those A = 0.
       }
 
       # turn unstable results to 0
       D1.t[is.na(D1.t)] <- 0
-      D1.A1.t[is.na(D1.A1.t)] <- 0
+      # D1.A1.t[is.na(D1.A1.t)] <- 0
       self$D1.t <- D1.t
-      self$D1.A1.t <- D1.A1.t
+      # self$D1.A1.t <- D1.A1.t
 
       self$Pn.D1.t <- colMeans(self$D1.t)
+    },
+    compute_stopping = function(){
+      return(sqrt(l2_inner_prod_step(self$Pn.D1.t, self$Pn.D1.t, self$T.uniq))/length(self$T.uniq))
+    },
+    compute_hazard_from_pdf_and_survival = function(){
+      hazard_new <- matrix(0, nrow = self$n_sample, ncol = self$T.max)
+      for (it in 1:self$n_sample) {
+        hazard_new[it, ] <- self$qn.A1.t_full[it, ] / self$Qn.A1.t_full[it,]
+      }
+      self$h.hat.t_full <- hazard_new
+      self$h.hat.t <- hazard_new[, self$T.uniq]
+    },
+    onestep_curve_update = function(){
+      update_mat <- compute_onestep_update_matrix(D1.t.func.prev = self$D1.t,
+                                                  Pn.D1.func.prev = self$Pn.D1.t,
+                                                  dat = self$dat,
+                                                  T.uniq = self$T.uniq,
+                                                  W_names = self$W_names,
+                                                  dW = self$dW)
+      self$update_tensor <- self$update_tensor + update_mat
+      self$update_tensor[is.na(self$update_tensor)] <- 0
+
+      self$qn.A1.t <- self$qn.A1.t * exp(self$epsilon.step * self$update_tensor)
+      self$qn.A1.t_full <- self$qn.A1.t_full * exp(self$epsilon.step * replicate(self$T.max, self$update_tensor[,1]))
+
+      # For density sum > 1: normalize the updated qn
+      norm.factor <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)[,1]
+      self$qn.A1.t[norm.factor > 1,] <- self$qn.A1.t[norm.factor > 1,] / norm.factor[norm.factor > 1]
+      self$qn.A1.t_full[norm.factor > 1,] <- self$qn.A1.t_full[norm.factor > 1,] / norm.factor[norm.factor > 1]
+
+      # if some qn becomes all zero, prevent NA exisitence
+      self$qn.A1.t[is.na(self$qn.A1.t)] <- 0
+      self$qn.A1.t_full[is.na(self$qn.A1.t_full)] <- 0
+
+      # compute new Survival
+      self$Qn.A1.t <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)
+      cdf_offset <- 1 - self$Qn.A1.t[,1]
+      self$Qn.A1.t <- self$Qn.A1.t + cdf_offset
+
+      self$Qn.A1.t_full <- compute_step_cdf(pdf.mat = self$qn.A1.t_full, t.vec = 1:self$T.max, start = Inf)
+      cdf_offset <- 1 - self$Qn.A1.t_full[,1]
+      self$Qn.A1.t_full <- self$Qn.A1.t_full + cdf_offset
+
+      # compute new hazard
+      self$compute_hazard_from_pdf_and_survival()
+    },
+    compute_Psi = function(){
+      # self$Psi.hat <- colMeans(self$Qn.A1.t)
+      self$Psi.hat <- colMeans(self$Qn.A1.t_full)
+      self$EIC_var <- apply(self$D1.t, 2, var)/self$n_sample
+      EIC_sup_norm <- abs(self$Pn.D1.t)
+    },
+    onestep_curve = function(){
+      onestepfit$fit_g_initial()
+      onestepfit$fit_failure_hazard()
+      onestepfit$fit_censoring_cdf()
+      onestepfit$transform_failure_hazard_to_survival()
+      onestepfit$transform_failure_hazard_to_pdf()
+      onestepfit$compute_EIC()
+
+      iter_count <- 0
+      stopping_prev <- Inf
+      all_stopping <- numeric()
+      all_loglikeli <- numeric()
+
+      stopping <- onestepfit$compute_stopping()
+      while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter)) {
+      # while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter) & ((stopping_prev - stopping) >= max(-onestepfit$tol, -1e-5))) {
+        print(stopping)
+        onestepfit$onestep_curve_update()
+        onestepfit$compute_EIC()
+        iter_count <- iter_count + 1
+        stopping_prev <- stopping
+        stopping <- onestepfit$compute_stopping()
+      }
+
+      if (iter_count == onestepfit$max.iter) {
+        warning('Max Iter count reached, stop iteration.')
+      }
+
+      onestepfit$compute_Psi()
+    },
+    print_onestep_curve = function(...){
+      # step_curve <- stepfun(x = onestepfit$T.uniq, y = c(1, onestepfit$Psi.hat))
+      step_curve <- stepfun(x = 1:onestepfit$T.max, y = c(1, onestepfit$Psi.hat))
+      # can `add`, `col`
+      curve(step_curve, from = 0, to = max(onestepfit$T.uniq), ...)
     },
     display = function() {
       cat("Make = ", self$make,
