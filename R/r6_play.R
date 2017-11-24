@@ -171,8 +171,6 @@ MOSS <- R6Class("MOSS",
 
       # D_1* in paper
       D1.t <- matrix(0, nrow = self$n_sample, ncol = self$K)
-      # D_1* + remove indicator
-      # D1.A1.t <- matrix(0, nrow = self$n_sample, ncol = self$K)
 
       for (it in 1:self$n_sample) {
         t_Delta1.vec <- create_Yt_vector_with_censor(Time = self$T.tilde[it],
@@ -181,23 +179,17 @@ MOSS <- R6Class("MOSS",
         t.vec <- create_Yt_vector(Time = self$T.tilde[it],
                                   t.vec = 1:self$T.max)
         alpha2 <- t_Delta1.vec - t.vec * self$h.hat.t_full[it,]
-
         alpha1 <- -I.A.dW[it]/self$g.fitted[it]/self$Gn.A1.t_full[it,]/self$Qn.A1.t_full[it,]
-        # alpha1_A1 <- -1/self$g.fitted[it]/self$Gn.A1.t_full[it,]/self$Qn.A1.t_full[it,]
 
         not_complete <- alpha1 * alpha2
-        # not_complete_A1 <- alpha1_A1 * alpha2
         # D1 matrix
         D1.t[it, ] <- cumsum(not_complete)[self$T.uniq] * self$Qn.A1.t[it,] # complete influence curve
-        # D1.A1.t[it, ] <- cumsum(not_complete_A1)[self$T.uniq] * self$Qn.A1.t[it,] # also update those A = 0.
       }
 
       # turn unstable results to 0
       D1.t[is.na(D1.t)] <- 0
-      # D1.A1.t[is.na(D1.A1.t)] <- 0
-      self$D1.t <- D1.t
-      # self$D1.A1.t <- D1.A1.t
 
+      self$D1.t <- D1.t
       self$Pn.D1.t <- colMeans(self$D1.t)
     },
     compute_stopping = function(){
