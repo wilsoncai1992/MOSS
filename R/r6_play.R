@@ -45,6 +45,7 @@ MOSS <- R6Class("MOSS",
     # targeting
     stopping_criteria = NULL,
     update_tensor = NULL,
+    inside_exp = 0,
     Psi.hat = NULL,
     EIC_var = NULL,
     initialize = function(dat,
@@ -125,6 +126,7 @@ MOSS <- R6Class("MOSS",
       self$g.fitted <- self$gHatSL$SL.predict
     },
     fit_failure_hazard = function(){
+      # fit hazard intervene on A=1
       message('fit failure hazard')
       h.hat.t <- estimate_hazard_SL(dat = self$dat,
                                    T.uniq = self$T.uniq,
@@ -203,41 +205,52 @@ MOSS <- R6Class("MOSS",
       self$h.hat.t_full <- hazard_new
       self$h.hat.t <- hazard_new[, self$T.uniq]
     },
-    onestep_curve_update = function(){
-      browser()
-      update_mat <- compute_onestep_update_matrix(D1.t.func.prev = self$D1.t,
-                                                  Pn.D1.func.prev = self$Pn.D1.t,
-                                                  dat = self$dat,
-                                                  T.uniq = self$T.uniq,
-                                                  W_names = self$W_names,
-                                                  dW = self$dW)
-      colSums(update_mat)
-
-
-
-      self$update_tensor <- self$update_tensor + update_mat
-      self$update_tensor[is.na(self$update_tensor)] <- 0
-
-      self$qn.A1.t <- self$qn.A1.t * exp(self$epsilon.step * self$update_tensor)
-      self$qn.A1.t_full <- self$qn.A1.t_full * exp(self$epsilon.step * replicate(self$T.max, self$update_tensor[,1]))
-
-      # For density sum > 1: normalize the updated qn
-      norm.factor <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)[,1]
-      self$qn.A1.t[norm.factor > 1,] <- self$qn.A1.t[norm.factor > 1,] / norm.factor[norm.factor > 1]
-      self$qn.A1.t_full[norm.factor > 1,] <- self$qn.A1.t_full[norm.factor > 1,] / norm.factor[norm.factor > 1]
-
-      # if some qn becomes all zero, prevent NA exisitence
-      self$qn.A1.t[is.na(self$qn.A1.t)] <- 0
-      self$qn.A1.t_full[is.na(self$qn.A1.t_full)] <- 0
-
-      # compute new Survival
+    compute_survival_from_pdf = function(){
       self$Qn.A1.t <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)
-      cdf_offset <- 1 - self$Qn.A1.t[,1]
-      self$Qn.A1.t <- self$Qn.A1.t + cdf_offset
+      # cdf_offset <- 1 - self$Qn.A1.t[,1]
+      # self$Qn.A1.t <- self$Qn.A1.t + cdf_offset
 
       self$Qn.A1.t_full <- compute_step_cdf(pdf.mat = self$qn.A1.t_full, t.vec = 1:self$T.max, start = Inf)
-      cdf_offset <- 1 - self$Qn.A1.t_full[,1]
-      self$Qn.A1.t_full <- self$Qn.A1.t_full + cdf_offset
+      # cdf_offset <- 1 - self$Qn.A1.t_full[,1]
+      # self$Qn.A1.t_full <- self$Qn.A1.t_full + cdf_offset
+
+    },
+    onestep_curve_update = function(){
+      browser()
+      update <- compute_onestep_update_matrix(D1.t.func.prev = self$D1.t,
+                                              Pn.D1.func.prev = self$Pn.D1.t,
+                                              dat = self$dat,
+                                              T.uniq = self$T.uniq,
+                                              W_names = self$W_names,
+                                              dW = self$dW)
+      self$inside_exp <- self$inside_exp + sum(update)
+      # self$inside_exp[is.na(self$inside_exp)] <- 0
+      self$qn.A1.t <- self$qn.A1.t * exp(self$epsilon.step * self$inside_exp)
+      self$qn.A1.t_full <- self$qn.A1.t_full * exp(self$epsilon.step * self$inside_exp)
+
+      # update_mat <- compute_onestep_update_matrix(D1.t.func.prev = self$D1.t,
+      #                                             Pn.D1.func.prev = self$Pn.D1.t,
+      #                                             dat = self$dat,
+      #                                             T.uniq = self$T.uniq,
+      #                                             W_names = self$W_names,
+      #                                             dW = self$dW)
+      # self$update_tensor <- self$update_tensor + update_mat
+      # self$update_tensor[is.na(self$update_tensor)] <- 0
+
+      # self$qn.A1.t <- self$qn.A1.t * exp(self$epsilon.step * self$update_tensor)
+      # self$qn.A1.t_full <- self$qn.A1.t_full * exp(self$epsilon.step * replicate(self$T.max, self$update_tensor[,1]))
+
+      # For density sum > 1: normalize the updated qn
+      # norm.factor <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)[,1]
+      # self$qn.A1.t[norm.factor > 1,] <- self$qn.A1.t[norm.factor > 1,] / norm.factor[norm.factor > 1]
+      # self$qn.A1.t_full[norm.factor > 1,] <- self$qn.A1.t_full[norm.factor > 1,] / norm.factor[norm.factor > 1]
+
+      # # if some qn becomes all zero, prevent NA exisitence
+      # self$qn.A1.t[is.na(self$qn.A1.t)] <- 0
+      # self$qn.A1.t_full[is.na(self$qn.A1.t_full)] <- 0
+
+      # compute new Survival
+      self$compute_survival_from_pdf()
 
       # compute new hazard
       self$compute_hazard_from_pdf_and_survival()
