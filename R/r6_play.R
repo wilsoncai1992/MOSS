@@ -169,7 +169,7 @@ MOSS <- R6Class("MOSS",
       self$qn.A1.t <- qn.A1.t_full[, self$T.uniq]
     },
     compute_EIC = function(){
-      browser()
+      # browser()
       I.A.dW <- self$A == self$dW
 
       # D_1* in paper
@@ -203,6 +203,9 @@ MOSS <- R6Class("MOSS",
       for (it in 1:self$n_sample) {
         hazard_new[it, ] <- self$qn.A1.t_full[it, ] / self$Qn.A1.t_full[it,]
       }
+      # dirty fix
+      hazard_new[hazard_new >= 1] <- .8
+
       self$h.hat.t_full <- hazard_new
       self$h.hat.t <- hazard_new[, self$T.uniq]
     },
@@ -241,7 +244,7 @@ MOSS <- R6Class("MOSS",
       self$compute_survival_from_pdf()
 
       # compute new hazard
-      self$compute_hazard_from_pdf_and_survival()
+      # self$compute_hazard_from_pdf_and_survival()
     },
     compute_Psi = function(){
       # self$Psi.hat <- colMeans(self$Qn.A1.t)

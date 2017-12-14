@@ -10,6 +10,7 @@ D <- D +
   node("A", distr = "rbinom", size = 1, prob = .15 + .5*W) +
   node("Trexp", distr = "rexp", rate = 1 + .5*W - .5*A) +
   node("Cweib", distr = "rweibull", shape = .7 - .2*W, scale = 1) +
+  # node("Cweib", distr = "runif", a = 0, b = 10) +
   node("T", distr = "rconst", const = round(Trexp*10,0)) +
   node("C", distr = "rconst", const = round(Cweib*10, 0)) +
   node("T.tilde", distr = "rconst", const = ifelse(T <= C , T, C)) +
@@ -54,7 +55,7 @@ lines(round(q*10,0), truesurvExp, type="l", cex=0.2, col = 'blue')
 onestepfit = MOSS$new(dat, dW = 1,
                       g.SL.Lib = c('SL.mean'),
                       Delta.SL.Lib = c('SL.mean'),
-                      ht.SL.Lib = c('SL.mean'),
+                      ht.SL.Lib = c('SL.glm'),
   verbose = TRUE, epsilon.step = 1e-3, max.iter = 1e2)
   # verbose = TRUE, epsilon.step = 1e-5, max.iter = 1e2)
 onestepfit$fit_g_initial()
@@ -83,7 +84,9 @@ while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter)) {
   onestepfit$compute_Psi()
   onestepfit$print_onestep_curve(add = TRUE)
   print(onestepfit$Pn.D1.t)
+  # print(onestepfit$qn.A1.t_full)
   # print(onestepfit$D1.t)
+  print(onestepfit$h.hat.t)
 }
 
 if (iter_count == onestepfit$max.iter) {

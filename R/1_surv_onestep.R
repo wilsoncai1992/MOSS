@@ -1187,8 +1187,8 @@ surv_onestep_difference <- function(dat,
 compute_onestep_update_matrix <- function(D1.t.func.prev, Pn.D1.func.prev, dat, T.uniq, W_names, dW) {
   # calculate the number inside exp{} expression in submodel
   # each strata of Q is updated the same
-  numerator <- l2_inner_prod_step(-abs(Pn.D1.func.prev), D1.t.func.prev, T.uniq)
-  # numerator <- l2_inner_prod_step(abs(Pn.D1.func.prev), D1.t.func.prev, T.uniq) # wrong?
+  # numerator <- l2_inner_prod_step(-abs(Pn.D1.func.prev), D1.t.func.prev, T.uniq)
+  numerator <- l2_inner_prod_step(abs(Pn.D1.func.prev), D1.t.func.prev, T.uniq) # wrong?
   # numerator <- sweep(D1.t.func.prev, MARGIN=2, -abs(Pn.D1.func.prev),`*`)
   # numerator <- sweep(D1.t.func.prev, MARGIN=2, abs(Pn.D1.func.prev),`*`) # WROOOOOONG
   result <- numerator /
