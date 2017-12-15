@@ -11,9 +11,9 @@
 #' @export
 #'
 #' @examples
-#' @import survtmle
+#' @import survtmle2
 #' @import Matrix
-survtmle_single_t <- function(dat, 
+survtmle_single_t <- function(dat,
                               tk,
                               dW = rep(1, nrow(dat)),
                               T.cutoff = NULL,
@@ -28,13 +28,13 @@ survtmle_single_t <- function(dat,
   dW <- after_check$dW
   n.data <- after_check$n.data
   W_names <- after_check$W_names
-  
+
   T.uniq <- unique(sort(dat$T.tilde))
-  
+
   # create function inputs
   ftime <- dat$T.tilde
   ftype <- dat$delta
-  
+
   if(all(dW == 0)) {
     trt <- 1 - dat$A # when dW is all zero, flip observed A
   }else if(all(dW == 1)){
@@ -42,7 +42,7 @@ survtmle_single_t <- function(dat,
   }else{
     stop('not implemented!')
   }
-  
+
   adjustVars <- as.data.frame(dat[,W_names])
   # ====================================================================================
   # compute values for all time points
@@ -60,7 +60,7 @@ survtmle_single_t <- function(dat,
   # allTimes <- timepoints(object = fit_max_time, times = T.uniq, returnModels = FALSE)
   est <- 1 - fit_max_time$est['1 1',]
   var <- fit_max_time$var['1 1', '1 1']
-  
+
   return(list(est = est,
               var = var,
               meanIC = fit_max_time$meanIC,
@@ -76,7 +76,7 @@ survtmle_single_t <- function(dat,
 #' @export
 #'
 #' @examples
-#' @import survtmle
+#' @import survtmle2
 #' @import Matrix
 survtmle_multi_t <- function(dat, dW = rep(1, nrow(dat)),
                              T.cutoff = NULL,
@@ -91,13 +91,13 @@ survtmle_multi_t <- function(dat, dW = rep(1, nrow(dat)),
   dW <- after_check$dW
   n.data <- after_check$n.data
   W_names <- after_check$W_names
-  
+
   T.uniq <- unique(sort(dat$T.tilde))
-  
+
   # create function inputs
   ftime <- dat$T.tilde
   ftype <- dat$delta
-  
+
   if(all(dW == 0)) {
     trt <- 1 - dat$A # when dW is all zero
   }else if(all(dW == 1)){
@@ -105,7 +105,7 @@ survtmle_multi_t <- function(dat, dW = rep(1, nrow(dat)),
   }else{
     stop('not implemented!')
   }
-  
+
   adjustVars <- as.data.frame(dat[,W_names])
   # ====================================================================================
   # compute values for all time points
@@ -121,10 +121,10 @@ survtmle_multi_t <- function(dat, dW = rep(1, nrow(dat)),
                            verbose = FALSE)
   # 7.8min
   allTimes <- timepoints(object = fit_max_time, times = T.uniq, returnModels = FALSE)
-  
+
   s_vec <- sapply(allTimes, function(x) 1 - x$est['1 1',])
   survival_df <- data.frame(s_vec, T.uniq)
-  
+
   class(survival_df) <- 'surv_survtmle'
   return(survival_df)
 }

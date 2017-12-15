@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_for_onestep.R
 \name{create_Yt_vector_with_censor}
 \alias{create_Yt_vector_with_censor}
-\title{compute \eqn{I\{T.tilde >= t, Delta = 1\}}}
+\title{compute \eqn{I\{T.tilde == t, Delta = 1\}}}
 \usage{
 create_Yt_vector_with_censor(Time, Delta, t.vec)
 }

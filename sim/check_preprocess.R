@@ -76,6 +76,7 @@ while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter)) {
 # while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter) & ((stopping_prev - stopping) >= max(-onestepfit$tol, -1e-5))) {
   print(stopping)
   onestepfit$onestep_curve_update()
+  # onestepfit$onestep_curve_update_pooled()
   onestepfit$compute_EIC()
   iter_count <- iter_count + 1
   stopping_prev <- stopping
@@ -83,10 +84,10 @@ while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter)) {
 
   onestepfit$compute_Psi()
   onestepfit$print_onestep_curve(add = TRUE)
-  print(onestepfit$Pn.D1.t)
+  # print(onestepfit$Pn.D1.t)
   # print(onestepfit$qn.A1.t_full)
   # print(onestepfit$D1.t)
-  print(onestepfit$h.hat.t)
+  # print(onestepfit$h.hat.t)
 }
 
 if (iter_count == onestepfit$max.iter) {

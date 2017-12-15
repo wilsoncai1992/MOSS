@@ -20,6 +20,9 @@ compute_onestep_update_matrix(D1.t.func.prev, Pn.D1.func.prev, dat, T.uniq,
 
 \item{dW}{dynamic intervention}
 }
+\value{
+vector of length n_sample
+}
 \description{
 Perform one-step TMLE update of survival curve
 }

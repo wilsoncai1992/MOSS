@@ -54,7 +54,7 @@
 #'                             epsilon.step = 1e-3,
 #'                             max.iter = 1e3)
 #' @import dplyr
-#' @import survtmle
+#' @import survtmle2
 #' @import abind
 #' @import SuperLearner
 surv_onestep <- function(dat,
@@ -425,7 +425,7 @@ surv_onestep <- function(dat,
 #'
 #' @examples
 #' @import dplyr
-#' @import survtmle
+#' @import survtmle2
 #' @import abind
 #' @import SuperLearner
 surv_onestep_complete <- function(dat,
@@ -730,7 +730,7 @@ surv_onestep_complete <- function(dat,
 #'                                        epsilon.step = 1e-3,
 #'                                        max.iter = 1e3)
 #' @import dplyr
-#' @import survtmle
+#' @import survtmle2
 #' @import abind
 #' @import SuperLearner
 surv_onestep_difference <- function(dat,
@@ -1188,8 +1188,9 @@ compute_onestep_update_matrix <- function(D1.t.func.prev, Pn.D1.func.prev, dat, 
   # calculate the number inside exp{} expression in submodel
   # each strata of Q is updated the same
   # numerator <- l2_inner_prod_step(-abs(Pn.D1.func.prev), D1.t.func.prev, T.uniq)
-  numerator <- l2_inner_prod_step(abs(Pn.D1.func.prev), D1.t.func.prev, T.uniq) # wrong?
-  # numerator <- sweep(D1.t.func.prev, MARGIN=2, -abs(Pn.D1.func.prev),`*`)
+  # numerator <- l2_inner_prod_step(abs(Pn.D1.func.prev), D1.t.func.prev, T.uniq) # wrong?
+  numerator <- sweep(D1.t.func.prev, MARGIN=2, -abs(Pn.D1.func.prev),`*`)
+  # numerator <- sweep(D1.t.func.prev, MARGIN=2, abs(Pn.D1.func.prev),`*`)
   # numerator <- sweep(D1.t.func.prev, MARGIN=2, abs(Pn.D1.func.prev),`*`) # WROOOOOONG
   result <- numerator /
     sqrt(l2_inner_prod_step(Pn.D1.func.prev, Pn.D1.func.prev, T.uniq))
@@ -1221,7 +1222,7 @@ compute_onestep_update_matrix <- function(D1.t.func.prev, Pn.D1.func.prev, dat, 
 #' @examples
 #' # TO DO
 #' @import dplyr
-#' @import survtmle
+#' @import survtmle2
 onestep_single_t <- function(dat, tk, dW = rep(1, nrow(dat)),
                              SL.trt = c("SL.glm", "SL.step", "SL.earth"),
                              SL.ctime = c("SL.glm", "SL.step", "SL.earth"),
@@ -1288,7 +1289,7 @@ onestep_single_t <- function(dat, tk, dW = rep(1, nrow(dat)),
   # ====================================================================================================
   # make datalist
   # ====================================================================================================
-  datalist <- survtmle::makeDataList(dat = g1_dat,
+  datalist <- survtmle2::makeDataList(dat = g1_dat,
                                      J = 1, # one kind of failure
                                      ntrt = 2, # one kind of treatment
                                      uniqtrt = c(0,1),
@@ -1299,7 +1300,7 @@ onestep_single_t <- function(dat, tk, dW = rep(1, nrow(dat)),
   # estimate g_2 (censoring)
   # ====================================================================================================
   message('estimating g_2')
-  g2_hat <- survtmle:::estimateCensoring(dataList = datalist, adjustVars = adjustVars,
+  g2_hat <- survtmle2:::estimateCensoring(dataList = datalist, adjustVars = adjustVars,
                                          t0 = tk,
                                          ntrt = 2, # one kind of treatment
                                          uniqtrt = c(0,1),
@@ -1310,7 +1311,7 @@ onestep_single_t <- function(dat, tk, dW = rep(1, nrow(dat)),
   # estimate h(t) (hazard)
   # ====================================================================================================
   message('estimating hazard')
-  h_hat <- survtmle::estimateHazards(dataList = dataList2,
+  h_hat <- survtmle2::estimateHazards(dataList = dataList2,
                                      J = 1,
                                      adjustVars = adjustVars,
                                      SL.ftime = SL.ftime,
@@ -1463,7 +1464,7 @@ onestep_single_t <- function(dat, tk, dW = rep(1, nrow(dat)),
 #' @examples
 #' # TO DO
 #' @import dplyr
-#' @import survtmle
+#' @import survtmle2
 onestep_single_t_loopall <- function(dat, dW = rep(1, nrow(dat)),
                                      SL.trt = c("SL.glm", "SL.step", "SL.earth"),
                                      SL.ctime = c("SL.glm", "SL.step", "SL.earth"),
@@ -1530,7 +1531,7 @@ onestep_single_t_loopall <- function(dat, dW = rep(1, nrow(dat)),
   # ====================================================================================================
   # make datalist
   # ====================================================================================================
-  datalist <- survtmle::makeDataList(dat = g1_dat,
+  datalist <- survtmle2::makeDataList(dat = g1_dat,
                                      J = 1, # one kind of failure
                                      ntrt = 2, # one kind of treatment
                                      uniqtrt = c(0,1),
@@ -1541,7 +1542,7 @@ onestep_single_t_loopall <- function(dat, dW = rep(1, nrow(dat)),
   # estimate g_2 (censoring)
   # ====================================================================================================
   message('estimating g_2')
-  g2_hat <- survtmle:::estimateCensoring(dataList = datalist, adjustVars = adjustVars,
+  g2_hat <- survtmle2:::estimateCensoring(dataList = datalist, adjustVars = adjustVars,
                                          t0 = T.max,
                                          ntrt = 2, # one kind of treatment
                                          uniqtrt = c(0,1),
@@ -1552,7 +1553,7 @@ onestep_single_t_loopall <- function(dat, dW = rep(1, nrow(dat)),
   # estimate h(t) (hazard)
   # ====================================================================================================
   message('estimating hazard')
-  h_hat <- survtmle::estimateHazards(dataList = dataList2,
+  h_hat <- survtmle2::estimateHazards(dataList = dataList2,
                                      J = 1,
                                      adjustVars = adjustVars,
                                      SL.ftime = SL.ftime,

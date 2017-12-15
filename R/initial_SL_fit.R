@@ -95,7 +95,7 @@ estimate_hazard_SL <- function(dat,
 #' @examples
 #' # TO DO
 #' @import SuperLearner
-#' @import survtmle
+#' @import survtmle2
 #' @import dplyr
 #' @importFrom tidyr spread
 estimate_censoring_SL <- function(dat,
@@ -131,7 +131,7 @@ estimate_censoring_SL <- function(dat,
   # ====================================================================================================
   # dataList
   # ====================================================================================================
-  datalist <- survtmle:::makeDataList(dat = dat_david,
+  datalist <- survtmle2:::makeDataList(dat = dat_david,
                                       J = 1, # one kind of failure
                                       ntrt = 2, # one kind of treatment
                                       uniqtrt = c(0,1),
@@ -141,7 +141,7 @@ estimate_censoring_SL <- function(dat,
   # estimate g_2 (censoring)
   # perform censoring SL for the maximum time point
   # ====================================================================================================
-  g2_hat <- survtmle:::estimateCensoring(dataList = datalist, adjustVars = adjustVars,
+  g2_hat <- survtmle2:::estimateCensoring(dataList = datalist, adjustVars = adjustVars,
                                          t0 = T.max,
                                          ntrt = 2, # one kind of treatment
                                          uniqtrt = c(0,1),

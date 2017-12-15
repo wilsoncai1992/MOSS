@@ -1,3 +1,9 @@
+#' row mulitiplication
+#' @export
+multiple_vector_to_matrix <- function(M, V){
+  t(t(M) * V)
+}
+
 #' generate step function object using y value and corresponding jump points
 #'
 #' @param y.vec a vector of step function values

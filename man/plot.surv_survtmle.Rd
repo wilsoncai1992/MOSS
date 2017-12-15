@@ -7,11 +7,25 @@
 \method{plot}{surv_survtmle}(obj, add = FALSE, ...)
 }
 \arguments{
+\item{add}{whether to add to existing plot}
+
+\item{...}{}
+
+\item{onestepfit}{object returned by surv_onestep or surv_onestep_complete}
+
+\item{col}{line color}
+
 \item{...}{}
 }
 \value{
 NA
+
+NA
 }
 \description{
 Plot the survival curve estimator
+}
+\examples{
+Plot the survival curve estimator
+
 }
