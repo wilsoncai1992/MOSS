@@ -20,6 +20,7 @@ setD <- set.DAG(D)
 # Simulate the data from the above data generating distribution:
 # dat <- sim(setD, n=3e2)
 dat <- sim(setD, n=1e3)
+# dat <- sim(setD, n=1e4)
 head(dat)
 
 # subset into observed dataset
@@ -57,7 +58,7 @@ onestepfit = MOSS$new(dat, dW = 1,
                       Delta.SL.Lib = c('SL.mean'),
                       ht.SL.Lib = c('SL.glm'),
   verbose = TRUE, epsilon.step = 1e-3, max.iter = 1e2)
-  # verbose = TRUE, epsilon.step = 1e-5, max.iter = 1e2)
+  # verbose = TRUE, epsilon.step = 1e-1, max.iter = 1e2)
 onestepfit$fit_g_initial()
 onestepfit$fit_failure_hazard()
 onestepfit$fit_censoring_cdf()
@@ -75,8 +76,9 @@ stopping <- onestepfit$compute_stopping()
 while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter)) {
 # while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter) & ((stopping_prev - stopping) >= max(-onestepfit$tol, -1e-5))) {
   print(stopping)
-  onestepfit$onestep_curve_update()
-  # onestepfit$onestep_curve_update_pooled()
+  # onestepfit$onestep_curve_update()
+  onestepfit$onestep_curve_update_pooled()
+  # onestepfit$onestep_curve_update_mat()
   onestepfit$compute_EIC()
   iter_count <- iter_count + 1
   stopping_prev <- stopping
@@ -88,6 +90,9 @@ while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter)) {
   # print(onestepfit$qn.A1.t_full)
   # print(onestepfit$D1.t)
   # print(onestepfit$h.hat.t)
+  # print(onestepfit$inside_exp)
+  # if (iter_count %% 10 == 0) plot(onestepfit$Pn.D1.t)
+  # abline(h = 0)
 }
 
 if (iter_count == onestepfit$max.iter) {

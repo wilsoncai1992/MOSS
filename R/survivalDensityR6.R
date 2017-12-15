@@ -9,6 +9,6 @@ survivalDensity <- R6Class("survivalDensity",
     },
     compute_survival_from_pdf = function(){
       compute_step_cdf(pdf.mat = self$pdf, t.vec = 1:max(self$pdf$t_grid), start = Inf)
-    },
+    }
   )
 )

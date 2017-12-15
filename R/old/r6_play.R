@@ -1,7 +1,6 @@
 require("R6")
 require("SuperLearner")
 
-#' @export
 MOSS <- R6Class("MOSS",
   public = list(
     dat = NULL,

@@ -71,7 +71,8 @@ MOSS <- R6Class("MOSS",
 
       self$check_and_preprocess_data()
       self$update_tensor <- matrix(0, nrow = self$n_sample, ncol = length(self$T.uniq))
-      self$inside_exp <- rep(0, length(self$T.uniq))
+      # self$inside_exp <- rep(0, length(self$T.uniq))
+      self$inside_exp <- matrix(0, ncol = length(self$T.uniq), nrow = self$n_sample)
     },
     check_and_preprocess_data = function(nbin = 4, T.cutoff = NULL){
       message('check data validity')
@@ -168,6 +169,10 @@ MOSS <- R6Class("MOSS",
       }
       self$qn.A1.t_full <- qn.A1.t_full
       self$qn.A1.t <- qn.A1.t_full[, self$T.uniq]
+
+      # self$qn.A1.t_full <- survivalDensity$new(pdf = discreteDensity$new(p = qn.A1.t_full, t_grid = self$T.uniq))
+      # self$qn.A1.t <- survivalDensity$new(pdf = discreteDensity$new(p = qn.A1.t_full[, self$T.uniq], t_grid = self$T.uniq))
+
     },
     compute_EIC = function(){
       # browser()
@@ -227,19 +232,48 @@ MOSS <- R6Class("MOSS",
                                               T.uniq = self$T.uniq,
                                               W_names = self$W_names,
                                               dW = self$dW)
-      self$inside_exp <- self$inside_exp + sum(update)
+      self$inside_exp <- sum(update)
       # self$inside_exp[is.na(self$inside_exp)] <- 0
       self$qn.A1.t <- self$qn.A1.t * exp(self$epsilon.step * self$inside_exp)
       self$qn.A1.t_full <- self$qn.A1.t_full * exp(self$epsilon.step * self$inside_exp)
 
       # For density sum > 1: normalize the updated qn
-      norm.factor <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)[,1]
-      self$qn.A1.t[norm.factor > 1,] <- self$qn.A1.t[norm.factor > 1,] / norm.factor[norm.factor > 1]
-      self$qn.A1.t_full[norm.factor > 1,] <- self$qn.A1.t_full[norm.factor > 1,] / norm.factor[norm.factor > 1]
+      # norm.factor <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)[,1]
+      # self$qn.A1.t[norm.factor > 1,] <- self$qn.A1.t[norm.factor > 1,] / norm.factor[norm.factor > 1]
+      # self$qn.A1.t_full[norm.factor > 1,] <- self$qn.A1.t_full[norm.factor > 1,] / norm.factor[norm.factor > 1]
 
       # # if some qn becomes all zero, prevent NA exisitence
       # self$qn.A1.t[is.na(self$qn.A1.t)] <- 0
       # self$qn.A1.t_full[is.na(self$qn.A1.t_full)] <- 0
+
+      self$qn.A1.t_full <- self$qn.A1.t_full / rowSums(self$qn.A1.t_full)
+      self$qn.A1.t <- self$qn.A1.t_full[,self$T.uniq]
+
+      # compute new Survival
+      self$compute_survival_from_pdf()
+
+      # compute new hazard
+      # self$compute_hazard_from_pdf_and_survival()
+    },
+    onestep_curve_update_mat = function(){
+      # browser()
+      update <- compute_onestep_update_matrix(D1.t.func.prev = self$D1.t,
+                                              Pn.D1.func.prev = self$Pn.D1.t,
+                                              dat = self$dat,
+                                              T.uniq = self$T.uniq,
+                                              W_names = self$W_names,
+                                              dW = self$dW)
+      self$inside_exp <- (update)
+
+      self$qn.A1.t <- self$qn.A1.t * exp(self$epsilon.step * self$inside_exp)
+
+      inside_exp_longer <- matrix(NA, ncol = self$T.max, nrow = self$n_sample)
+      inside_exp_longer[,self$T.uniq] <- self$inside_exp
+      inside_exp_longer <- t(zoo::na.locf(t(inside_exp_longer)))
+      self$qn.A1.t_full <- self$qn.A1.t_full * exp(self$epsilon.step * inside_exp_longer)
+
+      self$qn.A1.t_full <- self$qn.A1.t_full / rowSums(self$qn.A1.t_full)
+      self$qn.A1.t <- self$qn.A1.t_full[,self$T.uniq]
 
       # compute new Survival
       self$compute_survival_from_pdf()
@@ -255,13 +289,18 @@ MOSS <- R6Class("MOSS",
                                               T.uniq = self$T.uniq,
                                               W_names = self$W_names,
                                               dW = self$dW)
-      self$inside_exp <- self$inside_exp + colSums(update)
+      self$inside_exp <- colSums(update)
       # self$inside_exp[is.na(self$inside_exp)] <- 0
 
-      # self$qn.A1.t <- self$qn.A1.t * exp(self$epsilon.step * self$inside_exp)
-      # self$qn.A1.t_full <- self$qn.A1.t_full * exp(self$epsilon.step * self$inside_exp)
       self$qn.A1.t <- multiple_vector_to_matrix(self$qn.A1.t, exp(self$epsilon.step * self$inside_exp))
-      self$qn.A1.t_full <- multiple_vector_to_matrix(self$qn.A1.t_full, exp(self$epsilon.step * replicate(self$T.max, self$inside_exp[1]))) #WRONG!!!!
+
+      inside_exp_longer <- rep(NA, self$T.max)
+      inside_exp_longer[self$T.uniq] <- self$inside_exp
+      inside_exp_longer <- zoo::na.locf(inside_exp_longer)
+      self$qn.A1.t_full <- multiple_vector_to_matrix(self$qn.A1.t_full, exp(self$epsilon.step * inside_exp_longer))
+
+      self$qn.A1.t_full <- self$qn.A1.t_full / rowSums(self$qn.A1.t_full)
+      self$qn.A1.t <- self$qn.A1.t_full[,self$T.uniq]
 
       # For density sum > 1: normalize the updated qn
       # norm.factor <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)[,1]
