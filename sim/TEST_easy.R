@@ -67,8 +67,9 @@ onestepfit = MOSS$new(dat, dW = 1,
                       g.SL.Lib = c('SL.mean'),
                       Delta.SL.Lib = c('SL.mean'),
                       ht.SL.Lib = c('SL.glm'),
-  # verbose = TRUE, epsilon.step = 1e-3, max.iter = 1e2)
-  verbose = TRUE, epsilon.step = 5e-3, max.iter = 5e2)
+  verbose = TRUE, epsilon.step = 1e-3, max.iter = 1e2)
+  # verbose = TRUE, epsilon.step = 5e-3, max.iter = 5e2)
+  # verbose = TRUE, epsilon.step = 5e-3, max.iter = 2e2)
   # verbose = TRUE, epsilon.step = 1e-4, max.iter = 5e2)
   # verbose = TRUE, epsilon.step = 1e-3, max.iter = 5e2)
   # verbose = TRUE, epsilon.step = 1e-2, max.iter = 5e2)
@@ -117,3 +118,4 @@ if (iter_count == onestepfit$max.iter) {
 onestepfit$compute_Psi()
 onestepfit$Psi.hat
 
+onestepfit$plot_CI_pointwise(add = TRUE)

@@ -23,8 +23,8 @@ setD <- set.DAG(D)
 
 # Simulate the data from the above data generating distribution:
 # dat <- sim(setD, n=3e2, rndseed = 12345)
-# dat <- sim(setD, n=1e3, rndseed = 12345)
-dat <- sim(setD, n=1e4, rndseed = 12345)
+dat <- sim(setD, n=1e3, rndseed = 12345)
+# dat <- sim(setD, n=1e4, rndseed = 12345)
 head(dat)
 
 # subset into observed dataset
@@ -90,9 +90,10 @@ stopping <- onestepfit$compute_stopping()
 while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter)) {
 # while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter) & ((stopping_prev - stopping) >= max(-onestepfit$tol, -1e-5))) {
   print(stopping)
-  onestepfit$onestep_curve_update()
+  # onestepfit$onestep_curve_update()
   # onestepfit$onestep_curve_update_pooled()
   # onestepfit$onestep_curve_update_mat()
+  onestepfit$onestep_curve_update_no_normalize()
   onestepfit$compute_EIC()
   iter_count <- iter_count + 1
   stopping_prev <- stopping
