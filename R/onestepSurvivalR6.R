@@ -47,7 +47,9 @@ MOSS <- R6Class("MOSS",
     update_tensor = NULL,
     inside_exp = 0,
     Psi.hat = NULL,
-    EIC_var = NULL,
+    sd_EIC = NULL,
+    upper_CI = NULL,
+    lower_CI = NULL,
     initialize = function(dat,
                           dW,
                           g.SL.Lib = c("SL.glm", "SL.step", "SL.glm.interaction"),
@@ -192,7 +194,7 @@ MOSS <- R6Class("MOSS",
 
         not_complete <- h1 * alpha2
         # D1 matrix
-        D1.t[it, ] <- cumsum(not_complete)[self$T.uniq] * self$Qn.A1.t[it,] # complete influence curve
+        D1.t[it, ] <- cumsum(not_complete)[self$T.uniq] * self$Qn.A1.t_full[it,self$T.uniq] # complete influence curve
       }
 
       # turn unstable results to 0
@@ -279,7 +281,7 @@ MOSS <- R6Class("MOSS",
       self$compute_survival_from_pdf()
 
       # compute new hazard
-      # self$compute_hazard_from_pdf_and_survival()
+      self$compute_hazard_from_pdf_and_survival()
     },
     onestep_curve_update = function(){
       # browser()
@@ -315,49 +317,111 @@ MOSS <- R6Class("MOSS",
       self$compute_survival_from_pdf()
 
       # compute new hazard
-      # self$compute_hazard_from_pdf_and_survival()
+      self$compute_hazard_from_pdf_and_survival()
+    },
+    onestep_curve_update_no_normalize = function(){
+      # browser()
+      update <- compute_onestep_update_matrix(D1.t.func.prev = self$D1.t,
+                                              Pn.D1.func.prev = self$Pn.D1.t,
+                                              dat = self$dat,
+                                              T.uniq = self$T.uniq,
+                                              W_names = self$W_names,
+                                              dW = self$dW)
+      self$inside_exp <- colSums(update)
+      # self$inside_exp[is.na(self$inside_exp)] <- 0
+
+      self$qn.A1.t <- multiple_vector_to_matrix(self$qn.A1.t, exp(self$epsilon.step * self$inside_exp))
+
+      inside_exp_longer <- rep(NA, self$T.max)
+      inside_exp_longer[self$T.uniq] <- self$inside_exp
+      inside_exp_longer <- zoo::na.locf(inside_exp_longer)
+      self$qn.A1.t_full <- multiple_vector_to_matrix(self$qn.A1.t_full, exp(self$epsilon.step * inside_exp_longer))
+
+      # self$qn.A1.t_full <- self$qn.A1.t_full / rowSums(self$qn.A1.t_full)
+      self$qn.A1.t <- self$qn.A1.t_full[,self$T.uniq]
+
+      # For density sum > 1: normalize the updated qn
+      # norm.factor <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)[,1]
+      # self$qn.A1.t[norm.factor > 1,] <- self$qn.A1.t[norm.factor > 1,] / norm.factor[norm.factor > 1]
+      # self$qn.A1.t_full[norm.factor > 1,] <- self$qn.A1.t_full[norm.factor > 1,] / norm.factor[norm.factor > 1]
+
+      # # if some qn becomes all zero, prevent NA exisitence
+      # self$qn.A1.t[is.na(self$qn.A1.t)] <- 0
+      # self$qn.A1.t_full[is.na(self$qn.A1.t_full)] <- 0
+
+      # compute new Survival
+      self$compute_survival_from_pdf()
+
+      # compute new hazard
+      self$compute_hazard_from_pdf_and_survival()
     },
     compute_Psi = function(){
+      # browser()
       # self$Psi.hat <- colMeans(self$Qn.A1.t)
       self$Psi.hat <- colMeans(self$Qn.A1.t_full)
-      self$EIC_var <- apply(self$D1.t, 2, var)/self$n_sample
+
+      self$sd_EIC <- rep(NA, self$T.max)
+      self$sd_EIC[self$T.uniq] <- sqrt(apply(self$D1.t, 2, var)/self$n_sample)
+      self$sd_EIC <- zoo::na.locf(self$sd_EIC)
+      self$upper_CI <- self$Psi.hat + 1.96 * self$sd_EIC
+      self$lower_CI <- self$Psi.hat - 1.96 * self$sd_EIC
       EIC_sup_norm <- abs(self$Pn.D1.t)
     },
     onestep_curve = function(){
-      onestepfit$fit_g_initial()
-      onestepfit$fit_failure_hazard()
-      onestepfit$fit_censoring_cdf()
-      onestepfit$transform_failure_hazard_to_survival()
-      onestepfit$transform_failure_hazard_to_pdf()
-      onestepfit$compute_EIC()
+      self$fit_g_initial()
+      self$fit_failure_hazard()
+      self$fit_censoring_cdf()
+      self$transform_failure_hazard_to_survival()
+      self$transform_failure_hazard_to_pdf()
+      self$compute_EIC()
 
       iter_count <- 0
       stopping_prev <- Inf
       all_stopping <- numeric()
       all_loglikeli <- numeric()
 
-      stopping <- onestepfit$compute_stopping()
-      while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter)) {
-      # while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter) & ((stopping_prev - stopping) >= max(-onestepfit$tol, -1e-5))) {
+      stopping <- self$compute_stopping()
+      while ((stopping >= self$tol) & (iter_count <= self$max.iter)) {
+      # while ((stopping >= self$tol) & (iter_count <= self$max.iter) & ((stopping_prev - stopping) >= max(-self$tol, -1e-5))) {
         print(stopping)
-        onestepfit$onestep_curve_update()
-        onestepfit$compute_EIC()
+        self$onestep_curve_update()
+        self$compute_EIC()
         iter_count <- iter_count + 1
         stopping_prev <- stopping
-        stopping <- onestepfit$compute_stopping()
+        stopping <- self$compute_stopping()
       }
 
-      if (iter_count == onestepfit$max.iter) {
+      if (iter_count == self$max.iter) {
         warning('Max Iter count reached, stop iteration.')
       }
 
-      onestepfit$compute_Psi()
+      self$compute_Psi()
     },
     print_onestep_curve = function(...){
-      # step_curve <- stepfun(x = onestepfit$T.uniq, y = c(1, onestepfit$Psi.hat))
-      step_curve <- stepfun(x = 1:onestepfit$T.max, y = c(1, onestepfit$Psi.hat))
+      # step_curve <- stepfun(x = self$T.uniq, y = c(1, self$Psi.hat))
+      step_curve <- stepfun(x = 1:self$T.max, y = c(1, self$Psi.hat))
       # can `add`, `col`
-      curve(step_curve, from = 0, to = max(onestepfit$T.uniq), ...)
+      curve(step_curve, from = 0, to = self$T.max, ...)
+    },
+    print = function(){
+      data.frame(self$Psi.hat, self$sd_EIC, self$upper_CI, self$lower_CI)
+    },
+    plot_CI_pointwise = function(...){
+      # browser()
+
+      # t_col(col = col, perc = 50, name = "lt.col")
+      # polygon(c(1:self$T.max, rev(1:self$T.max)), c(c(self$upper_CI), rev(c(self$lower_CI))),
+      #                     col = 'lt.col',
+      #                     # col = rgb(0.7,0.7,0.7,0.4),
+      #                     border = NA,
+      #                     add = TRUE)
+      polygon(c(1:self$T.max, rev(1:self$T.max)), c(c(self$upper_CI), rev(c(self$lower_CI))),
+                          col = rgb(0.7,0.7,0.7,0.4),
+                          border = NA,
+                          ...)
+      self$print_onestep_curve(...)
+
+
     }
   )
 )
