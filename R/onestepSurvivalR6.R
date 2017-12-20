@@ -52,7 +52,6 @@ MOSS <- R6Class("MOSS",
     lower_CI = NULL,
     initialize = function(dat,
                           dW,
-                          g.SL.Lib = c("SL.glm", "SL.step", "SL.glm.interaction"),
                           Delta.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth"),
                           ht.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth"),
                           epsilon.step = 1e-5,
@@ -62,7 +61,6 @@ MOSS <- R6Class("MOSS",
                           verbose = FALSE) {
       self$dat <- dat
       self$dW <- dW
-      self$g.SL.Lib <- g.SL.Lib
       self$Delta.SL.Lib <- Delta.SL.Lib
       self$ht.SL.Lib <- ht.SL.Lib
       self$epsilon.step <- epsilon.step
@@ -120,7 +118,9 @@ MOSS <- R6Class("MOSS",
           stop('not implemented!')
         }
     },
-    fit_g_initial = function(){
+    fit_g_initial = function(g.SL.Lib = c("SL.glm", "SL.step", "SL.glm.interaction")
+                            ){
+      self$g.SL.Lib <- g.SL.Lib
       message('fit g')
       self$gHatSL <- SuperLearner(Y = self$A,
                                  X = self$W,
@@ -206,21 +206,21 @@ MOSS <- R6Class("MOSS",
     compute_stopping = function(){
       return(sqrt(l2_inner_prod_step(self$Pn.D1.t, self$Pn.D1.t, self$T.uniq))/length(self$T.uniq))
     },
-    compute_hazard_from_pdf_and_survival = function(){
-      hazard_new <- matrix(0, nrow = self$n_sample, ncol = self$T.max)
-      for (it in 1:self$n_sample) {
-        hazard_new[it, ] <- self$qn.A1.t_full[it, ] / self$Qn.A1.t_full[it,]
-      }
-      # dirty fix: upper bound hazard
-      hazard_new[hazard_new >= 1] <- .8
+    # compute_hazard_from_pdf_and_survival = function(){
+    #   hazard_new <- matrix(0, nrow = self$n_sample, ncol = self$T.max)
+    #   for (it in 1:self$n_sample) {
+    #     hazard_new[it, ] <- self$qn.A1.t_full[it, ] / self$Qn.A1.t_full[it,]
+    #   }
+    #   # dirty fix: upper bound hazard
+    #   hazard_new[hazard_new >= 1] <- .8
 
-      self$h.hat.t_full <- hazard_new
-      self$h.hat.t <- hazard_new[, self$T.uniq]
-    },
-    compute_survival_from_pdf = function(){
-      self$Qn.A1.t <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)
-      self$Qn.A1.t_full <- compute_step_cdf(pdf.mat = self$qn.A1.t_full, t.vec = 1:self$T.max, start = Inf)
-    },
+    #   self$h.hat.t_full <- hazard_new
+    #   self$h.hat.t <- hazard_new[, self$T.uniq]
+    # },
+    # compute_survival_from_pdf = function(){
+    #   self$Qn.A1.t <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)
+    #   self$Qn.A1.t_full <- compute_step_cdf(pdf.mat = self$qn.A1.t_full, t.vec = 1:self$T.max, start = Inf)
+    # },
     onestep_curve_update_pooled = function(){
       update <- compute_onestep_update_matrix(D1.t.func.prev = self$D1.t,
                                               Pn.D1.func.prev = self$Pn.D1.t,
@@ -389,11 +389,11 @@ MOSS <- R6Class("MOSS",
 
       self$compute_Psi()
     },
-    print_onestep_curve = function(...){
-      step_curve <- stepfun(x = 1:self$T.max, y = c(1, self$Psi.hat))
-      # can `add`, `col`
-      curve(step_curve, from = 0, to = self$T.max, ...)
-    },
+    # print_onestep_curve = function(...){
+    #   step_curve <- stepfun(x = 1:self$T.max, y = c(1, self$Psi.hat))
+    #   # can `add`, `col`
+    #   curve(step_curve, from = 0, to = self$T.max, ...)
+    # },
     print = function(){
       data.frame(self$Psi.hat, self$sd_EIC, self$upper_CI, self$lower_CI)
     },
