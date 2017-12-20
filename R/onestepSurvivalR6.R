@@ -211,7 +211,7 @@ MOSS <- R6Class("MOSS",
       for (it in 1:self$n_sample) {
         hazard_new[it, ] <- self$qn.A1.t_full[it, ] / self$Qn.A1.t_full[it,]
       }
-      # dirty fix
+      # dirty fix: upper bound hazard
       hazard_new[hazard_new >= 1] <- .8
 
       self$h.hat.t_full <- hazard_new
@@ -219,13 +219,7 @@ MOSS <- R6Class("MOSS",
     },
     compute_survival_from_pdf = function(){
       self$Qn.A1.t <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)
-      # cdf_offset <- 1 - self$Qn.A1.t[,1]
-      # self$Qn.A1.t <- self$Qn.A1.t + cdf_offset
-
       self$Qn.A1.t_full <- compute_step_cdf(pdf.mat = self$qn.A1.t_full, t.vec = 1:self$T.max, start = Inf)
-      # cdf_offset <- 1 - self$Qn.A1.t_full[,1]
-      # self$Qn.A1.t_full <- self$Qn.A1.t_full + cdf_offset
-
     },
     onestep_curve_update_pooled = function(){
       update <- compute_onestep_update_matrix(D1.t.func.prev = self$D1.t,
@@ -356,8 +350,6 @@ MOSS <- R6Class("MOSS",
       self$compute_hazard_from_pdf_and_survival()
     },
     compute_Psi = function(){
-      # browser()
-      # self$Psi.hat <- colMeans(self$Qn.A1.t)
       self$Psi.hat <- colMeans(self$Qn.A1.t_full)
 
       self$sd_EIC <- rep(NA, self$T.max)
@@ -398,7 +390,6 @@ MOSS <- R6Class("MOSS",
       self$compute_Psi()
     },
     print_onestep_curve = function(...){
-      # step_curve <- stepfun(x = self$T.uniq, y = c(1, self$Psi.hat))
       step_curve <- stepfun(x = 1:self$T.max, y = c(1, self$Psi.hat))
       # can `add`, `col`
       curve(step_curve, from = 0, to = self$T.max, ...)
@@ -407,14 +398,6 @@ MOSS <- R6Class("MOSS",
       data.frame(self$Psi.hat, self$sd_EIC, self$upper_CI, self$lower_CI)
     },
     plot_CI_pointwise = function(...){
-      # browser()
-
-      # t_col(col = col, perc = 50, name = "lt.col")
-      # polygon(c(1:self$T.max, rev(1:self$T.max)), c(c(self$upper_CI), rev(c(self$lower_CI))),
-      #                     col = 'lt.col',
-      #                     # col = rgb(0.7,0.7,0.7,0.4),
-      #                     border = NA,
-      #                     add = TRUE)
       polygon(c(1:self$T.max, rev(1:self$T.max)), c(c(self$upper_CI), rev(c(self$lower_CI))),
                           col = rgb(0.7,0.7,0.7,0.4),
                           border = NA,

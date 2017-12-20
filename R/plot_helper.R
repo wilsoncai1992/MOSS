@@ -13,4 +13,4 @@ t_col <- function(color, percent = 50, name = NULL) {
   invisible(t.col)
 
 }
-mycol <- t_col("pink", perc = 50, name = "lt.pink")
+# mycol <- t_col("pink", perc = 50, name = "lt.pink")
