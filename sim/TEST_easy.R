@@ -15,8 +15,8 @@ D <- D +
   node("Trexp", distr = "rexp", rate = 1 + 2*W - .5*A) +
   node("Cweib", distr = "rweibull", shape = .7 - .2*W, scale = 1) +
   node("T", distr = "rconst", const = round(Trexp*10,0)) +
-  node("C", distr = "rconst", const = round(Cweib*10, 0)) +
-  # node("C", distr = "rconst", const = 999) +
+  # node("C", distr = "rconst", const = round(Cweib*10, 0)) +
+  node("C", distr = "rconst", const = 999) +
   node("T.tilde", distr = "rconst", const = ifelse(T <= C , T, C)) +
   node("Delta", distr = "rconst", const = ifelse(T <= C , 1, 0))
 setD <- set.DAG(D)
@@ -64,19 +64,19 @@ lines(round(q*10,0), truesurvExp, type="l", cex=0.2, col = 'blue')
 # R6
 # onestepfit = MOSS$new(dat, dW = 1, verbose = TRUE, epsilon.step = 1e-3, max.iter = 1e2)
 onestepfit = MOSS$new(dat, dW = 1,
-                      g.SL.Lib = c('SL.mean'),
                       Delta.SL.Lib = c('SL.mean'),
                       ht.SL.Lib = c('SL.glm'),
-  verbose = TRUE, epsilon.step = 1e-3, max.iter = 1e2)
+  # verbose = TRUE, epsilon.step = 1e-3, max.iter = 1e2)
   # verbose = TRUE, epsilon.step = 5e-3, max.iter = 5e2)
   # verbose = TRUE, epsilon.step = 5e-3, max.iter = 2e2)
-  # verbose = TRUE, epsilon.step = 1e-4, max.iter = 5e2)
+  verbose = TRUE, epsilon.step = 1e-4, max.iter = 5e2)
   # verbose = TRUE, epsilon.step = 1e-3, max.iter = 5e2)
   # verbose = TRUE, epsilon.step = 1e-2, max.iter = 5e2)
   # verbose = TRUE, epsilon.step = 1e0, max.iter = 5e2)
-onestepfit$fit_g_initial()
-onestepfit$fit_failure_hazard()
-onestepfit$fit_censoring_cdf()
+onestepfit$fit_g_initial(g.SL.Lib = c('SL.glm', 'SL.step'))
+# onestepfit$fit_failure_hazard()
+# onestepfit$fit_censoring_cdf()
+onestepfit$fit_failure_hazard_and_censoring_cdf(g.SL.Lib = c('SL.glm', 'SL.step'))
 onestepfit$transform_failure_hazard_to_survival()
 onestepfit$transform_failure_hazard_to_pdf()
 onestepfit$compute_EIC()
