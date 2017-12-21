@@ -6,17 +6,22 @@ D <- DAG.empty()
 
 D <- D +
   node("W", distr = "rbinom", size = 1, prob = .5) +
-  node("A", distr = "rbinom", size = 1, prob = .3 + .3*W) +
+  # node("A", distr = "rbinom", size = 1, prob = .15 + .7*W) +
+  # node("A", distr = "rbinom", size = 1, prob = .3 + .3*W) +
+  node("A", distr = "rbinom", size = 1, prob = .5) +
+  # node("Trexp", distr = "rexp", rate = 1 + .5*W - .5*A) +
+  # node("Trexp", distr = "rexp", rate = 1 + 1*W - .5*A) +
   node("Trexp", distr = "rexp", rate = 1 + 2*W - .5*A) +
   node("Cweib", distr = "rweibull", shape = .7 - .2*W, scale = 1) +
   node("T", distr = "rconst", const = round(Trexp*10,0)) +
-  node("C", distr = "rconst", const = round(Cweib*10, 0)) +
-  # node("C", distr = "rconst", const = 999) +
+  # node("C", distr = "rconst", const = round(Cweib*10, 0)) +
+  node("C", distr = "rconst", const = 999) +
   node("T.tilde", distr = "rconst", const = ifelse(T <= C , T, C)) +
   node("Delta", distr = "rconst", const = ifelse(T <= C , 1, 0))
 setD <- set.DAG(D)
 
 # Simulate the data from the above data generating distribution:
+# dat <- sim(setD, n=3e2, rndseed = 12345)
 # dat <- sim(setD, n=1e3, rndseed = 12345)
 dat <- sim(setD, n=1e4, rndseed = 12345)
 head(dat)
@@ -95,7 +100,13 @@ while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter)) {
 
   onestepfit$compute_Psi()
   if (iter_count %% 10 == 0) onestepfit$print_onestep_curve(add = TRUE)
-  # if (iter_count %% 10 == 0) plot(onestepfit$Pn.D1.t); abline(h = 0)
+  # print(onestepfit$Pn.D1.t)
+  # print(onestepfit$qn.A1.t_full)
+  # print(onestepfit$D1.t)
+  # print(onestepfit$h.hat.t)
+  # print(onestepfit$inside_exp)
+  # if (iter_count %% 10 == 0) plot(onestepfit$Pn.D1.t)
+  # abline(h = 0)
 }
 
 if (iter_count == onestepfit$max.iter) {
