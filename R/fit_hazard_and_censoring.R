@@ -71,6 +71,10 @@ fit_hazard_and_censoring = function(ftime,
     }
   )
 
+  # extract g
+  g_1 <- dat$g_1
+  g_0 <- dat$g_0
+
   # extract hazard
   d1 <- dataList$`1`
   d0 <- dataList$`0`
@@ -92,5 +96,5 @@ fit_hazard_and_censoring = function(ftime,
   S_Ac_0 <- tidyr::spread(S_Ac_0, t, G_dC)
   S_Ac_0 <- S_Ac_0[,-1] # remove the id column
 
-  return(list(haz1, haz0, S_Ac_1, S_Ac_0))
+  return(list(haz1, haz0, S_Ac_1, S_Ac_0, g_1, g_0))
 }

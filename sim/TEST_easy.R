@@ -60,8 +60,9 @@ lines(round(q*10,0), truesurvExp, type="l", cex=0.2, col = 'blue')
 onestepfit = MOSS$new(dat, dW = 1,
   # verbose = TRUE, epsilon.step = 5e-3, max.iter = 2e2)
   verbose = TRUE, epsilon.step = 1e-4, max.iter = 5e2)
-onestepfit$fit_g_initial(g.SL.Lib = c('SL.glm', 'SL.step'))
-onestepfit$fit_failure_hazard_and_censoring_cdf(Delta.SL.Lib = c('SL.mean'), ht.SL.Lib = c('SL.glm'),)
+onestepfit$initial_fit(g.SL.Lib = c("SL.glm", "SL.step", "SL.glm.interaction"),
+                       Delta.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth"),
+                       ht.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth"))
 onestepfit$transform_failure_hazard_to_survival()
 onestepfit$transform_failure_hazard_to_pdf()
 onestepfit$compute_EIC()

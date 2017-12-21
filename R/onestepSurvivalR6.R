@@ -6,7 +6,6 @@ MOSS <- R6Class("MOSS",
   public = list(
     dat = NULL,
     dW = NULL,
-    g.SL.Lib = NULL,
     epsilon.step = NULL,
     max.iter = NULL,
     tol = NULL,
@@ -24,7 +23,6 @@ MOSS <- R6Class("MOSS",
     T.max = NULL,
 
     # g
-    gHatSL = NULL,
     g.fitted = NULL,
     # N(t)
     h.hat.t = NULL,
@@ -112,20 +110,10 @@ MOSS <- R6Class("MOSS",
           stop('not implemented!')
         }
     },
-    fit_g_initial = function(g.SL.Lib = c("SL.glm", "SL.step", "SL.glm.interaction")){
-      self$g.SL.Lib <- g.SL.Lib
-      message('fit g')
-      self$gHatSL <- SuperLearner(Y = self$A,
-                                 X = self$W,
-                                 SL.library = self$g.SL.Lib,
-                                 family = "binomial")
-      # g.hat for each observation
-      self$g.fitted <- self$gHatSL$SL.predict
-    },
-    fit_failure_hazard_and_censoring_cdf = function(
-      Delta.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth"),
-      ht.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth")){
-      message('fit failure hazard + censoring survival')
+    initial_fit = function(g.SL.Lib = c("SL.glm", "SL.step", "SL.glm.interaction"),
+                           Delta.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth"),
+                           ht.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth")){
+      message('initial fit')
       fit_out <- fit_hazard_and_censoring(ftime = self$T.tilde,
                                           ftype = self$Delta,
                                           trt = self$A,
@@ -138,9 +126,11 @@ MOSS <- R6Class("MOSS",
       haz0 <- fit_out[[2]]
       S_Ac_1 <- fit_out[[3]]
       S_Ac_0 <- fit_out[[4]]
+      g_1 <- fit_out[[5]]
+      g_0 <- fit_out[[6]]
 
-      if (all(self$dW == 1)) haz <- haz1; S_Ac <- S_Ac_1
-      if (all(self$dW == 0)) haz <- haz0; S_Ac <- S_Ac_0
+      if (all(self$dW == 1)) haz <- haz1; S_Ac <- S_Ac_1; self$g.fitted <- g_1
+      if (all(self$dW == 0)) haz <- haz0; S_Ac <- S_Ac_0; self$g.fitted <- g_0
 
       self$h.hat.t_full <- as.matrix(haz)
       self$h.hat.t <- self$h.hat.t_full[,self$T.uniq]
