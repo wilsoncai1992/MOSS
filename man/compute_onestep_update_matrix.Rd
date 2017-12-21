@@ -26,6 +26,3 @@ vector of length n_sample
 \description{
 Perform one-step TMLE update of survival curve
 }
-\examples{
-# TO DO
-}

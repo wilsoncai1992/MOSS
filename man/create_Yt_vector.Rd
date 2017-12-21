@@ -17,6 +17,3 @@ a binary vector, of length = t.vec
 \description{
 loop over t.vec
 }
-\examples{
-# TO DO
-}

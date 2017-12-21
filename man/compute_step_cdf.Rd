@@ -20,6 +20,3 @@ vector of cdf value
 \description{
 compute cumulative distribution function of a step-shaped (empirical) density
 }
-\examples{
-# TO DO
-}

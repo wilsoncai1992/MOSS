@@ -7,8 +7,6 @@ MOSS <- R6Class("MOSS",
     dat = NULL,
     dW = NULL,
     g.SL.Lib = NULL,
-    Delta.SL.Lib = NULL,
-    ht.SL.Lib = NULL,
     epsilon.step = NULL,
     max.iter = NULL,
     tol = NULL,
@@ -52,8 +50,6 @@ MOSS <- R6Class("MOSS",
     lower_CI = NULL,
     initialize = function(dat,
                           dW,
-                          Delta.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth"),
-                          ht.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth"),
                           epsilon.step = 1e-5,
                           max.iter = 1e3,
                           tol = 1/nrow(dat),
@@ -61,15 +57,13 @@ MOSS <- R6Class("MOSS",
                           verbose = FALSE) {
       self$dat <- dat
       self$dW <- dW
-      self$Delta.SL.Lib <- Delta.SL.Lib
-      self$ht.SL.Lib <- ht.SL.Lib
       self$epsilon.step <- epsilon.step
       self$max.iter <- max.iter
       self$tol <- tol
       self$T.cutoff <- T.cutoff
       self$verbose <- verbose
 
-      self$check_and_preprocess_data()
+      self$check_and_preprocess_data(T.cutoff = self$T.cutoff)
       self$update_tensor <- matrix(0, nrow = self$n_sample, ncol = length(self$T.uniq))
       # self$inside_exp <- rep(0, length(self$T.uniq))
       self$inside_exp <- matrix(0, ncol = length(self$T.uniq), nrow = self$n_sample)
@@ -128,42 +122,18 @@ MOSS <- R6Class("MOSS",
       # g.hat for each observation
       self$g.fitted <- self$gHatSL$SL.predict
     },
-    # fit_failure_hazard = function(){
-    #   # fit hazard intervene on A=1
-    #   message('fit failure hazard')
-    #   h.hat.t <- estimate_hazard_SL(dat = self$dat,
-    #                                T.uniq = self$T.uniq,
-    #                                ht.SL.Lib = self$ht.SL.Lib)
-    #   # h.hat at all time t=[0,t.max]
-    #   self$h.hat.t_full <- as.matrix(h.hat.t$out_haz_full)
-    #   # h.hat at observed unique time t = T.grid
-    #   self$h.hat.t <- as.matrix(h.hat.t$out_haz)
-    # },
-    # fit_censoring_cdf = function(cutoff = 0.05){
-    #   message('fit censoring cdf')
-    #   G.hat.t <- estimate_censoring_SL(dat = self$dat,
-    #                                    T.uniq = self$T.uniq,
-    #                                    Delta.SL.Lib = self$Delta.SL.Lib)
-    #   if(any(G.hat.t$out_censor_full <= cutoff)){
-    #     warning('G.hat has extreme small values! lower truncate to 0.05')
-    #     G.hat.t$out_censor_full[G.hat.t$out_censor_full < cutoff] <- cutoff
-    #     G.hat.t$out_censor[G.hat.t$out_censor < cutoff] <- cutoff
-    #   }
-
-    #   self$Gn.A1.t_full <- as.matrix(G.hat.t$out_censor_full)
-    #   self$Gn.A1.t <- as.matrix(G.hat.t$out_censor)
-    # },
-    fit_failure_hazard_and_censoring_cdf = function(g.SL.Lib = c("SL.glm", "SL.step", "SL.glm.interaction")){
-      # browser()
+    fit_failure_hazard_and_censoring_cdf = function(
+      Delta.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth"),
+      ht.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth")){
       message('fit failure hazard + censoring survival')
       fit_out <- fit_hazard_and_censoring(ftime = self$T.tilde,
                                           ftype = self$Delta,
                                           trt = self$A,
                                           adjustVars = data.frame(self$W),
                                           t_0 = self$T.max,
-                                          SL.trt = g.SL.Lib,
-                                          SL.ctime = self$Delta.SL.Lib,
-                                          SL.ftime = self$ht.SL.Lib)
+                                          SL.trt = self$g.SL.Lib,
+                                          SL.ctime = Delta.SL.Lib,
+                                          SL.ftime = ht.SL.Lib)
       haz1 <- fit_out[[1]]
       haz0 <- fit_out[[2]]
       S_Ac_1 <- fit_out[[3]]

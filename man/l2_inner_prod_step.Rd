@@ -19,6 +19,3 @@ scalar
 \description{
 f and g
 }
-\examples{
-# TO DO
-}

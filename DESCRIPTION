@@ -13,7 +13,7 @@ Depends:
 Imports:
     tmle,
     foreach,
-    survtmle (>= 1.0.0)
+    survtmle (>= 1.0.0),
     tidyr,
     abind,
     dplyr,
