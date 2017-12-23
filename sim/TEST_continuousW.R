@@ -5,7 +5,7 @@ library(simcausal)
 D <- DAG.empty()
 
 D <- D +
-  node("W", distr = "rbinom", size = 1, prob = .5) +
+  node("W", distr = "runif", min = 0, max = 2) +
   node("A", distr = "rbinom", size = 1, prob = .3 + .3*W) +
   # node("A", distr = "rbinom", size = 1, prob = .5) +
   node("Trexp", distr = "rexp", rate = 1 + .5*W - .5*A) +
@@ -19,8 +19,8 @@ D <- D +
 setD <- set.DAG(D)
 
 # Simulate the data from the above data generating distribution:
-dat <- sim(setD, n=1e2, rndseed = 12345)
-# dat <- sim(setD, n=1e3, rndseed = 12345)
+# dat <- sim(setD, n=1e2, rndseed = 12345)
+dat <- sim(setD, n=1e3, rndseed = 12345)
 # dat <- sim(setD, n=1e4, rndseed = 12345)
 head(dat)
 
@@ -39,24 +39,20 @@ plot(km.fit, col=c('blue','red'), lty = 2,
 main = paste('n=', n.data, '\n # of nuisance covariate = 1'),
 xlab = 'Time')
 
-q <- seq(0,3,.01)
-# truesurvExp1 <- 1 - pexp(q, rate = 1.5)
-# truesurvExp2 <- 1 - pexp(q, rate = 1)
-truesurvExp1 <- 1 - pexp(q, rate = 1)
-truesurvExp2 <- 1 - pexp(q, rate = .5)
-truesurvExp <- (truesurvExp1 + truesurvExp2)/2
-lines(round(q*10,0), truesurvExp, type="l", cex=0.2, col = 'red')
-
-truesurvExp1 <- 1 - pexp(q, rate = 1.5)
-truesurvExp2 <- 1 - pexp(q, rate = 1)
-# truesurvExp1 <- 1 - pexp(q, rate = 2)
-# truesurvExp2 <- 1 - pexp(q, rate = 1.5)
-# truesurvExp1 <- 1 - pexp(q, rate = 3)
-# truesurvExp2 <- 1 - pexp(q, rate = 2.5)
-truesurvExp <- (truesurvExp1 + truesurvExp2)/2
-lines(round(q*10,0), truesurvExp, type="l", cex=0.2, col = 'blue')
-
-
+library(dplyr)
+true_func <- function(x,A,W){
+  1 - pexp(x/10, rate = 1+.5*W-.5*A)
+}
+plot_one_arm <- function(A, ...) {
+  meshgrid <- expand.grid(seq(0,30,.01), A, seq(0,2,.1))
+  p_hat <- apply(meshgrid, 1, function(x) true_func(x[1],x[2],x[3]))
+  df_temp <- data.frame(meshgrid, p_hat)
+  colnames(df_temp)[1] <- 'x'
+  df_temp <- df_temp %>% group_by(x) %>% summarise(p = mean(p_hat)) %>% as.data.frame
+  lines(df_temp[,1], df_temp[,2], type="l", cex=0.2, ...)
+}
+plot_one_arm(A = 1, col = 'red')
+plot_one_arm(A = 0, col = 'blue')
 
 # R6
 # onestepfit = MOSS$new(dat, dW = 1, verbose = TRUE, epsilon.step = 1e-3, max.iter = 1e2)

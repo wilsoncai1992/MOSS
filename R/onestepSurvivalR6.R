@@ -103,15 +103,15 @@ MOSS <- R6Class("MOSS",
         self$K <- length(self$T.uniq)
         self$T.max <- max(self$T.uniq)
 
-        if(all(self$dW == 0)) {
-          self$A <- 1 - self$A
-          self$dW <- 1 - self$dW
-        }else if(all(self$dW == 1)){
-        }else{
-          stop('not implemented!')
-        }
+        # if(all(self$dW == 0)) {
+        #   self$A <- 1 - self$A
+        #   self$dW <- 1 - self$dW
+        # }else if(all(self$dW == 1)){
+        # }else{
+        #   stop('not implemented!')
+        # }
     },
-    initial_fit = function(g.SL.Lib = c("SL.glm", "SL.step", "SL.glm.interaction"),
+    initial_fit = function(g.SL.Lib = c("SL.mean","SL.glm", "SL.step", "SL.glm.interaction"),
                            Delta.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth"),
                            ht.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth")){
       # browser()
