@@ -108,14 +108,14 @@ MOSS <- R6Class("MOSS",
                            ht.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth")){
       # browser()
       message('initial fit')
-      fit_out <- fit_hazard_and_censoring(ftime = self$T.tilde,
-                                          ftype = self$Delta,
-                                          trt = self$A,
-                                          adjustVars = data.frame(self$W),
-                                          t_0 = self$T.max,
-                                          SL.trt = g.SL.Lib,
-                                          SL.ctime = Delta.SL.Lib,
-                                          SL.ftime = ht.SL.Lib)
+      fit_out <- initial_SL_fit(ftime = self$T.tilde,
+                                ftype = self$Delta,
+                                trt = self$A,
+                                adjustVars = data.frame(self$W),
+                                t_0 = self$T.max,
+                                SL.trt = g.SL.Lib,
+                                SL.ctime = Delta.SL.Lib,
+                                SL.ftime = ht.SL.Lib)
       haz1 <- fit_out[[1]]
       haz0 <- fit_out[[2]]
       S_Ac_1 <- fit_out[[3]]
