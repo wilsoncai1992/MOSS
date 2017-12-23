@@ -19,7 +19,8 @@ D <- D +
 setD <- set.DAG(D)
 
 # Simulate the data from the above data generating distribution:
-dat <- sim(setD, n=1e3, rndseed = 12345)
+dat <- sim(setD, n=1e2, rndseed = 12345)
+# dat <- sim(setD, n=1e3, rndseed = 12345)
 # dat <- sim(setD, n=1e4, rndseed = 12345)
 head(dat)
 
@@ -60,11 +61,12 @@ lines(round(q*10,0), truesurvExp, type="l", cex=0.2, col = 'blue')
 # R6
 # onestepfit = MOSS$new(dat, dW = 1, verbose = TRUE, epsilon.step = 1e-3, max.iter = 1e2)
 onestepfit = MOSS$new(dat, dW = 1,
-  verbose = TRUE, epsilon.step = 1e-3, max.iter = 5e2)
+  # verbose = TRUE, epsilon.step = 1e-3, max.iter = 5e2)
+  verbose = TRUE, epsilon.step = 1e-1, max.iter = 5e2)
   # verbose = TRUE, epsilon.step = 5e-4, max.iter = 5e2)
   # verbose = TRUE, epsilon.step = 1e-4, max.iter = 5e2)
 # onestepfit$initial_fit(g.SL.Lib = c("SL.glm", "SL.step", "SL.glm.interaction"),
-onestepfit$initial_fit(g.SL.Lib = c("SL.glm"),
+onestepfit$initial_fit(g.SL.Lib = c("SL.mean","SL.glm"),
                        Delta.SL.Lib = c("SL.mean","SL.glm", "SL.gam"),
                        ht.SL.Lib = c("SL.mean","SL.glm", "SL.gam"))
 onestepfit$transform_failure_hazard_to_survival()
@@ -74,18 +76,19 @@ onestepfit$compute_EIC()
 
 iter_count <- 0
 stopping_prev <- Inf
-all_stopping <- numeric()
+stopping_history <- numeric()
 all_loglikeli <- numeric()
 
 stopping <- onestepfit$compute_stopping()
-# while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter)) {
-while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter) & ((stopping_prev - stopping) >= max(-onestepfit$tol, -1e-5))) {
+while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter)) {
+# while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter) & ((stopping_prev - stopping) >= max(-onestepfit$tol, -1e-5))) {
   print(stopping)
-  onestepfit$onestep_curve_update()
+  # onestepfit$onestep_curve_update()
   # onestepfit$onestep_curve_update_pooled()
-  # onestepfit$onestep_curve_update_mat()
+  onestepfit$onestep_curve_update_mat()
   onestepfit$compute_EIC()
   iter_count <- iter_count + 1
+  stopping_history[iter_count] <- stopping
   stopping_prev <- stopping
   stopping <- onestepfit$compute_stopping()
 

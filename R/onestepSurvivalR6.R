@@ -40,6 +40,7 @@ MOSS <- R6Class("MOSS",
     Pn.D1.t = NULL,
     # targeting
     stopping_criteria = NULL,
+    stopping_history = numeric(),
     update_tensor = NULL,
     inside_exp = 0,
     Psi.hat = NULL,
@@ -353,17 +354,18 @@ MOSS <- R6Class("MOSS",
 
       iter_count <- 0
       stopping_prev <- Inf
-      all_stopping <- numeric()
       all_loglikeli <- numeric()
 
       stopping <- self$compute_stopping()
       while ((stopping >= self$tol) & (iter_count <= self$max.iter)) {
       # while ((stopping >= self$tol) & (iter_count <= self$max.iter) & ((stopping_prev - stopping) >= max(-self$tol, -1e-5))) {
         print(stopping)
-        self$onestep_curve_update()
+        # self$onestep_curve_update()
+        self$onestep_curve_update_mat()
         self$compute_EIC()
         iter_count <- iter_count + 1
-        stopping_prev <- stopping
+        self$stopping_history[iter_count] <- stopping
+        stopping_prev <- stopping_history[iter_count]
         stopping <- self$compute_stopping()
       }
 
