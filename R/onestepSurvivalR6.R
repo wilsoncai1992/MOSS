@@ -237,7 +237,6 @@ MOSS <- R6Class("MOSS",
       # self$compute_hazard_from_pdf_and_survival()
     },
     onestep_curve_update_mat = function(){
-      # browser()
       update <- compute_onestep_update_matrix(D1.t.func.prev = self$D1.t,
                                               Pn.D1.func.prev = self$Pn.D1.t,
                                               dat = self$dat,
@@ -263,7 +262,6 @@ MOSS <- R6Class("MOSS",
       self$compute_hazard_from_pdf_and_survival()
     },
     onestep_curve_update = function(){
-      # browser()
       update <- compute_onestep_update_matrix(D1.t.func.prev = self$D1.t,
                                               Pn.D1.func.prev = self$Pn.D1.t,
                                               dat = self$dat,
@@ -283,15 +281,6 @@ MOSS <- R6Class("MOSS",
       self$qn.A1.t_full <- self$qn.A1.t_full / rowSums(self$qn.A1.t_full)
       self$qn.A1.t <- self$qn.A1.t_full[,self$T.uniq]
 
-      # For density sum > 1: normalize the updated qn
-      # norm.factor <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)[,1]
-      # self$qn.A1.t[norm.factor > 1,] <- self$qn.A1.t[norm.factor > 1,] / norm.factor[norm.factor > 1]
-      # self$qn.A1.t_full[norm.factor > 1,] <- self$qn.A1.t_full[norm.factor > 1,] / norm.factor[norm.factor > 1]
-
-      # # if some qn becomes all zero, prevent NA exisitence
-      # self$qn.A1.t[is.na(self$qn.A1.t)] <- 0
-      # self$qn.A1.t_full[is.na(self$qn.A1.t_full)] <- 0
-
       # compute new Survival
       self$compute_survival_from_pdf()
 
@@ -299,7 +288,6 @@ MOSS <- R6Class("MOSS",
       self$compute_hazard_from_pdf_and_survival()
     },
     onestep_curve_update_no_normalize = function(){
-      # browser()
       update <- compute_onestep_update_matrix(D1.t.func.prev = self$D1.t,
                                               Pn.D1.func.prev = self$Pn.D1.t,
                                               dat = self$dat,
@@ -319,15 +307,6 @@ MOSS <- R6Class("MOSS",
       # self$qn.A1.t_full <- self$qn.A1.t_full / rowSums(self$qn.A1.t_full)
       self$qn.A1.t <- self$qn.A1.t_full[,self$T.uniq]
 
-      # For density sum > 1: normalize the updated qn
-      # norm.factor <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)[,1]
-      # self$qn.A1.t[norm.factor > 1,] <- self$qn.A1.t[norm.factor > 1,] / norm.factor[norm.factor > 1]
-      # self$qn.A1.t_full[norm.factor > 1,] <- self$qn.A1.t_full[norm.factor > 1,] / norm.factor[norm.factor > 1]
-
-      # # if some qn becomes all zero, prevent NA exisitence
-      # self$qn.A1.t[is.na(self$qn.A1.t)] <- 0
-      # self$qn.A1.t_full[is.na(self$qn.A1.t_full)] <- 0
-
       # compute new Survival
       self$compute_survival_from_pdf()
 
@@ -342,12 +321,15 @@ MOSS <- R6Class("MOSS",
       self$sd_EIC <- zoo::na.locf(self$sd_EIC)
       self$upper_CI <- self$Psi.hat + 1.96 * self$sd_EIC
       self$lower_CI <- self$Psi.hat - 1.96 * self$sd_EIC
+
       EIC_sup_norm <- abs(self$Pn.D1.t)
     },
-    onestep_curve = function(){
-      self$fit_g_initial()
-      self$fit_failure_hazard()
-      self$fit_censoring_cdf()
+    onestep_curve = function(g.SL.Lib = c("SL.mean","SL.glm", 'SL.gam'),
+                             Delta.SL.Lib = c("SL.mean","SL.glm", "SL.gam"),
+                             ht.SL.Lib = c("SL.mean","SL.glm", "SL.gam")){
+      self$initial_fit(g.SL.Lib = g.SL.Lib,
+                       Delta.SL.Lib = Delta.SL.Lib,
+                       ht.SL.Lib = ht.SL.Lib)
       self$transform_failure_hazard_to_survival()
       self$transform_failure_hazard_to_pdf()
       self$compute_EIC()
@@ -360,6 +342,7 @@ MOSS <- R6Class("MOSS",
       while ((stopping >= self$tol) & (iter_count <= self$max.iter)) {
       # while ((stopping >= self$tol) & (iter_count <= self$max.iter) & ((stopping_prev - stopping) >= max(-self$tol, -1e-5))) {
         print(stopping)
+        if (stopping_prev < stopping) onestepfit$epsilon.step <- -onestepfit$epsilon.step
         # self$onestep_curve_update()
         self$onestep_curve_update_mat()
         self$compute_EIC()
@@ -367,6 +350,9 @@ MOSS <- R6Class("MOSS",
         self$stopping_history[iter_count] <- stopping
         stopping_prev <- stopping_history[iter_count]
         stopping <- self$compute_stopping()
+
+        # if (iter_count %% 10 == 0) onestepfit$print_onestep_curve(add = TRUE)
+        # if (iter_count %% 10 == 0) plot(onestepfit$Pn.D1.t); abline(h = 0)
       }
 
       if (iter_count == self$max.iter) {
@@ -389,8 +375,6 @@ MOSS <- R6Class("MOSS",
                           border = NA,
                           ...)
       self$print_onestep_curve(...)
-
-
     }
   )
 )
