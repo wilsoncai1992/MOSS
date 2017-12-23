@@ -263,12 +263,12 @@ MOSS <- R6Class("MOSS",
       self$inside_exp <- colSums(update)
       # self$inside_exp[is.na(self$inside_exp)] <- 0
 
-      self$qn.A1.t <- multiple_vector_to_matrix(self$qn.A1.t, exp(self$epsilon.step * self$inside_exp))
+      self$qn.A1.t <- multiply_vector_to_matrix(self$qn.A1.t, exp(self$epsilon.step * self$inside_exp))
 
       inside_exp_longer <- rep(NA, self$T.max)
       inside_exp_longer[self$T.uniq] <- self$inside_exp
       inside_exp_longer <- zoo::na.locf(inside_exp_longer)
-      self$qn.A1.t_full <- multiple_vector_to_matrix(self$qn.A1.t_full, exp(self$epsilon.step * inside_exp_longer))
+      self$qn.A1.t_full <- multiply_vector_to_matrix(self$qn.A1.t_full, exp(self$epsilon.step * inside_exp_longer))
 
       self$qn.A1.t_full <- self$qn.A1.t_full / rowSums(self$qn.A1.t_full)
       self$qn.A1.t <- self$qn.A1.t_full[,self$T.uniq]
@@ -289,12 +289,12 @@ MOSS <- R6Class("MOSS",
       self$inside_exp <- colSums(update)
       # self$inside_exp[is.na(self$inside_exp)] <- 0
 
-      self$qn.A1.t <- multiple_vector_to_matrix(self$qn.A1.t, exp(self$epsilon.step * self$inside_exp))
+      self$qn.A1.t <- multiply_vector_to_matrix(self$qn.A1.t, exp(self$epsilon.step * self$inside_exp))
 
       inside_exp_longer <- rep(NA, self$T.max)
       inside_exp_longer[self$T.uniq] <- self$inside_exp
       inside_exp_longer <- zoo::na.locf(inside_exp_longer)
-      self$qn.A1.t_full <- multiple_vector_to_matrix(self$qn.A1.t_full, exp(self$epsilon.step * inside_exp_longer))
+      self$qn.A1.t_full <- multiply_vector_to_matrix(self$qn.A1.t_full, exp(self$epsilon.step * inside_exp_longer))
 
       # self$qn.A1.t_full <- self$qn.A1.t_full / rowSums(self$qn.A1.t_full)
       self$qn.A1.t <- self$qn.A1.t_full[,self$T.uniq]

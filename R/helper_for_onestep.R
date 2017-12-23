@@ -1,6 +1,6 @@
 #' row mulitiplication
 #' @export
-multiple_vector_to_matrix <- function(M, V){
+multiply_vector_to_matrix <- function(M, V){
   t(t(M) * V)
 }
 

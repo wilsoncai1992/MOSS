@@ -14,7 +14,7 @@ discreteDensity <- R6Class("discreteDensity",
       self$p <- self$p / rowSums(self$p) * true_integral
     },
     multiply_vec_to_each_row = function(vec){
-      self$p <- multiple_vector_to_matrix(self$p, vec)
+      self$p <- multiply_vector_to_matrix(self$p, vec)
     },
     plot = function(...){
       step_curve <- stepfun(x = 1:max(self$t_grid), y = c(0, self$p))
