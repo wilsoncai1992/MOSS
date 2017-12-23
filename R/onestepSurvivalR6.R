@@ -93,23 +93,15 @@ MOSS <- R6Class("MOSS",
       # number of samples should be same
       if (length(self$dW) != self$n_sample) stop('The length of input dW is not same as the sample size!')
 
-        # create objects
-        self$W <- self$dat[,self$W_names]
-        self$W <- as.data.frame(self$W)
-        self$A <- self$dat$A
-        self$Delta <- self$dat$Delta
-        self$T.tilde <- self$dat$T.tilde
-        self$T.uniq <- sort(unique(self$dat$T.tilde))
-        self$K <- length(self$T.uniq)
-        self$T.max <- max(self$T.uniq)
-
-        # if(all(self$dW == 0)) {
-        #   self$A <- 1 - self$A
-        #   self$dW <- 1 - self$dW
-        # }else if(all(self$dW == 1)){
-        # }else{
-        #   stop('not implemented!')
-        # }
+      # create objects
+      self$W <- self$dat[,self$W_names]
+      self$W <- as.data.frame(self$W)
+      self$A <- self$dat$A
+      self$Delta <- self$dat$Delta
+      self$T.tilde <- self$dat$T.tilde
+      self$T.uniq <- sort(unique(self$dat$T.tilde))
+      self$K <- length(self$T.uniq)
+      self$T.max <- max(self$T.uniq)
     },
     initial_fit = function(g.SL.Lib = c("SL.mean","SL.glm", "SL.step", "SL.glm.interaction"),
                            Delta.SL.Lib = c("SL.mean","SL.glm", "SL.gam", "SL.earth"),
