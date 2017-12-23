@@ -53,7 +53,6 @@ plot_one_arm(A = 0, col = 'blue')
 library(MOSS)
 # R6
 onestepfit = MOSS$new(dat, dW = 1,
-  # verbose = TRUE, epsilon.step = 1e-3, max.iter = 5e2)
   # verbose = TRUE, epsilon.step = 1e-2, max.iter = 5e2)
   verbose = TRUE, epsilon.step = 1e-2, max.iter = 2e2)
 onestepfit$onestep_curve()
@@ -62,7 +61,6 @@ onestepfit$Psi.hat
 onestepfit$plot_CI_pointwise(add = TRUE)
 # ---------------------------------------------------------------------------------------
 library(survtmle)
-
 fit_survtmle <- function(dat) {
   dat$T.tilde[dat$T.tilde<=0] <- 1
   t_0 <- max(dat$T.tilde)
@@ -73,7 +71,6 @@ fit_survtmle <- function(dat) {
                   SL.ctime = c('SL.glm', 'SL.gam'),
                   method = "hazard",
                   t0 = t_0)
-
   # extract cumulative incidence at each timepoint
   tpfit <- timepoints(fit, times = seq_len(t_0))
   len_groups <- as.numeric(unique(lapply(lapply(tpfit, FUN = `[[`,
@@ -94,4 +91,5 @@ fit_survtmle <- function(dat) {
 survtmle_out <- fit_survtmle(dat)
 s_0 <- survtmle_out[[1]]
 s_1 <- survtmle_out[[2]]
-
+# lines(1:max(dat$T.tilde), s_1, col = 'green', lty = 1)
+# ---------------------------------------------------------------------------------------

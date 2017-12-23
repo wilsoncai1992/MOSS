@@ -354,7 +354,7 @@ MOSS <- R6Class("MOSS",
       self$compute_Psi()
     },
     print_onestep_curve = function(...){
-      step_curve <- stepfun(x = 1:self$T.max, y = c(1, self$Psi.hat))
+      step_curve <- stepfun(x = 1:self$T.max, y = c(self$Psi.hat, self$Psi.hat[length(self$Psi.hat)]))
       # can `add`, `col`
       curve(step_curve, from = 0, to = self$T.max, ...)
     },
