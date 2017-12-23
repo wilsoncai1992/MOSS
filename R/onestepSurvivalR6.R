@@ -340,7 +340,7 @@ MOSS <- R6Class("MOSS",
         self$compute_EIC()
         iter_count <- iter_count + 1
         self$stopping_history[iter_count] <- stopping
-        stopping_prev <- stopping_history[iter_count]
+        stopping_prev <- self$stopping_history[iter_count]
         stopping <- self$compute_stopping()
 
         # if (iter_count %% 10 == 0) onestepfit$print_onestep_curve(add = TRUE)
