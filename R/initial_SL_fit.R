@@ -1,14 +1,14 @@
 #' @export
-fit_hazard_and_censoring = function(ftime,
-                                    ftype,
-                                    trt,
-                                    adjustVars,
-                                    t_0,
-                                    trtOfInterest = 0:1,
-                                    SL.trt = c('SL.glm'),
-                                    gtol = 1e-3,
-                                    SL.ctime = c('SL.glm'),
-                                    SL.ftime = c('SL.glm')) {
+initial_SL_fit = function(ftime,
+                          ftype,
+                          trt,
+                          adjustVars,
+                          t_0,
+                          trtOfInterest = 0:1,
+                          SL.trt = c('SL.glm'),
+                          gtol = 1e-3,
+                          SL.ctime = c('SL.glm'),
+                          SL.ftime = c('SL.glm')) {
   adjustVars = data.frame(adjustVars)
   ftypeOfInterest = unique(ftype)
   n <- length(ftime)

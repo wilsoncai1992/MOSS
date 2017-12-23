@@ -60,13 +60,11 @@ compute_step_cdf <- function(pdf.mat, t.vec, start = -Inf) {
   interval.size <- c(interval.size, 0)
 
   # compute the mass
-  if(is.matrix(pdf.mat)){
-    # if input with multi-sample
+  if(is.matrix(pdf.mat)){ # if input with multi-sample
     mass.by.interval <- sweep(pdf.mat,MARGIN=2, interval.size, `*`)
     # multiplies the interval length to each row of the y-values
     # the result is a matrix, each row is a single pdf, and entries are the mass
-  }else{
-    # if input with one-sample
+  }else{ # if input with one-sample
     mass.by.interval <- pdf.mat * interval.size
   }
 
