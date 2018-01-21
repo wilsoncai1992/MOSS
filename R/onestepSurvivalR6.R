@@ -359,7 +359,7 @@ MOSS <- R6Class("MOSS",
       curve(step_curve, from = 0, to = self$T.max, ...)
     },
     print = function(){
-      data.frame(self$Psi.hat, self$sd_EIC, self$upper_CI, self$lower_CI)
+      data.frame(self$T.uniq, self$Psi.hat, self$sd_EIC, self$upper_CI, self$lower_CI)
     },
     plot_CI_pointwise = function(...){
       polygon(c(1:self$T.max, rev(1:self$T.max)), c(c(self$upper_CI), rev(c(self$lower_CI))),
