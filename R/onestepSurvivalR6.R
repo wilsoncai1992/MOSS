@@ -36,7 +36,6 @@ MOSS <- R6Class("MOSS",
     Gn.A1.t = NULL,
     # EIC
     D1.t = NULL,
-    D1.A1.t = NULL,
     Pn.D1.t = NULL,
     # targeting
     stopping_criteria = NULL,
@@ -311,10 +310,10 @@ MOSS <- R6Class("MOSS",
       self$Psi.hat <- colMeans(self$Qn.A1.t_full)
 
       self$sd_EIC <- rep(NA, self$T.max)
-      self$sd_EIC[self$T.uniq] <- sqrt(apply(self$D1.t, 2, var)/self$n_sample)
+      self$sd_EIC[self$T.uniq] <- apply(self$D1.t, 2, sd)
       self$sd_EIC <- zoo::na.locf(self$sd_EIC)
-      self$upper_CI <- self$Psi.hat + 1.96 * self$sd_EIC
-      self$lower_CI <- self$Psi.hat - 1.96 * self$sd_EIC
+      self$upper_CI <- self$Psi.hat + 1.96 * self$sd_EIC/sqrt(self$n_sample)
+      self$lower_CI <- self$Psi.hat - 1.96 * self$sd_EIC/sqrt(self$n_sample)
 
       EIC_sup_norm <- abs(self$Pn.D1.t)
     },
@@ -378,9 +377,8 @@ MOSS <- R6Class("MOSS",
       q_95_simCI <- simCI_quant(Sigma_hat_EIC, B = 500)
       CI_mat <- matrix(NA, nrow = self$T.max, ncol = 2)
       for (i in 1:self$T.max) {
-        CI_mat[i,] <- ConfInt(est = self$Psi.hat[i], q = q_95_simCI, sd_est = self$sd_EIC[i])
+        CI_mat[i,] <- ConfInt(est = self$Psi.hat[i], q = q_95_simCI, sd_est = self$sd_EIC[i]/sqrt(self$n_sample))
       }
-      # simul_CI <- data.frame(zoo::na.locf(CI_mat))
       simul_CI <- data.frame(CI_mat)
       colnames(simul_CI) <- c('lower_CI', 'upper_CI')
       self$simul_CI <- simul_CI
