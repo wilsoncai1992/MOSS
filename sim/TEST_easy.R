@@ -93,7 +93,7 @@ while ((stopping >= onestepfit$tol) & (iter_count <= onestepfit$max.iter)) {
   stopping <- onestepfit$compute_stopping()
 
   onestepfit$compute_Psi()
-  if (iter_count %% 10 == 0) onestepfit$print_onestep_curve(add = TRUE)
+  if (iter_count %% 10 == 0) onestepfit$plot_onestep_curve(add = TRUE)
   # if (iter_count %% 10 == 0) plot(onestepfit$Pn.D1.t); abline(h = 0)
 }
 

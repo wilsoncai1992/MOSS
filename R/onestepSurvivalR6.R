@@ -345,7 +345,7 @@ MOSS <- R6Class("MOSS",
         stopping_prev <- self$stopping_history[iter_count]
         stopping <- self$compute_stopping()
 
-        # if (iter_count %% 10 == 0) onestepfit$print_onestep_curve(add = TRUE)
+        # if (iter_count %% 10 == 0) onestepfit$plot_onestep_curve(add = TRUE)
         # if (iter_count %% 10 == 0) plot(onestepfit$Pn.D1.t); abline(h = 0)
       }
 
@@ -355,7 +355,7 @@ MOSS <- R6Class("MOSS",
 
       self$compute_Psi()
     },
-    print_onestep_curve = function(...){
+    plot_onestep_curve = function(...){
       step_curve <- stepfun(x = 1:self$T.max, y = c(self$Psi.hat, self$Psi.hat[length(self$Psi.hat)]))
       # can `add`, `col`
       curve(step_curve, from = 0, to = self$T.max, ...)
@@ -370,7 +370,7 @@ MOSS <- R6Class("MOSS",
                           col = rgb(0.7,0.7,0.7,0.4),
                           border = NA,
                           ...)
-      self$print_onestep_curve(...)
+      self$plot_onestep_curve(...)
     },
     compute_CI_simultaneous = function(){
       Sigma_hat_EIC <- cor(self$D1.t)
@@ -390,7 +390,7 @@ MOSS <- R6Class("MOSS",
               col = rgb(0.7,0.7,0.7,0.4),
               border = NA,
               ...)
-      self$print_onestep_curve(...)
+      self$plot_onestep_curve(...)
     }
   )
 )
