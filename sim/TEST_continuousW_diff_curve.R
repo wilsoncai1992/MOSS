@@ -53,8 +53,8 @@ plot_one_arm(A = 0, col = 'blue')
 library(MOSS)
 # R6
 onestepfit = MOSS_difference$new(dat,
-  # verbose = TRUE, epsilon.step = 1e-2, max.iter = 5e2)
-  verbose = TRUE, epsilon.step = 1e-2, max.iter = 2e2)
+  verbose = TRUE, epsilon.step = 1e-2, max.iter = 1e2)
+  # verbose = TRUE, epsilon.step = 1e-2, max.iter = 2e2)
 onestepfit$initial_fit()
 onestepfit$onestep_diff_curve()
 onestepfit$print()
