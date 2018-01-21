@@ -15,8 +15,8 @@ D <- D +
 setD <- set.DAG(D)
 
 # Simulate the data from the above data generating distribution:
-dat <- sim(setD, n=1e2, rndseed = 12345)
-# dat <- sim(setD, n=1e3, rndseed = 12345)
+# dat <- sim(setD, n=1e2, rndseed = 12345)
+dat <- sim(setD, n=1e3, rndseed = 12345)
 # dat <- sim(setD, n=1e4, rndseed = 12345)
 head(dat)
 
@@ -57,47 +57,9 @@ onestepfit = MOSS_difference$new(dat,
   verbose = TRUE, epsilon.step = 1e-2, max.iter = 2e2)
 onestepfit$initial_fit()
 onestepfit$onestep_diff_curve()
-
-
-
-onestepfit$onestep_curve()
-
-onestepfit$Psi.hat
-onestepfit$plot_CI_pointwise(add = TRUE)
+onestepfit$print()
+onestepfit$plot_CI_pointwise()
+onestepfit$plot_CI_pointwise(ylim = c(-.5,.5))
 
 onestepfit$compute_CI_simultaneous()
-onestepfit$plot_CI_simultaneous(add = TRUE)
-# ---------------------------------------------------------------------------------------
-library(survtmle)
-fit_survtmle <- function(dat) {
-  dat$T.tilde[dat$T.tilde<=0] <- 1
-  t_0 <- max(dat$T.tilde)
-  fit <- survtmle(ftime = dat$T.tilde, ftype = dat$Delta,
-                  trt = dat$A, adjustVars = data.frame(dat[,Wname]),
-                  SL.trt = c('SL.glm', 'SL.gam'),
-                  SL.ftime = c('SL.glm', 'SL.gam'),
-                  SL.ctime = c('SL.glm', 'SL.gam'),
-                  method = "hazard",
-                  t0 = t_0)
-  # extract cumulative incidence at each timepoint
-  tpfit <- timepoints(fit, times = seq_len(t_0))
-  len_groups <- as.numeric(unique(lapply(lapply(tpfit, FUN = `[[`,
-      "est"), FUN = length)))
-  names_groups <- unique(lapply(lapply(tpfit, FUN = `[[`, "est"),
-      FUN = rownames))[[1]]
-  est_only <- t(matrix(unlist(lapply(tpfit, FUN = `[[`, "est")),
-      ncol = len_groups, byrow = TRUE))
-  est_only <- as.data.frame(est_only)
-  rownames(est_only) <- names_groups
-  colnames(est_only) <- paste0("t", seq_len(ncol(est_only)))
-
-  s_0 <- 1 - as.numeric(est_only[1,])
-  s_1 <- 1 - as.numeric(est_only[2,])
-
-  return(list(s_0, s_1))
-}
-survtmle_out <- fit_survtmle(dat)
-s_0 <- survtmle_out[[1]]
-s_1 <- survtmle_out[[2]]
-# lines(1:max(dat$T.tilde), s_1, col = 'green', lty = 1)
-# ---------------------------------------------------------------------------------------
+onestepfit$plot_CI_simultaneous(ylim = c(-.5,.5))

@@ -18,6 +18,9 @@ MOSS_difference <- R6Class("MOSS_difference",
     Pn.D1.t = NULL,
     stopping_history = numeric(),
     Psi.hat = NULL,
+    sd_EIC = NULL,
+    upper_CI = NULL,
+    lower_CI = NULL,
     # simultaneous CI
     simul_CI = NULL,
     initialize = function(dat,
@@ -64,7 +67,6 @@ MOSS_difference <- R6Class("MOSS_difference",
       self$MOSS_A0$compute_EIC()
     },
     onestep_diff_curve = function(){
-      browser()
       self$D1.t <- self$MOSS_A1$D1.t - self$MOSS_A0$D1.t
       self$Pn.D1.t <- colMeans(self$D1.t)
       self$MOSS_A1$D1.t <- self$D1.t
@@ -80,7 +82,6 @@ MOSS_difference <- R6Class("MOSS_difference",
       # while ((stopping >= self$tol) & (iter_count <= self$max.iter) & ((stopping_prev - stopping) >= max(-self$tol, -1e-5))) {
         print(stopping)
         if (stopping_prev < stopping) onestepfit$epsilon.step <- -onestepfit$epsilon.step
-        # self$onestep_curve_update()
         self$MOSS_A1$onestep_curve_update_mat()
         self$MOSS_A0$onestep_curve_update_mat()
         self$MOSS_A1$compute_EIC()
@@ -109,11 +110,49 @@ MOSS_difference <- R6Class("MOSS_difference",
       self$MOSS_A1$compute_Psi()
       self$MOSS_A0$compute_Psi()
       self$Psi.hat <- self$MOSS_A1$Psi.hat - self$MOSS_A0$Psi.hat
+
+      self$sd_EIC <- rep(NA, self$MOSS_A1$T.max)
+      self$sd_EIC[self$MOSS_A1$T.uniq] <- apply(self$D1.t, 2, sd)
+      self$sd_EIC <- zoo::na.locf(self$sd_EIC)
+      self$upper_CI <- self$Psi.hat + 1.96 * self$sd_EIC/sqrt(self$MOSS_A1$n_sample)
+      self$lower_CI <- self$Psi.hat - 1.96 * self$sd_EIC/sqrt(self$MOSS_A1$n_sample)
     },
     print = function(){
-      out <- data.frame(self$T.uniq, self$Psi.hat, self$sd_EIC, self$upper_CI, self$lower_CI)
+      out <- data.frame(1:self$MOSS_A1$T.max, self$Psi.hat, self$sd_EIC, self$upper_CI, self$lower_CI)
       colnames(out) <- c('Time', 'survival curve', 'std_err', 'upper_CI', 'lower_CI')
       return(out)
     },
+    plot_onestep_curve = function(...){
+      step_curve <- stepfun(x = 1:self$MOSS_A1$T.max, y = c(self$Psi.hat, self$Psi.hat[length(self$Psi.hat)]))
+      # can `add`, `col`
+      curve(step_curve, from = 0, to = self$MOSS_A1$T.max, ...)
+    },
+    plot_CI_pointwise = function(...){
+      self$plot_onestep_curve(...)
+      polygon(c(1:self$MOSS_A1$T.max, rev(1:self$MOSS_A1$T.max)), c(c(self$upper_CI), rev(c(self$lower_CI))),
+                          col = rgb(0.7,0.7,0.7,0.4),
+                          border = NA,
+                          ...)
+    },
+    compute_CI_simultaneous = function(){
+      Sigma_hat_EIC <- cor(self$D1.t)
+      Sigma_hat_EIC[is.na(Sigma_hat_EIC)] <- 1e-10 * rnorm(n = sum(is.na(Sigma_hat_EIC))) # fill in where var is 0
+      q_95_simCI <- simCI_quant(Sigma_hat_EIC, B = 500)
+      CI_mat <- matrix(NA, nrow = self$MOSS_A1$T.max, ncol = 2)
+      for (i in 1:self$MOSS_A1$T.max) {
+        CI_mat[i,] <- ConfInt(est = self$Psi.hat[i], q = q_95_simCI, sd_est = self$sd_EIC[i]/sqrt(self$MOSS_A1$n_sample))
+      }
+      simul_CI <- data.frame(CI_mat)
+      colnames(simul_CI) <- c('lower_CI', 'upper_CI')
+      self$simul_CI <- simul_CI
+    },
+    plot_CI_simultaneous = function(...){
+      self$plot_onestep_curve(...)
+      polygon(c(1:self$MOSS_A1$T.max, rev(1:self$MOSS_A1$T.max)), c(c(self$simul_CI[,'upper_CI']), rev(c(self$simul_CI[,'lower_CI']))),
+              col = rgb(0.7,0.7,0.7,0.4),
+              border = NA,
+              ...)
+    }
+
   )
 )
