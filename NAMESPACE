@@ -2,6 +2,7 @@
 
 export(ConfInt)
 export(MOSS)
+export(MOSS_difference)
 export(compute_onestep_update_matrix)
 export(compute_step_cdf)
 export(create_Yt_vector)
