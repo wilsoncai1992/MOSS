@@ -47,6 +47,8 @@ MOSS <- R6Class("MOSS",
     sd_EIC = NULL,
     upper_CI = NULL,
     lower_CI = NULL,
+    # simultaneous CI
+    simul_CI = NULL,
     initialize = function(dat,
                           dW,
                           epsilon.step = 1e-5,
@@ -359,7 +361,9 @@ MOSS <- R6Class("MOSS",
       curve(step_curve, from = 0, to = self$T.max, ...)
     },
     print = function(){
-      data.frame(self$T.uniq, self$Psi.hat, self$sd_EIC, self$upper_CI, self$lower_CI)
+      out <- data.frame(self$T.uniq, self$Psi.hat, self$sd_EIC, self$upper_CI, self$lower_CI)
+      colnames(out) <- c('Time', 'survival curve', 'std_err', 'upper_CI', 'lower_CI')
+      return(out)
     },
     plot_CI_pointwise = function(...){
       polygon(c(1:self$T.max, rev(1:self$T.max)), c(c(self$upper_CI), rev(c(self$lower_CI))),
@@ -367,7 +371,42 @@ MOSS <- R6Class("MOSS",
                           border = NA,
                           ...)
       self$print_onestep_curve(...)
+    },
+    compute_CI_simultaneous = function(){
+      Sigma_hat_EIC <- cor(self$D1.t)
+      Sigma_hat_EIC[is.na(Sigma_hat_EIC)] <- 1e-10 * rnorm(n = sum(is.na(Sigma_hat_EIC))) # fill in where var is 0
+      q_95_simCI <- simCI_quant(Sigma_hat_EIC, B = 500)
+      CI_mat <- matrix(NA, nrow = self$T.max, ncol = 2)
+      for (i in 1:self$T.max) {
+        CI_mat[i,] <- ConfInt(est = self$Psi.hat[i], q = q_95_simCI, sd_est = self$sd_EIC[i])
+      }
+      # simul_CI <- data.frame(zoo::na.locf(CI_mat))
+      simul_CI <- data.frame(CI_mat)
+      colnames(simul_CI) <- c('lower_CI', 'upper_CI')
+      self$simul_CI <- simul_CI
+    },
+    plot_CI_simultaneous = function(...){
+      polygon(c(1:self$T.max, rev(1:self$T.max)), c(c(self$simul_CI[,'upper_CI']), rev(c(self$simul_CI[,'lower_CI']))),
+              col = rgb(0.7,0.7,0.7,0.4),
+              border = NA,
+              ...)
+      self$print_onestep_curve(...)
     }
   )
 )
 
+
+# simultaneous CI helper
+#' @export
+simCI_quant <- function(corr_MAT, B, alpha = 0.05) {
+  dim <- nrow(corr_MAT)
+  z <- apply(abs(MASS::mvrnorm(B, mu = rep(0, dim), Sigma = corr_MAT)), 1, max)
+  q <- as.numeric(quantile(z, 1-alpha))
+  return(q)
+}
+#' @export
+ConfInt <- function(est, q, sd_est) {
+    scaled_extr <- q * sd_est
+    CI <- c(est - scaled_extr, est + scaled_extr)
+    return(CI)
+}

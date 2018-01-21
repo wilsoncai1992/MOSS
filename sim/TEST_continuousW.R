@@ -59,6 +59,9 @@ onestepfit$onestep_curve()
 
 onestepfit$Psi.hat
 onestepfit$plot_CI_pointwise(add = TRUE)
+
+onestepfit$compute_CI_simultaneous()
+onestepfit$plot_CI_simultaneous(add = TRUE)
 # ---------------------------------------------------------------------------------------
 library(survtmle)
 fit_survtmle <- function(dat) {
