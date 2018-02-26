@@ -335,7 +335,7 @@ MOSS <- R6Class("MOSS",
       while ((stopping >= self$tol) & (iter_count <= self$max.iter)) {
       # while ((stopping >= self$tol) & (iter_count <= self$max.iter) & ((stopping_prev - stopping) >= max(-self$tol, -1e-5))) {
         print(stopping)
-        if (stopping_prev < stopping) onestepfit$epsilon.step <- -onestepfit$epsilon.step
+        if (stopping_prev < stopping) self$epsilon.step <- -self$epsilon.step
         # self$onestep_curve_update()
         self$onestep_curve_update_mat()
         self$compute_EIC()
@@ -344,8 +344,8 @@ MOSS <- R6Class("MOSS",
         stopping_prev <- self$stopping_history[iter_count]
         stopping <- self$compute_stopping()
 
-        # if (iter_count %% 10 == 0) onestepfit$plot_onestep_curve(add = TRUE)
-        # if (iter_count %% 10 == 0) plot(onestepfit$Pn.D1.t); abline(h = 0)
+        # if (iter_count %% 10 == 0) self$plot_onestep_curve(add = TRUE)
+        # if (iter_count %% 10 == 0) plot(self$Pn.D1.t); abline(h = 0)
       }
 
       if (iter_count == self$max.iter) {
