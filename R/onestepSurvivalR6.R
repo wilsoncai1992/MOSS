@@ -209,9 +209,10 @@ MOSS <- R6Class("MOSS",
       self$inside_exp <- sum(update)
       # self$inside_exp[is.na(self$inside_exp)] <- 0
       self$qn.A1.t <- self$qn.A1.t * exp(self$epsilon.step * self$inside_exp)
-      inside_exp_full <- matrix(1, nrow = self$n_sample, nrow = ncol(self$qn.A1.t_full))
+      # fix full
+      inside_exp_full <- matrix(1, nrow = self$n_sample, ncol = ncol(self$qn.A1.t_full))
       inside_exp_full[,self$T.uniq] <- self$inside_exp
-      inside_exp_full <- apply(inside_exp_full, 1, function(x) na.locf(x, option = "locf"))
+      inside_exp_full <- apply(inside_exp_full, 1, function(x) na.locf(x, option = "nocb"))
       self$qn.A1.t_full <- self$qn.A1.t_full * exp(self$epsilon.step * inside_exp_full)
 
       # For density sum > 1: normalize the updated qn
@@ -242,10 +243,11 @@ MOSS <- R6Class("MOSS",
       self$inside_exp <- (update)
 
       self$qn.A1.t <- self$qn.A1.t * exp(self$epsilon.step * self$inside_exp)
-
-      inside_exp_longer <- matrix(NA, ncol = self$T.max, nrow = self$n_sample)
+      # fix full
+      inside_exp_longer <- matrix(NA, ncol = ncol(self$qn.A1.t_full), nrow = self$n_sample)
       inside_exp_longer[,self$T.uniq] <- self$inside_exp
-      inside_exp_longer <- t(zoo::na.locf(t(inside_exp_longer)))
+      if (min(self$T.uniq) >= 2) inside_exp_longer[,1:min(self$T.uniq-1)] <- inside_exp_longer[,min(self$T.uniq)]
+      inside_exp_longer <- t(zoo::na.locf(t(inside_exp_longer), option = 'nocb'))
       self$qn.A1.t_full <- self$qn.A1.t_full * exp(self$epsilon.step * inside_exp_longer)
 
       self$qn.A1.t_full <- self$qn.A1.t_full / rowSums(self$qn.A1.t_full)
@@ -314,7 +316,9 @@ MOSS <- R6Class("MOSS",
 
       self$sd_EIC <- rep(NA, self$T.max)
       self$sd_EIC[self$T.uniq] <- apply(self$D1.t, 2, sd)
-      self$sd_EIC <- zoo::na.locf(self$sd_EIC)
+      if (min(self$T.uniq) >= 2) self$sd_EIC[1:min(self$T.uniq-1)] <- self$sd_EIC[min(self$T.uniq)] # fix full
+      self$sd_EIC <- zoo::na.locf(self$sd_EIC, option = 'nocb')
+
       self$upper_CI <- self$Psi.hat + 1.96 * self$sd_EIC/sqrt(self$n_sample)
       self$lower_CI <- self$Psi.hat - 1.96 * self$sd_EIC/sqrt(self$n_sample)
 
