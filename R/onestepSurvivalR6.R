@@ -209,7 +209,10 @@ MOSS <- R6Class("MOSS",
       self$inside_exp <- sum(update)
       # self$inside_exp[is.na(self$inside_exp)] <- 0
       self$qn.A1.t <- self$qn.A1.t * exp(self$epsilon.step * self$inside_exp)
-      self$qn.A1.t_full <- self$qn.A1.t_full * exp(self$epsilon.step * self$inside_exp)
+      inside_exp_full <- matrix(1, nrow = self$n_sample, nrow = ncol(self$qn.A1.t_full))
+      inside_exp_full[,self$T.uniq] <- self$inside_exp
+      inside_exp_full <- apply(inside_exp_full, 1, function(x) na.locf(x, option = "locf"))
+      self$qn.A1.t_full <- self$qn.A1.t_full * exp(self$epsilon.step * inside_exp_full)
 
       # For density sum > 1: normalize the updated qn
       # norm.factor <- compute_step_cdf(pdf.mat = self$qn.A1.t, t.vec = self$T.uniq, start = Inf)[,1]
