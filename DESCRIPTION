@@ -9,7 +9,8 @@ Depends:
     R (>= 3.2.0),
     SuperLearner (>= 2.0.0),
     Matrix,
-    R6
+    R6,
+    zoo
 Imports:
     tmle,
     foreach,
