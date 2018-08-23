@@ -1,6 +1,23 @@
 require("R6")
 require("SuperLearner")
 
+#' onestep TMLE of treatment-rule specific survival curve
+#'
+#' @docType class
+#' @importFrom R6 R6Class
+#' @export
+#' @keywords data
+#' @return Object of \code{\link{R6Class}} with methods
+#' @format \code{\link{R6Class}} object.
+#' @examples
+#' # MOSS_difference$new(dat, epsilon.step = 1e-5, max.iter = 1e3, tol = 1/nrow(dat), T.cutoff = NULL, verbose = FALSE)
+#' @field dat data.frame
+#' @field epsilon.step float
+#' @field max.iter int
+#' @field tol float
+#' @field T.cutoff int
+#' @field verbose bool
+#' @section Methods:
 #' @export
 MOSS <- R6Class("MOSS",
   public = list(
