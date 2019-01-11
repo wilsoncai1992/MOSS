@@ -82,11 +82,13 @@ MOSS <- R6Class("MOSS",
 
       self$check_and_preprocess_data(T.cutoff = self$T.cutoff)
       self$update_tensor <- matrix(
-        0, nrow = self$n_sample, ncol = length(self$T.uniq)
+        0,
+        nrow = self$n_sample, ncol = length(self$T.uniq)
       )
       # self$inside_exp <- rep(0, length(self$T.uniq))
       self$inside_exp <- matrix(
-        0, ncol = length(self$T.uniq), nrow = self$n_sample
+        0,
+        ncol = length(self$T.uniq), nrow = self$n_sample
       )
     },
     check_and_preprocess_data = function(nbin = 4, T.cutoff = NULL) {
@@ -126,10 +128,9 @@ MOSS <- R6Class("MOSS",
       self$T.max <- max(self$T.uniq)
     },
     initial_fit = function(
-      g.SL.Lib = c("SL.mean", "SL.glm", "SL.step", "SL.glm.interaction"),
-      Delta.SL.Lib = c("SL.mean", "SL.glm", "SL.gam", "SL.earth"),
-      ht.SL.Lib = c("SL.mean", "SL.glm", "SL.gam", "SL.earth")
-    ) {
+                               g.SL.Lib = c("SL.mean", "SL.glm", "SL.step", "SL.glm.interaction"),
+                               Delta.SL.Lib = c("SL.mean", "SL.glm", "SL.gam", "SL.earth"),
+                               ht.SL.Lib = c("SL.mean", "SL.glm", "SL.gam", "SL.earth")) {
       message("initial fit")
       fit_out <- initial_SL_fit(
         ftime = self$T.tilde,
@@ -214,8 +215,8 @@ MOSS <- R6Class("MOSS",
     },
     compute_stopping = function() {
       return(sqrt(
-        l2_inner_prod_step(self$Pn.D1.t, self$Pn.D1.t, self$T.uniq)) / length(self$T.uniq)
-      )
+        l2_inner_prod_step(self$Pn.D1.t, self$Pn.D1.t, self$T.uniq)
+      ) / length(self$T.uniq))
     },
     compute_hazard_from_pdf_and_survival = function() {
       hazard_new <- matrix(0, nrow = self$n_sample, ncol = self$T.max)
@@ -370,10 +371,9 @@ MOSS <- R6Class("MOSS",
       EIC_sup_norm <- abs(self$Pn.D1.t)
     },
     onestep_curve = function(
-      g.SL.Lib = c("SL.mean", "SL.glm", "SL.gam"),
-      Delta.SL.Lib = c("SL.mean", "SL.glm", "SL.gam"),
-      ht.SL.Lib = c("SL.mean", "SL.glm", "SL.gam")
-    ) {
+                                 g.SL.Lib = c("SL.mean", "SL.glm", "SL.gam"),
+                                 Delta.SL.Lib = c("SL.mean", "SL.glm", "SL.gam"),
+                                 ht.SL.Lib = c("SL.mean", "SL.glm", "SL.gam")) {
       self$initial_fit(
         g.SL.Lib = g.SL.Lib,
         Delta.SL.Lib = Delta.SL.Lib,

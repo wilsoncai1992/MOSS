@@ -143,8 +143,7 @@ l2_inner_prod_step <- function(f.step, g.step, T.grid) {
 #' @export
 #' @importFrom dplyr left_join
 compute_onestep_update_matrix <- function(
-  D1.t.func.prev, Pn.D1.func.prev, dat, T.uniq, W_names, dW
-) {
+                                          D1.t.func.prev, Pn.D1.func.prev, dat, T.uniq, W_names, dW) {
   # calculate the number inside exp{} expression in submodel
   # each strata of Q is updated the same
   # numerator <- l2_inner_prod_step(-abs(Pn.D1.func.prev), D1.t.func.prev, T.uniq)

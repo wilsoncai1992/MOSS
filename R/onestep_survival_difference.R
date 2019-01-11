@@ -41,13 +41,12 @@ MOSS_difference <- R6Class("MOSS_difference",
     # simultaneous CI
     simul_CI = NULL,
     initialize = function(
-      dat,
-      epsilon.step = 1e-5,
-      max.iter = 1e3,
-      tol = 1 / nrow(dat),
-      T.cutoff = NULL,
-      verbose = FALSE
-    ) {
+                              dat,
+                              epsilon.step = 1e-5,
+                              max.iter = 1e3,
+                              tol = 1 / nrow(dat),
+                              T.cutoff = NULL,
+                              verbose = FALSE) {
       self$MOSS_A1 <- MOSS$new(dat,
         dW = 1,
         epsilon.step = epsilon.step,
@@ -73,10 +72,9 @@ MOSS_difference <- R6Class("MOSS_difference",
       self$verbose <- self$MOSS_A1$verbose
     },
     initial_fit = function(
-      g.SL.Lib = c("SL.mean", "SL.glm", "SL.gam"),
-      Delta.SL.Lib = c("SL.mean", "SL.glm", "SL.gam"),
-      ht.SL.Lib = c("SL.mean", "SL.glm", "SL.gam")
-    ) {
+                               g.SL.Lib = c("SL.mean", "SL.glm", "SL.gam"),
+                               Delta.SL.Lib = c("SL.mean", "SL.glm", "SL.gam"),
+                               ht.SL.Lib = c("SL.mean", "SL.glm", "SL.gam")) {
       self$MOSS_A1$initial_fit(
         g.SL.Lib = g.SL.Lib,
         Delta.SL.Lib = Delta.SL.Lib,
