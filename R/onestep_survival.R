@@ -55,6 +55,7 @@ MOSS <- R6Class("MOSS",
     D1.t = NULL,
     Pn.D1.t = NULL,
     # targeting
+    q_best = NULL,
     stopping_criteria = NULL,
     stopping_history = numeric(),
     update_tensor = NULL,
@@ -373,7 +374,8 @@ MOSS <- R6Class("MOSS",
     onestep_curve = function(
                                  g.SL.Lib = c("SL.mean", "SL.glm", "SL.gam"),
                                  Delta.SL.Lib = c("SL.mean", "SL.glm", "SL.gam"),
-                                 ht.SL.Lib = c("SL.mean", "SL.glm", "SL.gam")) {
+                                 ht.SL.Lib = c("SL.mean", "SL.glm", "SL.gam"),
+                                 verbose = FALSE) {
       self$initial_fit(
         g.SL.Lib = g.SL.Lib,
         Delta.SL.Lib = Delta.SL.Lib,
@@ -384,31 +386,61 @@ MOSS <- R6Class("MOSS",
       self$compute_EIC()
 
       iter_count <- 0
-      stopping_prev <- Inf
       all_loglikeli <- numeric()
 
-      stopping <- self$compute_stopping()
-      while ((stopping >= self$tol) & (iter_count <= self$max.iter)) {
-        # while ((stopping >= self$tol) & (iter_count <= self$max.iter) & ((stopping_prev - stopping) >= max(-self$tol, -1e-5))) {
-        print(stopping)
-        if (stopping_prev < stopping) self$epsilon.step <- -self$epsilon.step
+      absmeanEIC_prev <- abs(self$compute_stopping())
+      absmeanEIC_current <- absmeanEIC_prev
+      meanEIC_best <- self$compute_stopping()
+      self$compute_Psi()
+      self$q_best <- self$qn.A1.t_full
+
+      while (absmeanEIC_current >= self$tol) {
+        if (self$verbose | verbose) {
+          df_debug <- data.frame(iter_count, self$compute_stopping(), mean(self$Psi.hat))
+          colnames(df_debug) <- NULL
+          print(df_debug)
+        }
+        absmeanEIC_prev <- abs(self$compute_stopping())
+        # update
         # self$onestep_curve_update()
         self$onestep_curve_update_mat()
         self$compute_EIC()
+        self$compute_Psi()
+        # new stopping
+        absmeanEIC_current <- abs(self$compute_stopping())
         iter_count <- iter_count + 1
-        self$stopping_history[iter_count] <- stopping
-        stopping_prev <- self$stopping_history[iter_count]
-        stopping <- self$compute_stopping()
+        if (absmeanEIC_prev < absmeanEIC_current) {
+          self$epsilon.step <- -self$epsilon.step
+        }
+        if (absmeanEIC_current < abs(meanEIC_best)) {
+          # the update caused PnEIC to beat the current best
+          # update our best candidate
+          self$q_best <- self$qn.A1.t_full
+          meanEIC_best <- self$compute_stopping()
+        }
+        self$stopping_history[iter_count] <- absmeanEIC_current
 
-        # if (iter_count %% 10 == 0) self$plot_onestep_curve(add = TRUE)
-        # if (iter_count %% 10 == 0) plot(self$Pn.D1.t); abline(h = 0)
+        if (iter_count == self$max.iter) {
+          break()
+          warning("Max Iter count reached, stop iteration.")
+        }
       }
-
-      if (iter_count == self$max.iter) {
-        warning("Max Iter count reached, stop iteration.")
-      }
-
+      # always output the best candidate for final result
+      self$qn.A1.t_full <- self$q_best
+      self$qn.A1.t_full <- self$qn.A1.t_full / rowSums(self$qn.A1.t_full)
+      self$qn.A1.t <- self$qn.A1.t_full[, self$T.uniq]
+      self$compute_survival_from_pdf()
+      self$compute_hazard_from_pdf_and_survival()
       self$compute_Psi()
+      if (self$verbose | verbose) {
+        message(paste(
+          "Pn(EIC)=",
+          formatC(meanEIC_best, format = "e", digits = 2),
+          "Psi=",
+          formatC(mean(self$Psi.hat), format = "e", digits = 2)
+        ))
+      }
+
     },
     plot_onestep_curve = function(...) {
       step_curve <- stepfun(x = 1:self$T.max, y = c(self$Psi.hat, self$Psi.hat[length(self$Psi.hat)]))
