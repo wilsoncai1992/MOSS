@@ -3,13 +3,8 @@ library(simcausal)
 D <- DAG.empty()
 
 D <- D +
-  # node("W1", distr = "rbinom", size = 1, prob = .5) +
   node("W", distr = "rbinom", size = 1, prob = .5) +
-  # node("A", distr = "rbinom", size = 1, prob = .15 + .7*W) +
-  # node("A", distr = "rbinom", size = 1, prob = .3 + .3*W) +
   node("A", distr = "rbinom", size = 1, prob = .5) +
-  # node("Trexp", distr = "rexp", rate = 1 + .5*W - .5*A) +
-  # node("Trexp", distr = "rexp", rate = 1 + 1*W - .5*A) +
   node("Trexp", distr = "rexp", rate = 1 + 2*W - .5*A) +
   node("Cweib", distr = "rweibull", shape = .7 - .2*W, scale = 1) +
   node("T", distr = "rconst", const = round(Trexp*10,0)) +
@@ -20,10 +15,7 @@ D <- D +
 setD <- set.DAG(D)
 
 # Simulate the data from the above data generating distribution:
-# dat <- sim(setD, n=3e2, rndseed = 12345)
-# dat <- sim(setD, n=1e3, rndseed = 12345)
-dat <- sim(setD, n=1e4, rndseed = 12345)
-head(dat)
+dat <- sim(setD, n=3e2, rndseed = 12345)
 
 # subset into observed dataset
 library(dplyr)
@@ -41,17 +33,11 @@ main = paste('n=', n.data, '\n # of nuisance covariate = 1'),
 xlab = 'Time')
 
 q <- seq(0,3,.01)
-# truesurvExp1 <- 1 - pexp(q, rate = 1)
-# truesurvExp2 <- 1 - pexp(q, rate = .5)
 truesurvExp1 <- 1 - pexp(q, rate = 1)
 truesurvExp2 <- 1 - pexp(q, rate = .5)
 truesurvExp <- (truesurvExp1 + truesurvExp2)/2
 lines(round(q*10,0), truesurvExp, type="l", cex=0.2, col = 'red')
 
-# truesurvExp1 <- 1 - pexp(q, rate = 1.5)
-# truesurvExp2 <- 1 - pexp(q, rate = 1)
-# truesurvExp1 <- 1 - pexp(q, rate = 2)
-# truesurvExp2 <- 1 - pexp(q, rate = 1.5)
 truesurvExp1 <- 1 - pexp(q, rate = 3)
 truesurvExp2 <- 1 - pexp(q, rate = 2.5)
 truesurvExp <- (truesurvExp1 + truesurvExp2)/2
@@ -65,12 +51,7 @@ onestepfit = MOSS$new(dat, dW = 1,
                       g.SL.Lib = c('SL.mean'),
                       Delta.SL.Lib = c('SL.mean'),
                       ht.SL.Lib = c('SL.glm'),
-  # verbose = TRUE, epsilon.step = 1e-3, max.iter = 1e2)
   verbose = TRUE, epsilon.step = 5e-3, max.iter = 5e2)
-  # verbose = TRUE, epsilon.step = 1e-4, max.iter = 5e2)
-  # verbose = TRUE, epsilon.step = 1e-3, max.iter = 5e2)
-  # verbose = TRUE, epsilon.step = 1e-2, max.iter = 5e2)
-  # verbose = TRUE, epsilon.step = 1e0, max.iter = 5e2)
 onestepfit$fit_g_initial()
 onestepfit$fit_failure_hazard()
 onestepfit$fit_censoring_cdf()

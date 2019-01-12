@@ -133,7 +133,7 @@ MOSS <- R6Class("MOSS",
                                Delta.SL.Lib = c("SL.mean", "SL.glm", "SL.gam", "SL.earth"),
                                ht.SL.Lib = c("SL.mean", "SL.glm", "SL.gam", "SL.earth")) {
       message("initial fit")
-      fit_out <- initial_SL_fit(
+      sl_fit <- initial_sl_fit(
         ftime = self$T.tilde,
         ftype = self$Delta,
         trt = self$A,
@@ -143,19 +143,22 @@ MOSS <- R6Class("MOSS",
         SL.ctime = Delta.SL.Lib,
         SL.ftime = ht.SL.Lib
       )
-      haz1 <- fit_out[[1]]
-      haz0 <- fit_out[[2]]
-      S_Ac_1 <- fit_out[[3]]
-      S_Ac_0 <- fit_out[[4]]
-      g_1 <- fit_out[[5]]
-      g_0 <- fit_out[[6]]
+      haz1 <- sl_fit$density_failure_1$hazard
+      haz0 <- sl_fit$density_failure_0$hazard
+      S_Ac_1 <- sl_fit$density_censor_1$survival
+      S_Ac_0 <- sl_fit$density_censor_0$survival
+      g1W <- sl_fit$g1W
 
-      if (all(self$dW == 1)) haz <- haz1
-      S_Ac <- S_Ac_1
-      self$g.fitted <- g_1
-      if (all(self$dW == 0)) haz <- haz0
-      S_Ac <- S_Ac_0
-      self$g.fitted <- g_0
+      if (all(self$dW == 1)) {
+        haz <- haz1
+        S_Ac <- S_Ac_1
+        self$g.fitted <- g1W
+      }
+      if (all(self$dW == 0)) {
+        haz <- haz0
+        S_Ac <- S_Ac_0
+        self$g.fitted <- 1 - g1W
+      }
 
       self$h.hat.t_full <- as.matrix(haz)
       self$h.hat.t <- self$h.hat.t_full[, self$T.uniq]
@@ -184,7 +187,6 @@ MOSS <- R6Class("MOSS",
       # self$qn.A1.t <- survivalDensity$new(pdf = discreteDensity$new(p = qn.A1.t_full[, self$T.uniq], t_grid = self$T.uniq))
     },
     compute_EIC = function() {
-      # browser()
       I.A.dW <- self$A == self$dW
 
       # D_1* in paper
