@@ -1,5 +1,5 @@
 #' @export
-initial_SL_fit <- function(
+initial_sl_fit <- function(
                            ftime,
                            ftype,
                            trt,
@@ -103,5 +103,23 @@ initial_SL_fit <- function(
   S_Ac_0 <- tidyr::spread(S_Ac_0, t, G_dC)
   S_Ac_0 <- S_Ac_0[, -1] # remove the id column
 
-  return(list(haz1, haz0, S_Ac_1, S_Ac_0, g_1, g_0))
+  density_failure_1 <- survival_curve$new(
+    t = seq(range(ftime)[1], range(ftime)[2]), hazard = haz1
+  )
+  density_failure_0 <- survival_curve$new(
+    t = seq(range(ftime)[1], range(ftime)[2]), hazard = haz0
+  )
+  density_censor_1 <- survival_curve$new(
+    t = seq(range(ftime)[1], range(ftime)[2]), survival = S_Ac_1
+  )
+  density_censor_0 <- survival_curve$new(
+    t = seq(range(ftime)[1], range(ftime)[2]), survival = S_Ac_0
+  )
+  return(list(
+    density_failure_1 = density_failure_1,
+    density_failure_0 = density_failure_0,
+    density_censor_1 = density_censor_1,
+    density_censor_0 = density_censor_0,
+    g1W = g_1[, 1]
+  ))
 }
