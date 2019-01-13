@@ -9,6 +9,7 @@ eic <- R6Class("eic",
     density_failure = NULL,
     density_censor = NULL,
     g1W = NULL,
+    psi = NULL,
     A_intervene = NULL,
     initialize = function(
       A, T_tilde, Delta, density_failure, density_censor, g1W, psi, A_intervene
@@ -24,10 +25,10 @@ eic <- R6Class("eic",
       return(self)
     },
     one_t = function(k) {
-      g <- ifelse(self$A_intervene == 1, self$g1W, 1 - self$g1W)
+      if (self$A_intervene == 1) g <- self$g1W  else g <- 1 - self$g1W
       part1_sum <- rep(0, length(g))
       for (t in 1:k) {
-        h <- - as.numeric(self$A == self$A_intervene) / g /
+        h <- -as.numeric(self$A == self$A_intervene) / g /
           self$density_censor$survival[, t] *
           self$density_failure$survival[, k] / self$density_failure$survival[, t]
         part1 <-  h * (
@@ -36,7 +37,7 @@ eic <- R6Class("eic",
         )
         part1_sum <- part1_sum + part1
       }
-      part2 <- self$density_failure$survival[, k] - self$psi[, k]
+      part2 <- self$density_failure$survival[, k] - self$psi[k]
       return(part1_sum + part2)
     },
     all_t = function() {

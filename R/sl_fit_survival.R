@@ -120,6 +120,6 @@ initial_sl_fit <- function(
     density_failure_0 = density_failure_0,
     density_censor_1 = density_censor_1,
     density_censor_0 = density_censor_0,
-    g1W = g_1
+    g1W = g_1[, 1]
   ))
 }
