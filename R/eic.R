@@ -40,8 +40,14 @@ eic <- R6Class("eic",
       part2 <- self$density_failure$survival[, k] - self$psi[k]
       return(part1_sum + part2)
     },
-    all_t = function() {
-
+    all_t = function(k_grid) {
+      # naive way to compute for all t
+      eic_all <- list()
+      for (k in k_grid) {
+        eic_all <- c(eic_all, list(self$one_t(k = k)))
+      }
+      eic_all <- do.call(cbind, eic_all)
+      return(eic_all)
     }
   )
 )

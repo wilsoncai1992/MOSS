@@ -1,4 +1,4 @@
-require("R6")
+library("R6")
 
 #' @export
 survival_curve <- R6Class("survival_curve",
@@ -18,16 +18,21 @@ survival_curve <- R6Class("survival_curve",
       self$t <- t
       if (from_hazard) {
         message("construct from hazard")
-        self$hazard <- as.matrix(hazard)
+        if ("data.frame" %in% class(hazard)) hazard <- as.matrix(hazard)
+        if ("numeric" %in% class(hazard)) hazard <- matrix(hazard, nrow = 1)
+        self$hazard <- hazard
       }
       if (from_survival) {
         message("construct from survival")
-        self$survival <- as.matrix(survival)
+        if ("data.frame" %in% class(survival)) survival <- as.matrix(survival)
+        if ("numeric" %in% class(survival)) survival <- matrix(survival, nrow = 1)
+        self$survival <- survival
       }
     },
     n = function() {
       n1 <- nrow(self$hazard)
       n2 <- nrow(self$survival)
+
       return(ifelse(is.null(n1), n2, n1))
     },
     hazard_to_survival = function() {
@@ -50,8 +55,50 @@ survival_curve <- R6Class("survival_curve",
     pdf_survival_to_hazard = function() {
 
     },
-    display = function() {
-
+    display = function(type, W = NULL) {
+      library("ggplot2")
+      if (is.null(W)) {
+        df <- data.frame(t = rep(self$t, self$n()))
+      } else {
+        if (class(W) != "numeric") stop("W only be univariate vector")
+        if (length(W) != self$n()) stop("W length not correct")
+        # the first Tmax rows are for the first subject
+        df <- data.frame(
+          t = rep(self$t, self$n()),
+          W = rep(W, each = length(self$t))
+        )
+      }
+      if (type == "survival") {
+        df$s <- as.vector(t(self$survival))
+        if (!is.null(W)) {
+          gg <- ggplot(df, aes(x = t, y = round(W, digits = 1), z = s)) +
+            geom_raster(aes(fill = s), interpolate = TRUE) +
+            xlim(c(1, max(self$t))) +
+            ylab("W") +
+            theme_bw()
+        } else {
+          gg <- ggplot(df, aes(x = t, y = s)) +
+            geom_line() +
+            theme_bw() +
+            ylim(c(-.1, 1.1))
+        }
+      }
+      if (type == "hazard") {
+        df$hazard <- as.vector(t(self$hazard))
+        if (!is.null(W)) {
+          gg <- ggplot(df, aes(x = t, y = round(W, digits = 1), z = hazard)) +
+            geom_raster(aes(fill = hazard), interpolate = TRUE) +
+            xlim(c(1, max(self$t))) +
+            ylab("W") +
+            theme_bw()
+        } else {
+          gg <- ggplot(df, aes(x = t, y = hazard)) +
+            geom_line() +
+            theme_bw()
+        }
+      }
+      if (type == "pdf") {}
+      return(gg)
     }
   )
 )
