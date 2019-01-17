@@ -7,11 +7,15 @@ survival_curve <- R6Class("survival_curve",
     hazard = NULL,
     # P( T >= t)
     survival = NULL,
-    initialize = function(t, hazard = NULL, survival = NULL) {
+    pdf = NULL,
+    initialize = function(t, hazard = NULL, survival = NULL, pdf = NULL) {
       # only supports integer grid
       from_hazard <- !is.null(hazard)
       from_survival <- !is.null(survival)
-      if (from_hazard & from_survival) stop("cannot construct from both")
+      from_pdf <- !is.null(pdf)
+      if (from_hazard + from_survival + from_pdf > 1) {
+        stop("cannot construct from both")
+      }
       if (!all.equal(t, seq(range(t)[1], range(t)[2]))) {
         stop("t is not integer without gap")
       }
@@ -27,6 +31,12 @@ survival_curve <- R6Class("survival_curve",
         if ("data.frame" %in% class(survival)) survival <- as.matrix(survival)
         if ("numeric" %in% class(survival)) survival <- matrix(survival, nrow = 1)
         self$survival <- survival
+      }
+      if (from_pdf) {
+        message("construct from pdf")
+        if ("data.frame" %in% class(pdf)) pdf <- as.matrix(pdf)
+        if ("numeric" %in% class(pdf)) pdf <- matrix(pdf, nrow = 1)
+        self$pdf <- pdf
       }
     },
     n = function() {
@@ -48,12 +58,27 @@ survival_curve <- R6Class("survival_curve",
       for (i in 1:self$n()) {
         self$survival[i, ] <- exp(- cumsum(hazard_integral[i, ]))
       }
+      return(self)
+    },
+    hazard_to_pdf = function() {
+      self$hazard_to_survival()
+      # not good using the theory formula
+      # self$pdf <- self$hazard * self$survival
+      self$pdf <- matrix(NA, nrow = self$n(), ncol = max(self$t))
+      for (i in 1:self$n()) {
+        self$pdf[i, ] <- c(- diff(self$survival[i, ]), 0)
+      }
+      return(self)
     },
     pdf_to_survival = function() {
-
+      pdf2 <- cbind(0, self$pdf)
+      pdf2 <- pdf2[, -ncol(pdf2)]
+      # transpose: so that each row is one curve
+      self$survival <- 1 - t(apply(pdf2, 1, cumsum))
     },
-    pdf_survival_to_hazard = function() {
-
+    pdf_to_hazard = function() {
+      self$pdf_to_survival()
+      self$hazard <- self$pdf / self$survival
     },
     display = function(type, W = NULL) {
       library("ggplot2")
@@ -104,5 +129,3 @@ survival_curve <- R6Class("survival_curve",
 )
 
 # S ~ A = 1, W, t plot
-
-
