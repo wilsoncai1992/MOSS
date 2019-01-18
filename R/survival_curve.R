@@ -21,19 +21,19 @@ survival_curve <- R6Class("survival_curve",
       }
       self$t <- t
       if (from_hazard) {
-        message("construct from hazard")
+        # message("construct from hazard")
         if ("data.frame" %in% class(hazard)) hazard <- as.matrix(hazard)
         if ("numeric" %in% class(hazard)) hazard <- matrix(hazard, nrow = 1)
         self$hazard <- hazard
       }
       if (from_survival) {
-        message("construct from survival")
+        # message("construct from survival")
         if ("data.frame" %in% class(survival)) survival <- as.matrix(survival)
         if ("numeric" %in% class(survival)) survival <- matrix(survival, nrow = 1)
         self$survival <- survival
       }
       if (from_pdf) {
-        message("construct from pdf")
+        # message("construct from pdf")
         if ("data.frame" %in% class(pdf)) pdf <- as.matrix(pdf)
         if ("numeric" %in% class(pdf)) pdf <- matrix(pdf, nrow = 1)
         self$pdf <- pdf
@@ -129,3 +129,35 @@ survival_curve <- R6Class("survival_curve",
 )
 
 # S ~ A = 1, W, t plot
+
+
+#' @export
+evaluate_metric <- R6Class("evaluate_metric",
+  public = list(
+    survival = NULL,
+    survival_truth = NULL,
+    initialize = function(survival = NULL, survival_truth = NULL) {
+      # only work for a vector of survival probabilities
+      self$survival <- survival
+      self$survival_truth <- survival_truth
+      return(self)
+    },
+    evaluate_cross_entropy = function() {
+      l <- c()
+      for (t in self$survival$t) {
+        s <- self$survival$survival[t]
+        s_truth <- self$survival_truth$survival[t]
+        if (s_truth == 1) l[t] <- -log(s)
+        if (s_truth == 0) l[t] <- -log(1 - s)
+        if (s_truth > 0 & s_truth < 1) l[t] <- -(s_truth * log(s) + (1 - s_truth) * log(1 - s))
+      }
+      return(data.frame(t = self$survival$t, metric = l))
+    },
+    evaluate_mse = function() {
+      l <- c()
+      bias <- as.numeric(self$survival$survival - self$survival_truth$survival)
+      mse <- as.numeric((self$survival$survival - self$survival_truth$survival) ^ 2)
+      return(data.frame(t = self$survival$t, bias = bias, mse = mse))
+    }
+  )
+)

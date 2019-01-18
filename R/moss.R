@@ -57,9 +57,9 @@ MOSS <- R6Class("MOSS",
       return(self)
     },
     onestep_update_curve = function(density_failure, eic_fit, epsilon) {
+      # don't handle pdf sum > 1
       pdf <- density_failure$pdf
       # simplify version 1
-      # don't handle pdf sum > 1
       # pdf2 <- pdf * exp(epsilon * eic_fit)
 
       # version 2: status quo
@@ -68,6 +68,14 @@ MOSS <- R6Class("MOSS",
       # multiply - abs(mean_eic) to each row of the eic matrix
       v1 <- t(- abs(mean_eic) * t(eic_fit))
       pdf2 <- pdf * exp(epsilon * v1 / v2)
+
+      # version 3: mark paper
+      # mean_eic <- colMeans(eic_fit)
+      # v2 <- sqrt(sum(mean_eic ^ 2))
+      # # multiply - abs(mean_eic) to each row of the eic matrix
+      # v1 <- t(- abs(mean_eic) * t(eic_fit))
+      # v1 <- apply(v1, 1, sum)
+      # pdf2 <- pdf * exp(epsilon * v1 / v2)
 
       density_failure2 <- survival_curve$new(t = density_failure$t, pdf = pdf2)
       density_failure2$pdf_to_survival()
