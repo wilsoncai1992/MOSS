@@ -63,10 +63,18 @@ MOSS <- R6Class("MOSS",
       # pdf2 <- pdf * exp(epsilon * eic_fit)
 
       # version 2: status quo
+      # mean_eic <- colMeans(eic_fit)
+      # v2 <- sqrt(sum(mean_eic ^ 2) / length(mean_eic))
+      # # multiply - abs(mean_eic) to each row of the eic matrix
+      # v1 <- t(- abs(mean_eic) * t(eic_fit))
+      # pdf2 <- pdf * exp(epsilon * v1 / v2)
+
+      # version 3: mark paper
       mean_eic <- colMeans(eic_fit)
-      v2 <- sqrt(sum(mean_eic ^ 2) / length(mean_eic))
+      v2 <- sqrt(sum(mean_eic ^ 2))
       # multiply - abs(mean_eic) to each row of the eic matrix
       v1 <- t(- abs(mean_eic) * t(eic_fit))
+      v1 <- apply(v1, 1, sum)
       pdf2 <- pdf * exp(epsilon * v1 / v2)
 
       # version 3: mark paper
