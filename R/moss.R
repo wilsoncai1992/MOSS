@@ -77,30 +77,11 @@ MOSS <- R6Class("MOSS",
       v1 <- apply(v1, 1, sum)
       pdf2 <- pdf * exp(epsilon * v1 / v2)
 
-      # version 3: mark paper
-      # mean_eic <- colMeans(eic_fit)
-      # v2 <- sqrt(sum(mean_eic ^ 2))
-      # # multiply - abs(mean_eic) to each row of the eic matrix
-      # v1 <- t(- abs(mean_eic) * t(eic_fit))
-      # v1 <- apply(v1, 1, sum)
-      # pdf2 <- pdf * exp(epsilon * v1 / v2)
-
       density_failure2 <- survival_curve$new(t = density_failure$t, pdf = pdf2)
       density_failure2$pdf_to_survival()
       density_failure2$pdf_to_hazard()
       return(density_failure2)
     },
-    # compute_Psi = function() {
-    #   self$sd_EIC <- rep(NA, self$T.max)
-    #   self$sd_EIC[self$T.uniq] <- apply(self$D1.t, 2, sd)
-    #   if (min(self$T.uniq) >= 2) self$sd_EIC[1:min(self$T.uniq - 1)] <- self$sd_EIC[min(self$T.uniq)] # fix full
-    #   self$sd_EIC <- zoo::na.locf(self$sd_EIC, option = "nocb")
-
-    #   self$upper_CI <- self$Psi.hat + 1.96 * self$sd_EIC / sqrt(self$n_sample)
-    #   self$lower_CI <- self$Psi.hat - 1.96 * self$sd_EIC / sqrt(self$n_sample)
-
-    #   EIC_sup_norm <- abs(self$Pn.D1.t)
-    # },
     onestep_curve = function(
       epsilon = 1e-5,
       max_num_interation = 1e2,
@@ -187,9 +168,6 @@ MOSS <- R6Class("MOSS",
       }
       # always output the best candidate for final result
       self$density_failure <- self$q_best
-      # self$qn.A1.t_full <- self$qn.A1.t_full / rowSums(self$qn.A1.t_full)
-      # self$compute_survival_from_pdf()
-      # self$compute_hazard_from_pdf_and_survival()
       psi_n <- colMeans(self$density_failure$survival)
       if (verbose) {
         message(paste(
@@ -202,9 +180,6 @@ MOSS <- R6Class("MOSS",
       return(psi_n)
     },
     print = function() {
-      # out <- data.frame(self$T.uniq, self$Psi.hat, self$sd_EIC, self$upper_CI, self$lower_CI)
-      # colnames(out) <- c("Time", "survival curve", "std_err", "upper_CI", "lower_CI")
-      # return(out)
     }
   )
 )

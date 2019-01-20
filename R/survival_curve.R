@@ -124,6 +124,10 @@ survival_curve <- R6Class("survival_curve",
       }
       if (type == "pdf") {}
       return(gg)
+    },
+    create_ggplot_df = function() {
+      # only for marginal survival curve
+      return(data.frame(t = self$t, s = as.numeric(self$survival)))
     }
   )
 )
