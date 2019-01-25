@@ -75,7 +75,6 @@ MOSS <- R6Class("MOSS",
       # multiply - abs(mean_eic) to each row of the eic matrix
       v1 <- t(- abs(mean_eic) * t(eic_fit))
       v1 <- apply(v1, 1, sum)
-      # pdf2 <- pdf * exp(epsilon * v1 / v2)
       pdf2 <- pdf * (1 + epsilon * v1 / v2) # more respecting LLFM
 
       density_failure2 <- survival_curve$new(t = density_failure$t, pdf = pdf2)

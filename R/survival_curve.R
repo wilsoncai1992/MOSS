@@ -128,11 +128,35 @@ survival_curve <- R6Class("survival_curve",
     create_ggplot_df = function() {
       # only for marginal survival curve
       return(data.frame(t = self$t, s = as.numeric(self$survival)))
+    },
+    ci = function(
+      A,
+      T_tilde,
+      Delta,
+      density_failure,
+      density_censor,
+      g1W,
+      psi_n,
+      A_intervene,
+      alpha = 0.05
+    ) {
+      eic_fit <- eic$new(
+        A = A,
+        T_tilde = T_tilde,
+        Delta = Delta,
+        density_failure = density_failure,
+        density_censor = density_censor,
+        g1W = g1W,
+        psi = psi_n,
+        A_intervene = A_intervene
+      )$all_t(k_grid = self$t)
+      sigma <- apply(eic_fit, 2, sd)
+      lower <- psi_n - sigma * 1.96
+      upper <- psi_n + sigma * 1.96
+      return(data.frame(t = self$t, lower = lower, upper = upper))
     }
   )
 )
-
-# S ~ A = 1, W, t plot
 
 
 #' @export
