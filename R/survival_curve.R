@@ -47,17 +47,20 @@ survival_curve <- R6Class("survival_curve",
     },
     hazard_to_survival = function() {
       self$survival <- matrix(NA, nrow = self$n(), ncol = max(self$t))
-      # for (i in 1:self$n()) {
-      #   self$survival[i, ] <- cumprod(1 - self$hazard[i, ])
-      # }
+      for (i in 1:self$n()) {
+        hazard_here <- c(0, self$hazard[i, ])
+        hazard_here <- hazard_here[-length(hazard_here)]
+        # browser()
+        self$survival[i, ] <- cumprod(1 - hazard_here)
+      }
 
       # cumulative hazard approach
       # integral from t = 0 and not include right bound. e.g. [0, 1)
-      hazard_integral <- cbind(0, self$hazard)
-      hazard_integral <- hazard_integral[, -ncol(hazard_integral)]
-      for (i in 1:self$n()) {
-        self$survival[i, ] <- exp(- cumsum(hazard_integral[i, ]))
-      }
+      # hazard_integral <- cbind(0, self$hazard)
+      # hazard_integral <- hazard_integral[, -ncol(hazard_integral)]
+      # for (i in 1:self$n()) {
+      #   self$survival[i, ] <- exp(- cumsum(hazard_integral[i, ]))
+      # }
       return(self)
     },
     hazard_to_pdf = function() {
