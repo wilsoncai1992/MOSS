@@ -86,6 +86,18 @@ MOSS_hazard <- R6Class("MOSS_hazard",
         intercept = FALSE
       )
       epsilon_n <- submodel_fit$coefficients
+      # library(Rsolnp)
+      # glmnet_fit <- glmnet::glmnet(
+      #   x = h_matrix,
+      #   y = dNt,
+      #   family = "binomial",
+      #   alpha = 0,
+      #   lambda = 10,
+      #   offset = logit(as.vector(t(self$density_failure$hazard))),
+      #   intercept = FALSE,
+      #   standardize = FALSE
+      # )
+      # epsilon_n <- as.vector(glmnet_fit$beta)
       l2_norm <- sqrt(sum(epsilon_n ^ 2))
       if (l2_norm >= clipping) {
         # clipping the step size
