@@ -41,9 +41,9 @@ simulated <- simulate_data(n_sim = n_sim)
 df <- simulated$dat
 true_surv <- simulated$true_surv1
 
-sl_lib_g <- c("SL.mean", "SL.glm", "SL.gam")
-sl_lib_censor <- c("SL.mean", "SL.glm", "SL.gam", "SL.earth")
-sl_lib_failure <- c("SL.mean", "SL.glm", "SL.gam", "SL.earth")
+sl_lib_g <- c("SL.mean", "SL.glm")
+sl_lib_censor <- c("SL.mean", "SL.glm")
+sl_lib_failure <- c("SL.mean", "SL.glm")
 range(df$T.tilde)
 df$T.tilde <- df$T.tilde + 1
 k_grid <- 1:max(df$T.tilde)

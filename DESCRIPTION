@@ -17,6 +17,7 @@ Imports:
     tidyr,
     abind,
     dplyr,
+    simcausal
 Suggests:
     testthat
 License: GPL-2
