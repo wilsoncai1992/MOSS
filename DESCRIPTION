@@ -1,6 +1,6 @@
 Package: MOSS
 Title: One-step TMLE for survival analysis
-Version: 0.1.0
+Version: 1.1.0
 Authors@R: as.person(c(
     "Wilson Cai <wcai@berkeley.edu> [aut, cre]",
     "Mark J. van der Laan <laan@berkeley.edu> [aut]"))
@@ -9,8 +9,7 @@ Depends:
     R (>= 3.2.0),
     SuperLearner (>= 2.0.0),
     Matrix,
-    R6,
-    zoo
+    R6
 Imports:
     tmle,
     foreach,

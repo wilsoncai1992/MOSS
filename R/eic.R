@@ -40,8 +40,33 @@ eic <- R6Class("eic",
       part2 <- self$density_failure$survival[, k] - self$psi[k]
       return(part1_sum + part2)
     },
-    all_t = function() {
-
+    all_t = function(k_grid) {
+      # naive way to compute for all t
+      eic_all <- list()
+      for (k in k_grid) {
+        eic_all <- c(eic_all, list(self$one_t(k = k)))
+      }
+      eic_all <- do.call(cbind, eic_all)
+      return(eic_all)
+    },
+    clever_covariate = function(k) {
+      if (self$A_intervene == 1) g <- self$g1W  else g <- 1 - self$g1W
+      h_list <- list()
+      for (t in 1:max(self$T_tilde)) {
+        if (t > k) {
+          # clever covariate is zero beyond
+          h <- rep(0, length(g))
+        } else {
+          h <- -as.numeric(self$A == self$A_intervene) / g /
+            self$density_censor$survival[, t] *
+            self$density_failure$survival[, k] / self$density_failure$survival[, t]
+        }
+        h_list <- c(h_list, list(h))
+      }
+      # the first row is 1 ~ t_max for the first subject
+      h_list <- do.call(cbind, h_list)
+      # the first 1 ~ t_max element is for the first subject
+      return(as.vector(t(h_list)))
     }
   )
 )
