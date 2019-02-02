@@ -180,7 +180,12 @@ evaluate_metric <- R6Class("evaluate_metric",
       l <- c()
       bias <- as.numeric(self$survival$survival - self$survival_truth$survival)
       mse <- as.numeric((self$survival$survival - self$survival_truth$survival) ^ 2)
-      return(data.frame(t = self$survival$t, bias = bias, mse = mse))
+      return(data.frame(
+        t = self$survival$t,
+        bias = bias,
+        mse = mse,
+        truth = self$survival_truth$survival
+      ))
     }
   )
 )
