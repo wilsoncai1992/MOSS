@@ -10,7 +10,8 @@ Depends:
     SuperLearner (>= 2.0.0),
     survtmle (>= 1.0.0),
     Matrix,
-    R6
+    R6,
+    Rsolnp
 Imports:
     tmle,
     foreach,
@@ -20,7 +21,8 @@ Imports:
     simcausal
 Suggests:
     testthat,
-    covr
+    covr,
+    glmnet
 Remotes:
     r-lib/covr
 License: GPL-2
