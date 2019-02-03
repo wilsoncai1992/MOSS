@@ -29,8 +29,9 @@ glmnet_cv_fit <- glmnet::cv.glmnet(
 )
 sol1_2 <- coef(glmnet_cv_fit)[-1]
 
+l2_norm_max <- 16
 sol2 <- fit_ridge_constrained(
-  Y = Y, X = X, beta_init = rep(1, 13), l2_norm_max = 16
+  Y = Y, X = X, beta_init = rep(1, 13), l2_norm_max = l2_norm_max
 )
 
 test_that("classic glmnet is working", {
@@ -41,4 +42,7 @@ test_that("constrained ridge regression is working", {
 })
 test_that("constrained ridge regression is close to glmnet", {
   expect_true(sum(abs(sol1 - sol2)) < 1)
+})
+test_that("constrained ridge regression is obeying constraint", {
+  expect_true(sqrt(sum(sol2 ^ 2)) <= l2_norm_max)
 })

@@ -4,7 +4,7 @@
 \alias{fit_ridge_constrained}
 \title{logistic ridge regression (constrained form)}
 \usage{
-fit_ridge_constrained(Y, X, beta_init, l2_norm_max)
+fit_ridge_constrained(Y, X, beta_init, l2_norm_max, offset = NULL)
 }
 \arguments{
 \item{Y}{vector of binary outcome}
