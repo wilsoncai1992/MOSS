@@ -1,3 +1,18 @@
+#' super learner fit for failure and censoring event
+#'
+#' using survtmle package
+#'
+#' @param ftime vector of last follow up time
+#' @param ftype vector of censoring indicator
+#' @param trt vector of treatment
+#' @param adjustVars data.frame of baseline covariates
+#' @param t_0 the maximum time to estimate the survival probabilities
+#' @param trtOfInterest the intervention of interest
+#' @param SL.trt SuperLearner library for propensity score
+#' @param gtol treshold for the fitted propensity scores
+#' @param SL.ctime SuperLearner library for censoring event hazard
+#' @param SL.ftime SuperLearner library for failure event hazard
+#'
 #' @export
 initial_sl_fit <- function(
                            ftime,

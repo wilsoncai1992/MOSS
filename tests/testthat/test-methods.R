@@ -43,7 +43,7 @@ true_surv <- simulated$true_surv1
 
 sl_lib_g <- c("SL.mean", "SL.glm")
 sl_lib_censor <- c("SL.mean", "SL.glm")
-sl_lib_failure <- c("SL.mean", "SL.glm")
+sl_lib_failure <- c("SL.mean", "SL.glm", "SL.step.forward")
 range(df$T.tilde)
 df$T.tilde <- df$T.tilde + 1
 k_grid <- 1:max(df$T.tilde)

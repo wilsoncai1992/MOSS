@@ -3,6 +3,8 @@ require("SuperLearner")
 
 #' onestep TMLE of treatment-rule specific survival curve
 #'
+#' updating the pdf of the failure event
+#'
 #' @docType class
 #' @importFrom R6 R6Class
 #' @export
@@ -10,14 +12,19 @@ require("SuperLearner")
 #' @return Object of \code{\link{R6Class}} with methods
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' # MOSS_difference$new(dat, epsilon.step = 1e-5, max.iter = 1e3, tol = 1/nrow(dat), T.cutoff = NULL, verbose = FALSE)
-#' @field dat data.frame
-#' @field epsilon.step float
-#' @field max.iter int
-#' @field tol float
-#' @field T.cutoff int
-#' @field verbose bool
+#' # MOSS$new(A = A, T_tilde = T.tilde, Delta = Delta, density_failure, density_censor, g1W, A_intervene = 1, k_grid = 1:max(T_tilde))
+#' @field A vector of treatment
+#' @field T_tilde vector of last follow up time
+#' @field Delta vector of censoring indicator
+#' @field density_failure survival_curve object of predicted counterfactual
+#'  survival curve
+#' @field density_censor survival_curve object of predicted counterfactual
+#'  failure event survival curve
+#' @field g1W propensity score
+#' @field A_intervene the intervention of interest
+#' @field k_grid vector of interested time points
 #' @section Methods:
+#' onestep_curve update the initial estimator
 #' @export
 MOSS <- R6Class("MOSS",
   public = list(
@@ -184,10 +191,30 @@ MOSS <- R6Class("MOSS",
 )
 
 
-#' onestep TMLE using constrained update
+#' onestep TMLE of treatment-rule specific survival curve
+#'
+#' updating the hazard using constrained step size update
 #'
 #' @docType class
 #' @importFrom R6 R6Class
+#' @export
+#' @keywords data
+#' @return Object of \code{\link{R6Class}} with methods
+#' @format \code{\link{R6Class}} object.
+#' @examples
+#' # MOSS_hazard$new(A = A, T_tilde = T.tilde, Delta = Delta, density_failure, density_censor, g1W, A_intervene = 1, k_grid = 1:max(T_tilde))
+#' @field A vector of treatment
+#' @field T_tilde vector of last follow up time
+#' @field Delta vector of censoring indicator
+#' @field density_failure survival_curve object of predicted counterfactual
+#'  survival curve
+#' @field density_censor survival_curve object of predicted counterfactual
+#'  failure event survival curve
+#' @field g1W propensity score
+#' @field A_intervene the intervention of interest
+#' @field k_grid vector of interested time points
+#' @section Methods:
+#' iterate_onestep update the initial estimator
 #' @export
 MOSS_hazard <- R6Class("MOSS_hazard",
   public = list(

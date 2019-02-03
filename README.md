@@ -1,8 +1,12 @@
 # MOSS
 
+[![Travis-CI Build Status](https://travis-ci.org/wilsoncai1992/MOSS.svg?branch=master)](https://travis-ci.org/wilsoncai1992/MOSS)
+[![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/hagh8vidrdeacr7f?svg=true)](https://ci.appveyor.com/project/wilsoncai1992/MOSS)
+[![Coverage Status](https://img.shields.io/codecov/c/github/wilsoncai1992/MOSS/master.svg)](https://codecov.io/github/wilsoncai1992/MOSS?branch=master)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/gpl-2.0)
 <!-- [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html) -->
 <!-- [![](http://cranlogs.r-pkg.org/badges/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html) [![](http://cranlogs.r-pkg.org/badges/grand-total/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html) -->
-<!-- [![Travis-CI Build Status](https://travis-ci.org/wilsoncai1992/MOSS.svg?branch=master)](https://travis-ci.org/wilsoncai1992/MOSS) -->
 
 
 ```R

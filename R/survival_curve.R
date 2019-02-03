@@ -1,5 +1,23 @@
 library("R6")
 
+#' general object to hold hazard, survival, or pdf
+#'
+#' @docType class
+#' @importFrom R6 R6Class
+#' @export
+#' @keywords data
+#' @return Object of \code{\link{R6Class}} with methods
+#' @format \code{\link{R6Class}} object.
+#' @examples
+#' # survival_curve$new(t, hazard)
+#' # survival_curve$new(t, survival)
+#' # survival_curve$new(t, pdf)
+#' @field t vector of time points
+#' @field hazard matrix or vector of hazard
+#' @field survival matrix or vector of survival
+#' @field pdf matrix or vector of pdf
+#' @section Methods:
+#' display plot the conditonal survival/hazard/pdf
 #' @export
 survival_curve <- R6Class("survival_curve",
   public = list(
@@ -154,6 +172,21 @@ survival_curve <- R6Class("survival_curve",
 )
 
 
+#' evaluate one survival_curve against another as truth
+#'
+#' @docType class
+#' @importFrom R6 R6Class
+#' @export
+#' @keywords data
+#' @return Object of \code{\link{R6Class}} with methods
+#' @format \code{\link{R6Class}} object.
+#' @examples
+#' # evaluation <- evaluate_metric$new(survival, survival_truth)
+#' # evaluation$evaluate_mse()
+#' @field survival estimated survival
+#' @field survival_truth true survival
+#' @section Methods:
+#' evaluate_mse create data.frame that computes mse for each time point
 #' @export
 evaluate_metric <- R6Class("evaluate_metric",
   public = list(

@@ -1,5 +1,27 @@
 require("R6")
 
+#' run ipcw based on initial fit
+#'
+#' @docType class
+#' @importFrom R6 R6Class
+#' @export
+#' @keywords data
+#' @return Object of \code{\link{R6Class}} with methods
+#' @format \code{\link{R6Class}} object.
+#' @examples
+#' # ipcw$new(A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)
+#' @field A vector of treatment
+#' @field T_tilde vector of last follow up time
+#' @field Delta vector of censoring indicator
+#' @field density_failure survival_curve object of predicted counterfactual
+#'  survival curve
+#' @field density_censor survival_curve object of predicted counterfactual
+#'  failure event survival curve
+#' @field g1W propensity score
+#' @field A_intervene the intervention of interest
+#' @field k_grid vector of interested time points
+#' @section Methods:
+#' fit fit one time point
 #' @export
 ipcw <- R6Class("ipcw",
   public = list(
@@ -34,6 +56,28 @@ ipcw <- R6Class("ipcw",
   )
 )
 
+#' run ee based on initial fit
+#'
+#' @docType class
+#' @importFrom R6 R6Class
+#' @export
+#' @keywords data
+#' @return Object of \code{\link{R6Class}} with methods
+#' @format \code{\link{R6Class}} object.
+#' @examples
+#' # ee$new(A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)
+#' @field A vector of treatment
+#' @field T_tilde vector of last follow up time
+#' @field Delta vector of censoring indicator
+#' @field density_failure survival_curve object of predicted counterfactual
+#'  survival curve
+#' @field density_censor survival_curve object of predicted counterfactual
+#'  failure event survival curve
+#' @field g1W propensity score
+#' @field A_intervene the intervention of interest
+#' @field k_grid vector of interested time points
+#' @section Methods:
+#' fit fit one time point
 #' @export
 ee <- R6Class("ee",
   public = list(
@@ -85,6 +129,29 @@ ee <- R6Class("ee",
   )
 )
 
+#' repeat ipcw/ee for all time points
+#'
+#' @docType class
+#' @importFrom R6 R6Class
+#' @export
+#' @keywords data
+#' @return Object of \code{\link{R6Class}} with methods
+#' @format \code{\link{R6Class}} object.
+#' @examples
+#' # repeat_t_grid$new(method, A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)
+#' @field method either ipcw or ee class
+#' @field A vector of treatment
+#' @field T_tilde vector of last follow up time
+#' @field Delta vector of censoring indicator
+#' @field density_failure survival_curve object of predicted counterfactual
+#'  survival curve
+#' @field density_censor survival_curve object of predicted counterfactual
+#'  failure event survival curve
+#' @field g1W propensity score
+#' @field A_intervene the intervention of interest
+#' @field k_grid vector of interested time points
+#' @section Methods:
+#' fit fit all time points in `k_grid`
 #' @export
 repeat_t_grid <- R6Class("repeat_t_grid",
   public = list(

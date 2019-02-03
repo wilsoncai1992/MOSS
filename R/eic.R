@@ -1,5 +1,30 @@
 require("R6")
 
+#' compute eic under the likelihood fit for each observation
+#'
+#' @docType class
+#' @importFrom R6 R6Class
+#' @export
+#' @keywords data
+#' @return Object of \code{\link{R6Class}} with methods
+#' @format \code{\link{R6Class}} object.
+#' @examples
+#' # eic$new(A, T_tilde, Delta, density_failure, density_censor, g1W, psi, A_intervene)
+#' @field A vector of treatment
+#' @field T_tilde vector of last follow up time
+#' @field Delta vector of censoring indicator
+#' @field density_failure survival_curve object of predicted counterfactual
+#'  survival curve
+#' @field density_censor survival_curve object of predicted counterfactual
+#'  failure event survival curve
+#' @field g1W propensity score
+#' @field psi a vector of target parameter estimate
+#' @field A_intervene the intervention of interest
+#' @field k_grid vector of interested time points
+#' @section Methods:
+#' one_t compute a vector of EIC
+#' all_t compute a matrix of EIC for all time points
+#' clever_covariate compute the clever covariate for one time point
 #' @export
 eic <- R6Class("eic",
   public = list(
