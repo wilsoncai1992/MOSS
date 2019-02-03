@@ -4,7 +4,7 @@ library(glmnet)
 n <- 1e4
 X <- matrix(rnorm(13 * n), ncol = 13)
 beta <- c(c(10, 5, 1), rep(0, 10))
-pY <- expit(X %*% beta)
+pY <- MOSS:::expit(X %*% beta)
 Y <- rbinom(n = n, size = 1, prob = pY)
 
 glmnet_fit <- glmnet::glmnet(
@@ -25,7 +25,7 @@ glmnet_cv_fit <- glmnet::cv.glmnet(
   alpha = 0,
   intercept = FALSE,
   standardize = FALSE,
-  lambda = 10^seq(-9, -3, length.out = 1e2)
+  lambda = 10 ^ seq(-9, -3, length.out = 1e2)
 )
 sol1_2 <- coef(glmnet_cv_fit)[-1]
 
@@ -34,10 +34,10 @@ sol2 <- fit_ridge_constrained(
 )
 
 test_that("classic glmnet is working", {
-  expect_true(sum(abs(beta - sol1)) < 1)
+  expect_true(sum(abs(beta - sol1)) < 1.5)
 })
 test_that("constrained ridge regression is working", {
-  expect_true(sum(abs(beta - sol2)) < 1)
+  expect_true(sum(abs(beta - sol2)) < 1.5)
 })
 test_that("constrained ridge regression is close to glmnet", {
   expect_true(sum(abs(sol1 - sol2)) < 1)

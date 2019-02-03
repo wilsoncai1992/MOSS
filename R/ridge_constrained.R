@@ -1,9 +1,9 @@
 #' @keywords internal
 expit <- function(x) exp(x) / (1 + exp(x))
-cross_entropy <- function(beta, y, x) {
+cross_entropy <- function(beta, y, x, offset) {
   y_is_one <- y == 1
   l_one <- -log(expit(x %*% beta))
-  l_zero <- -log(1 - expit(x %*% beta))
+  l_zero <- -log(1 - expit(x %*% beta + offset))
   l <- l_zero
   l[y_is_one] <- l_one[y_is_one]
   return(mean(l))
@@ -20,10 +20,11 @@ norm_l2 <- function(beta) sqrt(sum(beta ^ 2))
 #'
 #' @return the fitted slope
 #' @export
-fit_ridge_constrained <- function(Y, X, beta_init, l2_norm_max) {
+fit_ridge_constrained <- function(Y, X, beta_init, l2_norm_max, offset = NULL) {
+  if (is.null(offset)) offset <- rep(0, length(Y))
   ridge_fit <- Rsolnp::solnp(
     pars = beta_init,
-    fun = function(b) cross_entropy(b, y = Y, x = X),
+    fun = function(b) cross_entropy(b, y = Y, x = X, offset = offset),
     ineqfun = norm_l2,
     ineqLB = 0,
     ineqUB = l2_norm_max,

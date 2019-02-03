@@ -288,26 +288,22 @@ MOSS_hazard <- R6Class("MOSS_hazard",
       h_matrix <- self$construct_long_data()
       logit <- function(x) log(x) - log(1 - x)
       expit <- function(x) exp(x) / (1 + exp(x))
-      submodel_fit <- glm.fit(
-        x = h_matrix,
-        y = dNt,
-        family = binomial(),
-        offset = logit(as.vector(t(self$density_failure$hazard))),
-        intercept = FALSE
-      )
-      epsilon_n <- submodel_fit$coefficients
-      # library(Rsolnp)
-      # glmnet_fit <- glmnet::glmnet(
+      # submodel_fit <- glm.fit(
       #   x = h_matrix,
       #   y = dNt,
-      #   family = "binomial",
-      #   alpha = 0,
-      #   lambda = 10,
+      #   family = binomial(),
       #   offset = logit(as.vector(t(self$density_failure$hazard))),
-      #   intercept = FALSE,
-      #   standardize = FALSE
+      #   intercept = FALSE
       # )
-      # epsilon_n <- as.vector(glmnet_fit$beta)
+      # epsilon_n <- submodel_fit$coefficients
+
+      epsilon_n <- fit_ridge_constrained(
+        Y = dNt,
+        X = h_matrix,
+        beta_init = rep(1, ncol(h_matrix)),
+        l2_norm_max = clipping,
+        offset = logit(as.vector(t(self$density_failure$hazard)))
+      )
       l2_norm <- sqrt(sum(epsilon_n ^ 2))
       if (l2_norm >= clipping) {
         # clipping the step size
