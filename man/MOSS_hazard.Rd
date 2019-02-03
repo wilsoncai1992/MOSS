@@ -3,12 +3,45 @@
 \docType{class}
 \name{MOSS_hazard}
 \alias{MOSS_hazard}
-\title{onestep TMLE using constrained update}
-\format{An object of class \code{R6ClassGenerator} of length 24.}
+\title{onestep TMLE of treatment-rule specific survival curve}
+\format{\code{\link{R6Class}} object.}
 \usage{
 MOSS_hazard
 }
-\description{
-onestep TMLE using constrained update
+\value{
+Object of \code{\link{R6Class}} with methods
 }
-\keyword{datasets}
+\description{
+updating the hazard using constrained step size update
+}
+\section{Fields}{
+
+\describe{
+\item{\code{A}}{vector of treatment}
+
+\item{\code{T_tilde}}{vector of last follow up time}
+
+\item{\code{Delta}}{vector of censoring indicator}
+
+\item{\code{density_failure}}{survival_curve object of predicted counterfactual
+survival curve}
+
+\item{\code{density_censor}}{survival_curve object of predicted counterfactual
+failure event survival curve}
+
+\item{\code{g1W}}{propensity score}
+
+\item{\code{A_intervene}}{the intervention of interest}
+
+\item{\code{k_grid}}{vector of interested time points}
+}}
+
+\section{Methods}{
+
+iterate_onestep update the initial estimator
+}
+
+\examples{
+# MOSS_hazard$new(A = A, T_tilde = T.tilde, Delta = Delta, density_failure, density_censor, g1W, A_intervene = 1, k_grid = 1:max(T_tilde))
+}
+\keyword{data}

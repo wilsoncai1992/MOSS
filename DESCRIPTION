@@ -8,17 +8,21 @@ Description: Estimate counterfactual survival curve under static or dynamic inte
 Depends:
     R (>= 3.2.0),
     SuperLearner (>= 2.0.0),
+    survtmle (>= 1.0.0),
     Matrix,
     R6
 Imports:
     tmle,
     foreach,
-    survtmle (>= 1.0.0),
     tidyr,
     abind,
     dplyr,
+    simcausal
 Suggests:
-    testthat
+    testthat,
+    covr
+Remotes:
+    r-lib/covr
 License: GPL-2
 URL: https://github.com/wilsoncai1992/MOSS
 Encoding: UTF-8
