@@ -371,7 +371,7 @@ MOSS_hazard <- R6Class("MOSS_hazard",
       mean_eic_inner_prod_current <- mean_eic_inner_prod_prev
       mean_eic_inner_prod_best <- sqrt(sum(mean_eic ^ 2))
       self$q_best <- self$density_failure$clone(deep = TRUE)
-      if (is.infinite(mean_eic_inner_prod_current)) {
+      if (is.infinite(mean_eic_inner_prod_current) | is.na(mean_eic_inner_prod_current)) {
         # make sure can enter while loop
         mean_eic_inner_prod_current <- 999
       }
@@ -393,7 +393,10 @@ MOSS_hazard <- R6Class("MOSS_hazard",
         mean_eic_inner_prod_prev <- mean_eic_inner_prod_current
         mean_eic_inner_prod_current <- abs(sqrt(sum(mean_eic ^ 2)))
         num_iteration <- num_iteration + 1
-        if (is.infinite(mean_eic_inner_prod_current)) break()
+        if (is.infinite(mean_eic_inner_prod_current) | is.na(mean_eic_inner_prod_current)) {
+          warning("stopping criteria diverged. Reporting best result so far.")
+          break()
+        }
         if (mean_eic_inner_prod_current < mean_eic_inner_prod_best) {
           # the update caused PnEIC to beat the current best
           # update our best candidate

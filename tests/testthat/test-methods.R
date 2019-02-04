@@ -1,5 +1,6 @@
 context("methods for the survival curve")
-# set.seed(628957)
+# set.seed(1234)
+set.seed(11)
 source("./simulate_data.R")
 # simulation
 n_sim <- 2e2
