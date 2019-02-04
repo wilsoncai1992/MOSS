@@ -77,10 +77,7 @@ survival_curve <- R6Class("survival_curve",
       self$hazard_to_survival()
       # not good using the theory formula
       # self$pdf <- self$hazard * self$survival
-      self$pdf <- matrix(NA, nrow = self$n(), ncol = max(self$t))
-      for (i in 1:self$n()) {
-        self$pdf[i, ] <- c(- diff(self$survival[i, ]), 0)
-      }
+      self$survival_to_pdf()
       return(self)
     },
     pdf_to_survival = function() {
@@ -92,6 +89,18 @@ survival_curve <- R6Class("survival_curve",
     pdf_to_hazard = function() {
       self$pdf_to_survival()
       self$hazard <- self$pdf / self$survival
+    },
+    survival_to_pdf = function() {
+      self$pdf <- matrix(NA, nrow = self$n(), ncol = max(self$t))
+      for (i in 1:self$n()) {
+        self$pdf[i, ] <- c(- diff(self$survival[i, ]), 0)
+      }
+      return(self)
+    },
+    survival_to_hazard = function() {
+      self$survival_to_pdf()
+      self$hazard <- self$pdf / self$survival
+      return(self)
     },
     display = function(type, W = NULL) {
       library("ggplot2")
