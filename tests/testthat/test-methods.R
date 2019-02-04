@@ -154,7 +154,7 @@ moss_hazard_fit <- MOSS_hazard$new(
   k_grid = k_grid
 )
 psi_moss_hazard_1 <- moss_hazard_fit$iterate_onestep(
-  epsilon = 1e-2, verbose = FALSE
+  epsilon = 1e-2, max_num_interation = 2e1, verbose = FALSE
 )
 moss_hazard_fit_1 <- survival_curve$new(t = k_grid, survival = psi_moss_hazard_1)
 test_that("moss_hazard_1 results should not be NA", {
@@ -176,7 +176,7 @@ moss_hazard_ate_fit <- MOSS_hazard_ate$new(
   k_grid = k_grid
 )
 psi_moss_hazard_ate_1 <- moss_hazard_ate_fit$iterate_onestep(
-  epsilon = 1e-2, max_num_interation = 5e1, verbose = FALSE
+  epsilon = 1e-2, max_num_interation = 2e1, verbose = FALSE
 )
 moss_hazard_ate_fit_1 <- survival_curve$new(t = k_grid, survival = psi_moss_hazard_ate_1)
 test_that("moss_hazard_ate_1 results should not be NA", {
