@@ -23,6 +23,7 @@ cross_entropy <- function(beta, y, x, offset) {
 #' @param X matrix of predictor
 #' @param beta_init initial value for slope
 #' @param l2_norm_max upper constraint on l2 norm of slope
+#' @param offset a vector of constant offset in the linear term
 #'
 #' @return the fitted slope
 #' @export

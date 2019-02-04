@@ -14,6 +14,8 @@ fit_ridge_constrained(Y, X, beta_init, l2_norm_max, offset = NULL)
 \item{beta_init}{initial value for slope}
 
 \item{l2_norm_max}{upper constraint on l2 norm of slope}
+
+\item{offset}{a vector of constant offset in the linear term}
 }
 \value{
 the fitted slope
