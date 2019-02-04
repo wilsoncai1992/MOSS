@@ -2,6 +2,7 @@
 
 export(MOSS)
 export(MOSS_hazard)
+export(MOSS_hazard_ate)
 export(ee)
 export(eic)
 export(evaluate_metric)

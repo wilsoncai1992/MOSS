@@ -1,5 +1,12 @@
 #' @keywords internal
 expit <- function(x) exp(x) / (1 + exp(x))
+
+#' @keywords internal
+logit <- function(x) log(x) - log(1 - x)
+
+#' @keywords internal
+norm_l2 <- function(beta) sqrt(sum(beta ^ 2))
+
 cross_entropy <- function(beta, y, x, offset) {
   y_is_one <- y == 1
   l_one <- -log(expit(x %*% beta))
@@ -8,7 +15,6 @@ cross_entropy <- function(beta, y, x, offset) {
   l[y_is_one] <- l_one[y_is_one]
   return(mean(l))
 }
-norm_l2 <- function(beta) sqrt(sum(beta ^ 2))
 
 
 #' logistic ridge regression (constrained form)

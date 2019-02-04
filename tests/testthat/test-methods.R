@@ -191,3 +191,23 @@ moss_hazard_fit_1 <- survival_curve$new(t = k_grid, survival = psi_moss_hazard_1
 test_that("moss_hazard_1 results should not be NA", {
   expect_true(all(!sapply(moss_hazard_fit_1$survival, is.na)))
 })
+
+################################################################################
+# moss difference curve
+
+moss_hazard_ate_fit <- MOSS_hazard_ate$new(
+  A = df$A,
+  T_tilde = df$T.tilde,
+  Delta = df$Delta,
+  density_failure = sl_fit$density_failure_1,
+  density_censor = sl_fit$density_censor_1,
+  density_failure_0 = sl_fit$density_failure_0,
+  density_censor_0 = sl_fit$density_censor_0,
+  g1W = sl_fit$g1W,
+  k_grid = k_grid
+)
+psi_moss_hazard_ate_1 <- moss_hazard_ate_fit$iterate_onestep(epsilon = 1e-2, verbose = FALSE)
+moss_hazard_ate_fit_1 <- survival_curve$new(t = k_grid, survival = psi_moss_hazard_ate_1)
+test_that("moss_hazard_ate_1 results should not be NA", {
+  expect_true(all(!sapply(moss_hazard_ate_fit_1$survival, is.na)))
+})
