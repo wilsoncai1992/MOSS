@@ -239,7 +239,7 @@ MOSS_hazard <- R6Class("MOSS_hazard",
       density_failure,
       density_censor,
       g1W,
-      A_intervene,
+      A_intervene = NULL,
       k_grid = NULL
     ) {
       self$A <- A
@@ -262,17 +262,17 @@ MOSS_hazard <- R6Class("MOSS_hazard",
       }
       return(as.vector(t(dNt)))
     },
-    construct_long_data = function() {
-      psi_n <- colMeans(self$density_failure$survival)
+    construct_long_data = function(A_intervene, density_failure, density_censor) {
+      psi_n <- colMeans(density_failure$survival)
       eic_fit <- eic$new(
         A = self$A,
         T_tilde = self$T_tilde,
         Delta = self$Delta,
-        density_failure = self$density_failure,
-        density_censor = self$density_censor,
+        density_failure = density_failure,
+        density_censor = density_censor,
         g1W = self$g1W,
         psi = psi_n,
-        A_intervene = self$A_intervene
+        A_intervene = A_intervene
       )
       k_grid <- 1:max(self$T_tilde)
       h_matrix <- list()
@@ -285,29 +285,27 @@ MOSS_hazard <- R6Class("MOSS_hazard",
     },
     fit_epsilon = function(clipping = Inf) {
       dNt <- self$create_dNt()
-      h_matrix <- self$construct_long_data()
-      logit <- function(x) log(x) - log(1 - x)
-      expit <- function(x) exp(x) / (1 + exp(x))
-      submodel_fit <- glm.fit(
-        x = h_matrix,
-        y = dNt,
-        family = binomial(),
-        offset = logit(as.vector(t(self$density_failure$hazard))),
-        intercept = FALSE
+      h_matrix <- self$construct_long_data(
+        A_intervene = self$A_intervene,
+        density_failure = self$density_failure,
+        density_censor = self$density_censor
       )
-      epsilon_n <- submodel_fit$coefficients
-      # library(Rsolnp)
-      # glmnet_fit <- glmnet::glmnet(
+      # submodel_fit <- glm.fit(
       #   x = h_matrix,
       #   y = dNt,
-      #   family = "binomial",
-      #   alpha = 0,
-      #   lambda = 10,
+      #   family = binomial(),
       #   offset = logit(as.vector(t(self$density_failure$hazard))),
-      #   intercept = FALSE,
-      #   standardize = FALSE
+      #   intercept = FALSE
       # )
-      # epsilon_n <- as.vector(glmnet_fit$beta)
+      # epsilon_n <- submodel_fit$coefficients
+
+      epsilon_n <- fit_ridge_constrained(
+        Y = dNt,
+        X = h_matrix,
+        beta_init = rep(0, ncol(h_matrix)),
+        l2_norm_max = clipping,
+        offset = logit(as.vector(t(self$density_failure$hazard)))
+      )
       l2_norm <- sqrt(sum(epsilon_n ^ 2))
       if (l2_norm >= clipping) {
         # clipping the step size
@@ -330,6 +328,20 @@ MOSS_hazard <- R6Class("MOSS_hazard",
         )$hazard_to_survival()
       )
     },
+    compute_mean_eic = function(psi_n, k_grid) {
+      eic_fit <- eic$new(
+        A = self$A,
+        T_tilde = self$T_tilde,
+        Delta = self$Delta,
+        density_failure = self$density_failure,
+        density_censor = self$density_censor,
+        g1W = self$g1W,
+        psi = psi_n,
+        A_intervene = self$A_intervene
+      )$all_t(k_grid = k_grid)
+      mean_eic <- colMeans(eic_fit)
+      return(mean_eic)
+    },
     iterate_onestep = function(
       epsilon = 1e0,
       max_num_interation = 1e2,
@@ -346,17 +358,7 @@ MOSS_hazard <- R6Class("MOSS_hazard",
       k_grid <- 1:max(self$T_tilde)
 
       psi_n <- colMeans(self$density_failure$survival)
-      eic_fit <- eic$new(
-        A = self$A,
-        T_tilde = self$T_tilde,
-        Delta = self$Delta,
-        density_failure = self$density_failure,
-        density_censor = self$density_censor,
-        g1W = self$g1W,
-        psi = psi_n,
-        A_intervene = self$A_intervene
-      )$all_t(k_grid = k_grid)
-      mean_eic <- colMeans(eic_fit)
+      mean_eic <- self$compute_mean_eic(psi_n = psi_n, k_grid = k_grid)
 
       num_iteration <- 0
 
@@ -377,17 +379,7 @@ MOSS_hazard <- R6Class("MOSS_hazard",
         self$density_failure <- self$fit_epsilon(clipping = self$epsilon)
 
         psi_n <- colMeans(self$density_failure$survival)
-        eic_fit <- eic$new(
-          A = self$A,
-          T_tilde = self$T_tilde,
-          Delta = self$Delta,
-          density_failure = self$density_failure,
-          density_censor = self$density_censor,
-          g1W = self$g1W,
-          psi = psi_n,
-          A_intervene = self$A_intervene
-        )$all_t(k_grid = k_grid)
-        mean_eic <- colMeans(eic_fit)
+        mean_eic <- self$compute_mean_eic(psi_n = psi_n, k_grid = k_grid)
         # new stopping
         mean_eic_inner_prod_prev <- mean_eic_inner_prod_current
         mean_eic_inner_prod_current <- abs(sqrt(sum(mean_eic ^ 2)))
@@ -418,4 +410,3 @@ MOSS_hazard <- R6Class("MOSS_hazard",
     }
   )
 )
-
