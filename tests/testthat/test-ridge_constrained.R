@@ -35,10 +35,10 @@ sol2 <- fit_ridge_constrained(
 )
 
 test_that("classic glmnet is working", {
-  expect_true(sum(abs(beta - sol1)) < 1.5)
+  expect_true(sum(abs(beta - sol1)) < 2)
 })
 test_that("constrained ridge regression is working", {
-  expect_true(sum(abs(beta - sol2)) < 1.5)
+  expect_true(sum(abs(beta - sol2)) < 2)
 })
 test_that("constrained ridge regression is close to glmnet", {
   expect_true(sum(abs(sol1 - sol2)) < 1)
