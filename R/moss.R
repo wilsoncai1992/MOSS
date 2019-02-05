@@ -125,13 +125,14 @@ MOSS <- R6Class("MOSS",
       mean_eic_inner_prod_current <- mean_eic_inner_prod_prev
       mean_eic_inner_prod_best <- sqrt(sum(mean_eic ^ 2))
       self$q_best <- self$density_failure$clone(deep = TRUE)
-      if (is.infinite(mean_eic_inner_prod_current)) {
-        # make sure can enter while loop
-        mean_eic_inner_prod_current <- 999
+      to_iterate <- TRUE
+      if (is.infinite(mean_eic_inner_prod_current) | is.na(mean_eic_inner_prod_current)) {
+        to_iterate <- FALSE
       }
 
       while (
-        mean_eic_inner_prod_current >= self$tmle_tolerance * sqrt(max(k_grid))
+        mean_eic_inner_prod_current >= self$tmle_tolerance * sqrt(max(k_grid)) &
+        to_iterate
       ) {
         if (verbose) {
           df_debug <- data.frame(num_iteration, mean_eic_inner_prod_current, mean(psi_n))
@@ -164,7 +165,10 @@ MOSS <- R6Class("MOSS",
         if (mean_eic_inner_prod_prev < mean_eic_inner_prod_current) {
           self$epsilon <- - self$epsilon
         }
-        if (is.infinite(mean_eic_inner_prod_current)) break()
+        if (is.infinite(mean_eic_inner_prod_current) | is.na(mean_eic_inner_prod_current)) {
+          warning("stopping criteria diverged. Reporting best result so far.")
+          break()
+        }
         if (mean_eic_inner_prod_current < mean_eic_inner_prod_best) {
           # the update caused PnEIC to beat the current best
           # update our best candidate
@@ -371,13 +375,14 @@ MOSS_hazard <- R6Class("MOSS_hazard",
       mean_eic_inner_prod_current <- mean_eic_inner_prod_prev
       mean_eic_inner_prod_best <- sqrt(sum(mean_eic ^ 2))
       self$q_best <- self$density_failure$clone(deep = TRUE)
+      to_iterate <- TRUE
       if (is.infinite(mean_eic_inner_prod_current) | is.na(mean_eic_inner_prod_current)) {
-        # make sure can enter while loop
-        mean_eic_inner_prod_current <- 999
+        to_iterate <- FALSE
       }
 
       while (
-        mean_eic_inner_prod_current >= self$tmle_tolerance * sqrt(max(k_grid))
+        mean_eic_inner_prod_current >= self$tmle_tolerance * sqrt(max(k_grid)) &
+        to_iterate
       ) {
         if (verbose) {
           df_debug <- data.frame(num_iteration, mean_eic_inner_prod_current, mean(psi_n))

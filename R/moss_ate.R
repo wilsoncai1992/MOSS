@@ -154,12 +154,14 @@ MOSS_hazard_ate <- R6Class("MOSS_hazard_ate",
       mean_eic_inner_prod_best <- sqrt(sum(mean_eic ^ 2))
       self$q_best <- self$density_failure$clone(deep = TRUE)
       self$q_best_0 <- self$density_failure_0$clone(deep = TRUE)
+
+      to_iterate <- TRUE
       if (is.infinite(mean_eic_inner_prod_current) | is.na(mean_eic_inner_prod_current)) {
-        # make sure can enter while loop
-        mean_eic_inner_prod_current <- 999
+        to_iterate <- FALSE
       }
       while (
-        mean_eic_inner_prod_current >= self$tmle_tolerance * sqrt(max(k_grid))
+        mean_eic_inner_prod_current >= self$tmle_tolerance * sqrt(max(k_grid)) &
+        to_iterate
       ) {
         if (verbose) {
           df_debug <- data.frame(num_iteration, mean_eic_inner_prod_current, mean(psi_n))
