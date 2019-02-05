@@ -61,14 +61,19 @@ MOSS_hazard_ate <- R6Class("MOSS_hazard_ate",
       offset_submodel_0 <- logit(as.vector(t(self$density_failure_0$hazard)))
       offset_submodel <- offset_submodel_1
       offset_submodel[self$A == 0] <- offset_submodel_0[self$A == 0]
-      epsilon_n <- fit_ridge_constrained(
-        Y = dNt,
-        X = h_matrix,
-        beta_init = rep(0, ncol(h_matrix)),
-        l2_norm_max = clipping,
-        offset = offset_submodel
+      submodel_fit <- glm.fit(
+        x = h_matrix,
+        y = dNt,
+        family = binomial(),
+        offset = offset_submodel,
+        intercept = FALSE
       )
+      epsilon_n <- submodel_fit$coefficients
       l2_norm <- sqrt(sum(epsilon_n ^ 2))
+      if (l2_norm >= clipping) {
+        # clipping the step size
+        epsilon_n <- epsilon_n / l2_norm * clipping
+      }
 
       hazard_new_1 <- expit(
         offset_submodel_1 +
