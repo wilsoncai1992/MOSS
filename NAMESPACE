@@ -3,6 +3,8 @@
 export(MOSS)
 export(MOSS_hazard)
 export(MOSS_hazard_ate)
+export(compute_q)
+export(compute_simultaneous_ci)
 export(ee)
 export(eic)
 export(evaluate_metric)

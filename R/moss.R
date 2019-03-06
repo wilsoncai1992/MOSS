@@ -385,7 +385,7 @@ MOSS_hazard <- R6Class("MOSS_hazard",
         to_iterate
       ) {
         if (verbose) {
-          df_debug <- data.frame(num_iteration, mean_eic_inner_prod_current, mean(psi_n))
+          df_debug <- data.frame(num_iteration, sqrt(sum(mean_eic ^ 2)), mean(psi_n))
           colnames(df_debug) <- NULL
           print(df_debug)
         }

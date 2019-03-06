@@ -97,3 +97,27 @@ eic <- R6Class("eic",
 )
 
 # WILSON: what is G(t_ | xxx) ? I naively used survival function
+
+#' @export
+compute_q <- function(corr, B, alpha = 0.05) {
+  # compute q_{1-alpha}
+  dim <- nrow(corr)
+  z <- apply(
+    abs(MASS::mvrnorm(B, mu = rep(0, dim), Sigma = corr)), 1, max
+  )
+  return(as.numeric(quantile(z, 1 - alpha)))
+}
+#' @export
+compute_simultaneous_ci <- function(eic_fit) {
+  # compute the value to +- around the Psi_n
+  n <- nrow(eic_fit)
+  sigma_squared <- cov(eic_fit)
+  sigma <- cor(eic_fit)
+  # impute when the variance are zero
+  sigma_squared[is.na(sigma_squared)] <- 1e-10
+  sigma[is.na(sigma)] <- 1e-10
+
+  variance_marginal <- diag(sigma_squared)
+  q <- compute_q(corr = sigma, B = 1e3, alpha = 0.05)
+  return(sqrt(variance_marginal) / sqrt(n) * q)
+}
