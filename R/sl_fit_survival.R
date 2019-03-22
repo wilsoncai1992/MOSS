@@ -58,20 +58,40 @@ initial_sl_fit <- function(
     dat = dat, J = allJ, ntrt = ntrt, uniqtrt = uniqtrt, t0 = t_0, bounds = NULL
   )
   # estimate censoring
-  censOut <- survtmle:::estimateCensoring(
-    dataList = dataList,
-    ntrt = ntrt,
-    uniqtrt = uniqtrt,
-    t0 = t_0,
-    verbose = FALSE,
-    adjustVars = adjustVars,
-    SL.ctime = SL.ctime,
-    glm.family = "binomial",
-    returnModels = TRUE,
-    gtol = gtol
+  # when there is almost no censoring, the classification will fail;
+  # we manually input the conditional survival for the censoring
+  censOut <- tryCatch({
+    survtmle:::estimateCensoring(
+      dataList = dataList,
+      ntrt = ntrt,
+      uniqtrt = uniqtrt,
+      t0 = t_0,
+      verbose = FALSE,
+      adjustVars = adjustVars,
+      SL.ctime = SL.ctime,
+      glm.family = "binomial",
+      returnModels = TRUE,
+      gtol = gtol
+    )
+  },
+  error = function(cond) {
+    message("censoring sl error")
+    NULL
+  }
   )
-  dataList <- censOut$dataList
-  ctimeMod <- censOut$ctimeMod
+  if (is.null(censOut)) {
+    censOut <- list()
+    censOut$dataList <- dataList
+    censOut$dataList$obs[, "G_dC"] <- 1
+    censOut$dataList$'0'[, "G_dC"] <- 1
+    censOut$dataList$'1'[, "G_dC"] <- 1
+    is_sl_censoring_converge <- FALSE
+    dataList <- censOut$dataList
+  } else {
+    dataList <- censOut$dataList
+    ctimeMod <- censOut$ctimeMod
+    is_sl_censoring_converge <- TRUE
+  }
 
   # estimate cause specific hazards
   estOut <- survtmle:::estimateHazards(
