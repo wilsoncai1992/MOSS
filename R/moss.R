@@ -1,18 +1,25 @@
-require("R6")
-require("SuperLearner")
+library(R6)
+library(SuperLearner)
 
 #' onestep TMLE of treatment-rule specific survival curve
 #'
 #' updating the pdf of the failure event
 #'
 #' @docType class
-#' @importFrom R6 R6Class
-#' @export
 #' @keywords data
 #' @return Object of \code{\link{R6Class}} with methods
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' # MOSS$new(A = A, T_tilde = T.tilde, Delta = Delta, density_failure, density_censor, g1W, A_intervene = 1, k_grid = 1:max(T_tilde))
+#' # MOSS$new(
+#' #   A = A,
+#' #   T_tilde = T.tilde,
+#' #   Delta = Delta,
+#' #   density_failure,
+#' #   density_censor,
+#' #   g1W,
+#' #   A_intervene = 1,
+#' #   k_grid = 1:max(T_tilde)
+#' # )
 #' @field A vector of treatment
 #' @field T_tilde vector of last follow up time
 #' @field Delta vector of censoring indicator
@@ -25,6 +32,7 @@ require("SuperLearner")
 #' @field k_grid vector of interested time points
 #' @section Methods:
 #' onestep_curve update the initial estimator
+#' @importFrom R6 R6Class
 #' @export
 MOSS <- R6Class("MOSS",
   public = list(
@@ -211,7 +219,16 @@ MOSS <- R6Class("MOSS",
 #' @return Object of \code{\link{R6Class}} with methods
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' # MOSS_hazard$new(A = A, T_tilde = T.tilde, Delta = Delta, density_failure, density_censor, g1W, A_intervene = 1, k_grid = 1:max(T_tilde))
+#' # MOSS_hazard$new(
+#' #   A = A,
+#' #   T_tilde = T.tilde,
+#' #   Delta = Delta,
+#' #   density_failure,
+#' #   density_censor,
+#' #   g1W,
+#' #   A_intervene = 1,
+#' #   k_grid = 1:max(T_tilde)
+#' # )
 #' @field A vector of treatment
 #' @field T_tilde vector of last follow up time
 #' @field Delta vector of censoring indicator

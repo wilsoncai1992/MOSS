@@ -13,6 +13,8 @@
 #' @param SL.ctime SuperLearner library for censoring event hazard
 #' @param SL.ftime SuperLearner library for failure event hazard
 #'
+#' @importFrom SuperLearner SuperLearner
+#' @importFrom survtmle estimateTreatment makeDataList estimateCensoring estimateHazards
 #' @export
 initial_sl_fit <- function(
                            ftime,
@@ -41,7 +43,7 @@ initial_sl_fit <- function(
   uniqtrt <- sort(trtOfInterest)
 
   # estimate trt probabilities
-  trtOut <- survtmle:::estimateTreatment(
+  trtOut <- survtmle::estimateTreatment(
     dat = dat,
     ntrt = ntrt,
     uniqtrt = uniqtrt,
@@ -54,14 +56,14 @@ initial_sl_fit <- function(
   trtMod <- trtOut$trtMod
 
   # make long version of data sets needed for estimation and prediction
-  dataList <- survtmle:::makeDataList(
+  dataList <- survtmle::makeDataList(
     dat = dat, J = allJ, ntrt = ntrt, uniqtrt = uniqtrt, t0 = t_0, bounds = NULL
   )
   # estimate censoring
   # when there is almost no censoring, the classification will fail;
   # we manually input the conditional survival for the censoring
   censOut <- tryCatch({
-    survtmle:::estimateCensoring(
+    survtmle::estimateCensoring(
       dataList = dataList,
       ntrt = ntrt,
       uniqtrt = uniqtrt,
@@ -94,7 +96,7 @@ initial_sl_fit <- function(
   }
 
   # estimate cause specific hazards
-  estOut <- survtmle:::estimateHazards(
+  estOut <- survtmle::estimateHazards(
     dataList = dataList,
     J = allJ,
     verbose = FALSE,
@@ -123,11 +125,11 @@ initial_sl_fit <- function(
 
   haz1 <- d1[, c("id", "t", "Q1Haz")]
   haz1 <- tidyr::spread(haz1, t, Q1Haz)
-  haz1 <- haz1[, -1] # remove the id column
+  haz1$id <- NULL # remove the id column
 
   haz0 <- d0[, c("id", "t", "Q1Haz")]
   haz0 <- tidyr::spread(haz0, t, Q1Haz)
-  haz0 <- haz0[, -1] # remove the id column
+  haz0$id <- NULL # remove the id column
 
   # extract S_{Ac}
   S_Ac_1 <- d1[, c("id", "t", "G_dC")]

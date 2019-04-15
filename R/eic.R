@@ -98,21 +98,33 @@ eic <- R6Class("eic",
 
 # WILSON: what is G(t_ | xxx) ? I naively used survival function
 
+#' compute multivariate normal quantile from a correlation matrix
+#' @param corr correlation matrix
+#' @param B number of monte-carlo samples drawn to estimate the quantile
+#' @param alpha significant level (to compute 1-alpha quantile)
+#' @return univariate numeric quantile of the quantile(max_j(abs(x))) where x is
+#'  drawn from normal(0, corr)
+#'
 #' @export
-compute_q <- function(corr, B, alpha = 0.05) {
-  # compute q_{1-alpha}
+compute_q <- function(corr, B = 1e3, alpha = 0.05) {
   dim <- nrow(corr)
   z <- apply(
     abs(MASS::mvrnorm(B, mu = rep(0, dim), Sigma = corr)), 1, max
   )
-  return(as.numeric(quantile(z, 1 - alpha)))
+  return(as.numeric(stats::quantile(z, 1 - alpha)))
 }
+#' compute simutaneous confidence band around a survival curve esimator
+#' @param eic_fit a matrix of efficient influence curve from `eic` class
+#'  `all_t` method
+#' @return a vector of standard error corresponding to each time point on the
+#' survival curve
+#'
 #' @export
 compute_simultaneous_ci <- function(eic_fit) {
   # compute the value to +- around the Psi_n
   n <- nrow(eic_fit)
-  sigma_squared <- cov(eic_fit)
-  sigma <- cor(eic_fit)
+  sigma_squared <- stats::cov(eic_fit)
+  sigma <- stats::cor(eic_fit)
   # impute when the variance are zero
   sigma_squared[is.na(sigma_squared)] <- 1e-10
   sigma[is.na(sigma)] <- 1e-10

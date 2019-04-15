@@ -1,6 +1,6 @@
 Package: MOSS
 Title: One-step TMLE for survival analysis
-Version: 1.1.0
+Version: 1.1.1
 Authors@R: as.person(c(
     "Wilson Cai <wcai@berkeley.edu> [aut, cre]",
     "Mark J. van der Laan <laan@berkeley.edu> [aut]"))
@@ -9,7 +9,6 @@ Depends:
     R (>= 3.2.0),
     SuperLearner (>= 2.0.0),
     survtmle (>= 1.0.0),
-    Matrix,
     R6,
     Rsolnp
 Imports:
@@ -22,7 +21,8 @@ Imports:
 Suggests:
     testthat,
     covr,
-    glmnet
+    glmnet,
+    MASS
 Remotes:
     r-lib/covr
 License: GPL-2
