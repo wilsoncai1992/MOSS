@@ -1,9 +1,10 @@
 ---
 title: "How to use MOSS package"
 author: "[Weixin Cai](https://wilsoncai1992.github.io/)"
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Put the title of your vignette here}
+  %\VignetteIndexEntry{Model survival curves using TMLE}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
@@ -22,7 +23,7 @@ Using MOSS to analyze survival data and estimate survival curve falls into the f
 
 You will need a matrix of baseline covariates W, a binary treatment A, $\widetilde T \triangleq \min(T_A, C_A)$ is the last measurement time of the subject, and $\Delta \triangleq I(T_A \leqslant C_A)$ is the censoring indicator.
 
-```r
+```{r}
 library(simcausal)
 D <- DAG.empty()
 D <- D +
@@ -63,7 +64,7 @@ https://github.com/ecpolley/SuperLearner/tree/master/R
 - sl_censoring: SuperLearner library for censoring event hazard
 - sl_treatment: SuperLearner library for propensity score
 
-```r
+```{r}
 library(MOSS)
 sl_lib_g <- c("SL.mean", "SL.glm")
 sl_lib_censor <- c("SL.mean", "SL.glm")
@@ -81,12 +82,12 @@ sl_fit <- initial_sl_fit(
 )
 ```
 
-```r
+```{r}
 names(sl_fit)
 ```
 the `sl_fit` will contain the fitted conditional densities for the failure events (`density_failure_1` for treatment group, `density_failure_0` for control group), censoring events (`density_censor_1` for treatment, `density_censor_0` for control), and propensity scores (a vector `g1W`)
 
-```r
+```{r}
 sl_fit$density_failure_1$hazard_to_survival()
 sl_fit$density_failure_0$hazard_to_survival()
 # a quick hack in case there is no data where T_tilde = 1 (time start from 1)
@@ -110,7 +111,7 @@ First we set the inputs
 - A_intervene: set `1` if you want to estimate treatment group survival curve; set `0` for control group
 - k_grid: `1:max(T_tilde)`
 
-```r
+```{r}
 moss_hazard_fit <- MOSS_hazard$new(
   A = df$A,
   T_tilde = df$T.tilde,
@@ -124,7 +125,7 @@ moss_hazard_fit <- MOSS_hazard$new(
 ```
 
 Perform TMLE step.
-```r
+```{r}
 psi_moss_hazard_1 <- moss_hazard_fit$iterate_onestep(
   epsilon = 1e-2, max_num_interation = 1e1, verbose = FALSE
 )
@@ -132,7 +133,7 @@ psi_moss_hazard_1 <- moss_hazard_fit$iterate_onestep(
 TIPS:
 - set `epsilon` smaller if the stopping criteria fluctuation is noisy; should smoothly decrease
 
-```r
+```{r}
 moss_hazard_fit_1 <- survival_curve$new(t = k_grid, survival = psi_moss_hazard_1)
 moss_hazard_fit_1$display(type = 'survival')
 ```
@@ -141,7 +142,7 @@ You don't have to, but this wraps the estimated survival curve `psi_moss_hazard_
 # simultaneous confidence band (`compute_simultaneous_ci`)
 
 use the following script to compute the standard error for each t on the survival curve.
-```r
+```{r}
 survival_curve_estimate <- as.vector(moss_hazard_fit_1$survival)
 eic_fit <- eic$new(
   A = df$A,
@@ -161,4 +162,10 @@ lower_bound <- survival_curve_estimate - 1.96 * std_err
 print(survival_curve_estimate)
 print(upper_bound)
 print(lower_bound)
+```
+
+## Session Information
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
 ```

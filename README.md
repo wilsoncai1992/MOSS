@@ -71,8 +71,10 @@ The data input of all methods in the package should be an `R`
 
 ## Citation
 
-To cite `MOSS` in publications, please use: \> Cai W, van der Laan MJ
-(2019+). *One-step TMLE for time-to-event outcomes.* Working paper.
+To cite `MOSS` in publications, please use:
+
+> Cai W, van der Laan MJ (2019+). *One-step TMLE for time-to-event
+> outcomes.* Working paper.
 
 ## Funding
 
