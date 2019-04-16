@@ -11,7 +11,7 @@ branches:
 env:
   global:
     - R_BUILD_ARGS="--no-build-vignettes --no-manual"
-    - R_CHECK_ARGS="--no-build-vignettes --no-manual"
+    - R_CHECK_ARGS="--no-build-vignettes --no-manual --as-cran"
 
 r:
   - release
@@ -23,7 +23,6 @@ r_packages:
 
 r_github_packages:
   - r-lib/covr
-  - osofr/simcausal
 
 ## coverage
 after_success:
