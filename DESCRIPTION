@@ -4,7 +4,7 @@ Version: 1.1.1
 Authors@R: as.person(c(
     "Wilson Cai <wcai@berkeley.edu> [aut, cre]",
     "Mark J. van der Laan <laan@berkeley.edu> [aut]"))
-Description: Estimate counterfactual survival curve under static or dynamic interventions on treatment (exposure), while at the same time adjust for measured counfounding. Targeted Maximum Likelihood Estimate (TMLE) approach is employed to create a doubly robust and semi-parametrically efficient estimator. Machine Learning algorithms (SuperLearner) are implemented to all stages of the estimation.
+Description: Estimate counterfactual survival curve under static or dynamic interventions on treatment (exposure), while at the same time adjust for measured confounding. Targeted Maximum Likelihood Estimate (TMLE) approach is employed to create a doubly robust and semi-parametrically efficient estimator. Machine Learning algorithms (SuperLearner) are implemented to all stages of the estimation.
 Depends:
     R (>= 3.2.0),
     SuperLearner (>= 2.0.0),
@@ -22,11 +22,14 @@ Suggests:
     testthat,
     covr,
     glmnet,
-    MASS
+    MASS,
+    knitr,
+    rmarkdown
 Remotes:
     r-lib/covr
 License: GPL-2
 URL: https://github.com/wilsoncai1992/MOSS
 Encoding: UTF-8
 LazyData: true
+VignetteBuilder: knitr
 RoxygenNote: 6.1.1

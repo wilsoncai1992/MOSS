@@ -1,0 +1,163 @@
+---
+title: "How to use MOSS package"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Put the title of your vignette here}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+# tl;dr
+
+Using MOSS to analyze survival data and estimate survival curve falls into the following steps:
+
+1. clean survival data into right-censored format
+2. perform SuperLearner fit of the conditional survival function of failure event, conditional survival function of censoring event, propensity scores (`initial_sl_fit`)
+3. perform TMLE adjustment of the conditional survival fit (`MOSS_hazard`)
+4. simultaneous confidence band (`compute_simultaneous_ci`)
+
+
+# clean survival data into right-censored format
+
+You will need a matrix of baseline covariates W, a binary treatment A, $\widetilde T \triangleq \min(T_A, C_A)$ is the last measurement time of the subject, and $\Delta \triangleq I(T_A \leqslant C_A)$ is the censoring indicator.
+
+```r
+library(simcausal)
+D <- DAG.empty()
+D <- D +
+node("W1", distr = "rbinom", size = 1, prob = .5) +
+node("W", distr = "runif", min = 0, max = 1.5) +
+node("A", distr = "rbinom", size = 1, prob = .15 + .5 * as.numeric(W > .75)) +
+node("Trexp", distr = "rexp", rate = 1 + .7 * W^2 - .8 * A) +
+node("Cweib", distr = "rweibull", shape = 1 + .5 * W, scale = 75) +
+node("T", distr = "rconst", const = round(Trexp * 2)) +
+node("C", distr = "rconst", const = round(Cweib * 2)) +
+# Observed random variable (follow-up time):
+node("T.tilde", distr = "rconst", const = ifelse(T <= C, T, C)) +
+# Observed random variable (censoring indicator, 1 - failure event, 0 - censored):
+node("Delta", distr = "rconst", const = ifelse(T <= C, 1, 0))
+setD <- set.DAG(D)
+dat <- sim(setD, n = 2e2)
+# only grab ID, W's, A, T.tilde, Delta
+Wname <- grep("W", colnames(dat), value = TRUE)
+df <- dat[, c("ID", Wname, "A", "T.tilde", "Delta")]
+# The simulator will generate death at time 0. 
+# our package only allow positive integer time, so I add one to all times
+df$T.tilde <- df$T.tilde + 1
+```
+Here I simulate a survival data using `simcausal` package. The baseline covariate
+
+# perform SuperLearner fit of the conditional survival function of failure event, conditional survival function of censoring event, and propensity scores (`initial_sl_fit`)
+
+- T_tilde: vector of last follow up time
+- Delta: vector of censoring indicator
+- A: vector of treatment
+- W: data.frame of baseline covariates
+- t_max: you always set as the maximum time
+
+The following three can take a vector of strings in the following sets:
+https://github.com/ecpolley/SuperLearner/tree/master/R
+
+- sl_failure: SuperLearner library for failure event hazard
+- sl_censoring: SuperLearner library for censoring event hazard
+- sl_treatment: SuperLearner library for propensity score
+
+```r
+library(MOSS)
+sl_lib_g <- c("SL.mean", "SL.glm")
+sl_lib_censor <- c("SL.mean", "SL.glm")
+sl_lib_failure <- c("SL.mean", "SL.glm", "SL.step.forward")
+
+sl_fit <- initial_sl_fit(
+  T_tilde = df$T.tilde,
+  Delta = df$Delta,
+  A = df$A,
+  W = data.frame(df[, c("W", "W1")]),
+  t_max = max(df$T.tilde),
+  sl_treatment = sl_lib_g,
+  sl_censoring = sl_lib_censor,
+  sl_failure = sl_lib_failure
+)
+```
+
+```r
+names(sl_fit)
+```
+the `sl_fit` will contain the fitted conditional densities for the failure events (`density_failure_1` for treatment group, `density_failure_0` for control group), censoring events (`density_censor_1` for treatment, `density_censor_0` for control), and propensity scores (a vector `g1W`)
+
+```r
+sl_fit$density_failure_1$hazard_to_survival()
+sl_fit$density_failure_0$hazard_to_survival()
+# a quick hack in case there is no data where T_tilde = 1 (time start from 1)
+k_grid <- 1:max(df$T.tilde)
+sl_fit$density_failure_1$t <- k_grid
+sl_fit$density_failure_0$t <- k_grid
+```
+
+We need to call `hazard_to_survival` method to always do a tranformation from conditional hazard to conditional survival probabilities (one-to-one transformation).
+
+
+# perform TMLE adjustment of the conditional survival fit (`MOSS_hazard`)
+
+First we set the inputs
+- T_tilde: same as before
+- Delta: same as before
+- A: same as before
+- density_failure: use `sl_fit$density_failure_1` if you want to estimate treatment group survival curve; use `sl_fit$density_failure_0` for control group
+- density_censor: use `sl_fit$density_censor_1` or `sl_fit$density_censor_0`
+- g1W: use `sl_fit$g1W`
+- A_intervene: set `1` if you want to estimate treatment group survival curve; set `0` for control group
+- k_grid: `1:max(T_tilde)`
+
+```r
+moss_hazard_fit <- MOSS_hazard$new(
+  A = df$A,
+  T_tilde = df$T.tilde,
+  Delta = df$Delta,
+  density_failure = sl_fit$density_failure_1,
+  density_censor = sl_fit$density_censor_1,
+  g1W = sl_fit$g1W,
+  A_intervene = 1,
+  k_grid = k_grid
+)
+```
+
+Perform TMLE step.
+```r
+psi_moss_hazard_1 <- moss_hazard_fit$iterate_onestep(
+  epsilon = 1e-2, max_num_interation = 1e1, verbose = FALSE
+)
+```
+TIPS: 
+- set `epsilon` smaller if the stopping criteria fluctuation is noisy; should smoothly decrease
+
+```r
+moss_hazard_fit_1 <- survival_curve$new(t = k_grid, survival = psi_moss_hazard_1)
+moss_hazard_fit_1$display(type = 'survival')
+```
+You don't have to, but this wraps the estimated survival curve `psi_moss_hazard_1` nicely with its corresponding time.
+
+# simultaneous confidence band (`compute_simultaneous_ci`)
+
+use the following script to compute the standard error for each t on the survival curve.
+```r
+survival_curve_estimate <- as.vector(moss_hazard_fit_1$survival)
+eic_fit <- eic$new(
+  A = df$A, 
+  T_tilde = df$T.tilde, 
+  Delta = df$Delta,density_failure = moss_hazard_fit$density_failure, 
+  density_censor = moss_hazard_fit$density_censor, 
+  g1W = moss_hazard_fit$g1W, 
+  psi = survival_curve_estimate, 
+  A_intervene = 1
+)
+
+eic_matrix <- eic_fit$all_t(k_grid = k_grid)
+std_err <- compute_simultaneous_ci(eic_matrix)
+upper_bound <- survival_curve_estimate + 1.96 * std_err
+lower_bound <- survival_curve_estimate - 1.96 * std_err
+
+print(survival_curve_estimate)
+print(upper_bound)
+print(lower_bound)
+```
