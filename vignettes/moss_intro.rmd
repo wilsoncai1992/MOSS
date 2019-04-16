@@ -1,5 +1,6 @@
 ---
 title: "How to use MOSS package"
+author: "[Weixin Cai](https://wilsoncai1992.github.io/)"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Put the title of your vignette here}
@@ -41,7 +42,7 @@ dat <- sim(setD, n = 2e2)
 # only grab ID, W's, A, T.tilde, Delta
 Wname <- grep("W", colnames(dat), value = TRUE)
 df <- dat[, c("ID", Wname, "A", "T.tilde", "Delta")]
-# The simulator will generate death at time 0. 
+# The simulator will generate death at time 0.
 # our package only allow positive integer time, so I add one to all times
 df$T.tilde <- df$T.tilde + 1
 ```
@@ -128,7 +129,7 @@ psi_moss_hazard_1 <- moss_hazard_fit$iterate_onestep(
   epsilon = 1e-2, max_num_interation = 1e1, verbose = FALSE
 )
 ```
-TIPS: 
+TIPS:
 - set `epsilon` smaller if the stopping criteria fluctuation is noisy; should smoothly decrease
 
 ```r
@@ -143,12 +144,12 @@ use the following script to compute the standard error for each t on the surviva
 ```r
 survival_curve_estimate <- as.vector(moss_hazard_fit_1$survival)
 eic_fit <- eic$new(
-  A = df$A, 
-  T_tilde = df$T.tilde, 
-  Delta = df$Delta,density_failure = moss_hazard_fit$density_failure, 
-  density_censor = moss_hazard_fit$density_censor, 
-  g1W = moss_hazard_fit$g1W, 
-  psi = survival_curve_estimate, 
+  A = df$A,
+  T_tilde = df$T.tilde,
+  Delta = df$Delta,density_failure = moss_hazard_fit$density_failure,
+  density_censor = moss_hazard_fit$density_censor,
+  g1W = moss_hazard_fit$g1W,
+  psi = survival_curve_estimate,
   A_intervene = 1
 )
 
