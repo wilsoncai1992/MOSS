@@ -4,30 +4,28 @@
 \alias{initial_sl_fit}
 \title{super learner fit for failure and censoring event}
 \usage{
-initial_sl_fit(ftime, ftype, trt, adjustVars, t_0, trtOfInterest = 0:1,
-  SL.trt = c("SL.glm"), gtol = 0.001, SL.ctime = c("SL.glm"),
-  SL.ftime = c("SL.glm"))
+initial_sl_fit(T_tilde, Delta, A, W, t_max, sl_failure = c("SL.glm"),
+  sl_censoring = c("SL.glm"), sl_treatment = c("SL.glm"),
+  gtol = 0.001)
 }
 \arguments{
-\item{ftime}{vector of last follow up time}
+\item{T_tilde}{vector of last follow up time}
 
-\item{ftype}{vector of censoring indicator}
+\item{Delta}{vector of censoring indicator}
 
-\item{trt}{vector of treatment}
+\item{A}{vector of treatment}
 
-\item{adjustVars}{data.frame of baseline covariates}
+\item{W}{data.frame of baseline covariates}
 
-\item{t_0}{the maximum time to estimate the survival probabilities}
+\item{t_max}{the maximum time to estimate the survival probabilities}
 
-\item{trtOfInterest}{the intervention of interest}
+\item{sl_failure}{SuperLearner library for failure event hazard}
 
-\item{SL.trt}{SuperLearner library for propensity score}
+\item{sl_censoring}{SuperLearner library for censoring event hazard}
+
+\item{sl_treatment}{SuperLearner library for propensity score}
 
 \item{gtol}{treshold for the fitted propensity scores}
-
-\item{SL.ctime}{SuperLearner library for censoring event hazard}
-
-\item{SL.ftime}{SuperLearner library for failure event hazard}
 }
 \description{
 using survtmle package

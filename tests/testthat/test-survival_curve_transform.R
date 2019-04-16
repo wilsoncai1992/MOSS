@@ -15,14 +15,14 @@ df$T.tilde <- df$T.tilde + 1
 k_grid <- 1:max(df$T.tilde)
 
 sl_fit <- initial_sl_fit(
-  ftime = df$T.tilde,
-  ftype = df$Delta,
-  trt = df$A,
-  adjustVars = data.frame(df[, c("W", "W1")]),
-  t_0 = max(df$T.tilde),
-  SL.trt = sl_lib_g,
-  SL.ctime = sl_lib_censor,
-  SL.ftime = sl_lib_failure
+  T_tilde = df$T.tilde,
+  Delta = df$Delta,
+  A = df$A,
+  W = data.frame(df[, c("W", "W1")]),
+  t_max = max(df$T.tilde),
+  sl_treatment = sl_lib_g,
+  sl_censoring = sl_lib_censor,
+  sl_failure = sl_lib_failure
 )
 sl_fit$density_failure_1$hazard_to_survival()
 sl_fit$density_failure_0$hazard_to_survival()

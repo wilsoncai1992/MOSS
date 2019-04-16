@@ -14,7 +14,7 @@ The following comparable methods are also included in the package for you to eas
 - Inverse censoring probability weighted (IPCW)
 - Locally efficient one-step estimator (estimating equation methods)
 
-```R
+```{r eval = FALSE}
 install.packages('MOSS')
 devtools::install_github('wilsoncai1992/MOSS')
 ```
@@ -23,7 +23,7 @@ devtools::install_github('wilsoncai1992/MOSS')
 
 * To see all available package documentation:
 
-```R
+```{r eval = FALSE}
 ?MOSS
 help(package = 'MOSS')
 ```
@@ -34,7 +34,7 @@ help(package = 'MOSS')
 
 The data input of all methods in the package should be an `R` `data.frame` in the following survival long data format:
 
-```R
+```{r eval = FALSE}
 #   ID W A T.tilde delta
 # 1  1 0 0      95     1
 # 2  2 1 1       1     0

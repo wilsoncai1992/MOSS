@@ -6,31 +6,41 @@ utils::globalVariables(c("Q1Haz", "G_dC"))
 #'
 #' using survtmle package
 #'
-#' @param ftime vector of last follow up time
-#' @param ftype vector of censoring indicator
-#' @param trt vector of treatment
-#' @param adjustVars data.frame of baseline covariates
-#' @param t_0 the maximum time to estimate the survival probabilities
-#' @param trtOfInterest the intervention of interest
-#' @param SL.trt SuperLearner library for propensity score
+#' @param T_tilde vector of last follow up time
+#' @param Delta vector of censoring indicator
+#' @param A vector of treatment
+#' @param W data.frame of baseline covariates
+#' @param t_max the maximum time to estimate the survival probabilities
+#' @param sl_failure SuperLearner library for failure event hazard
+#' @param sl_censoring SuperLearner library for censoring event hazard
+#' @param sl_treatment SuperLearner library for propensity score
 #' @param gtol treshold for the fitted propensity scores
-#' @param SL.ctime SuperLearner library for censoring event hazard
-#' @param SL.ftime SuperLearner library for failure event hazard
 #'
 #' @importFrom SuperLearner SuperLearner
 #' @importFrom survtmle estimateTreatment makeDataList estimateCensoring estimateHazards
 #' @export
 initial_sl_fit <- function(
-                           ftime,
-                           ftype,
-                           trt,
-                           adjustVars,
-                           t_0,
-                           trtOfInterest = 0:1,
-                           SL.trt = c("SL.glm"),
-                           gtol = 1e-3,
-                           SL.ctime = c("SL.glm"),
-                           SL.ftime = c("SL.glm")) {
+                           T_tilde,
+                           Delta,
+                           A,
+                           W,
+                           t_max,
+                           sl_failure = c("SL.glm"),
+                           sl_censoring = c("SL.glm"),
+                           sl_treatment = c("SL.glm"),
+                           gtol = 1e-3
+                           ) {
+  # convert dictionary of variable names
+  ftime <- T_tilde
+  ftype <- Delta
+  trt <- A
+  adjustVars <- W
+  t_0 <- t_max
+  trtOfInterest <- 0:1
+  SL.ftime <- sl_failure
+  SL.ctime <- sl_censoring
+  SL.trt <- sl_treatment
+
   adjustVars <- data.frame(adjustVars)
   ftypeOfInterest <- unique(ftype)
   n <- length(ftime)
