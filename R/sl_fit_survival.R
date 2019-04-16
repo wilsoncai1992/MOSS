@@ -1,3 +1,7 @@
+# hack away the tidyr syntax for R CHECK
+utils::globalVariables(c("Q1Haz", "G_dC"))
+
+
 #' super learner fit for failure and censoring event
 #'
 #' using survtmle package

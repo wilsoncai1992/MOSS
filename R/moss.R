@@ -309,29 +309,33 @@ MOSS_hazard <- R6Class("MOSS_hazard",
       h_matrix <- do.call(cbind, h_matrix)
       return(h_matrix)
     },
-    fit_epsilon = function(clipping = Inf) {
+    fit_epsilon = function(method = "l2", clipping = Inf) {
       dNt <- self$create_dNt()
       h_matrix <- self$construct_long_data(
         A_intervene = self$A_intervene,
         density_failure = self$density_failure,
         density_censor = self$density_censor
       )
-      # submodel_fit <- glm.fit(
-      #   x = h_matrix,
-      #   y = dNt,
-      #   family = binomial(),
-      #   offset = logit(as.vector(t(self$density_failure$hazard))),
-      #   intercept = FALSE
-      # )
-      # epsilon_n <- submodel_fit$coefficients
+      if (method == "glm") {
+        submodel_fit <- glm.fit(
+          x = h_matrix,
+          y = dNt,
+          family = binomial(),
+          offset = logit(as.vector(t(self$density_failure$hazard))),
+          intercept = FALSE
+        )
+        epsilon_n <- submodel_fit$coefficients
+      }
+      if (method == "l2") {
+        epsilon_n <- fit_ridge_constrained(
+          Y = dNt,
+          X = h_matrix,
+          beta_init = rep(0, ncol(h_matrix)),
+          l2_norm_max = clipping,
+          offset = logit(as.vector(t(self$density_failure$hazard)))
+        )
+      }
 
-      epsilon_n <- fit_ridge_constrained(
-        Y = dNt,
-        X = h_matrix,
-        beta_init = rep(0, ncol(h_matrix)),
-        l2_norm_max = clipping,
-        offset = logit(as.vector(t(self$density_failure$hazard)))
-      )
       l2_norm <- sqrt(sum(epsilon_n ^ 2))
       if (l2_norm >= clipping) {
         # clipping the step size
@@ -369,6 +373,7 @@ MOSS_hazard <- R6Class("MOSS_hazard",
       return(mean_eic)
     },
     iterate_onestep = function(
+      method = "l2",
       epsilon = 1e0,
       max_num_interation = 1e2,
       tmle_tolerance = NULL,
@@ -407,7 +412,9 @@ MOSS_hazard <- R6Class("MOSS_hazard",
           print(df_debug)
         }
         # update
-        self$density_failure <- self$fit_epsilon(clipping = self$epsilon)
+        self$density_failure <- self$fit_epsilon(
+          method = method, clipping = self$epsilon
+        )
 
         psi_n <- colMeans(self$density_failure$survival)
         mean_eic <- self$compute_mean_eic(psi_n = psi_n, k_grid = k_grid)
