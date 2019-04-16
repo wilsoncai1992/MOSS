@@ -7,6 +7,7 @@ logit <- function(x) log(x) - log(1 - x)
 #' @keywords internal
 norm_l2 <- function(beta) sqrt(sum(beta ^ 2))
 
+#' @keywords internal
 cross_entropy <- function(beta, y, x, offset) {
   y_is_one <- y == 1
   l_one <- -log(expit(x %*% beta))
@@ -26,6 +27,7 @@ cross_entropy <- function(beta, y, x, offset) {
 #' @param offset a vector of constant offset in the linear term
 #'
 #' @return the fitted slope
+#' @importFrom Rsolnp solnp
 #' @export
 fit_ridge_constrained <- function(Y, X, beta_init, l2_norm_max, offset = NULL) {
   if (is.null(offset)) offset <- rep(0, length(Y))

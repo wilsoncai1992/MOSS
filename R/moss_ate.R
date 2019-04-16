@@ -9,7 +9,18 @@
 #' @return Object of \code{\link{R6Class}} with methods
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' # MOSS_hazard_ate$new(A = A, T_tilde = T.tilde, Delta = Delta, density_failure, density_censor, density_failure_0, density_censor_0, g1W, A_intervene = 1, k_grid = 1:max(T_tilde))
+#' # MOSS_hazard_ate$new(
+#' #   A = A,
+#' #   T_tilde = T.tilde,
+#' #   Delta = Delta,
+#' #   density_failure,
+#' #   density_censor,
+#' #   density_failure_0,
+#' #   density_censor_0,
+#' #   g1W,
+#' #   A_intervene = 1,
+#' #   k_grid = 1:max(T_tilde)
+#' # )
 #' @field A vector of treatment
 #' @field T_tilde vector of last follow up time
 #' @field Delta vector of censoring indicator
@@ -43,7 +54,7 @@ MOSS_hazard_ate <- R6Class("MOSS_hazard_ate",
       self$density_censor_0 <- density_censor_0
       return(self)
     },
-    fit_epsilon = function(clipping = Inf) {
+    fit_epsilon = function(method = "l2", clipping = Inf) {
       dNt <- self$create_dNt()
       h_matrix_1 <- self$construct_long_data(
         A_intervene = 1,
@@ -61,14 +72,30 @@ MOSS_hazard_ate <- R6Class("MOSS_hazard_ate",
       offset_submodel_0 <- logit(as.vector(t(self$density_failure_0$hazard)))
       offset_submodel <- offset_submodel_1
       offset_submodel[self$A == 0] <- offset_submodel_0[self$A == 0]
-      epsilon_n <- fit_ridge_constrained(
-        Y = dNt,
-        X = h_matrix,
-        beta_init = rep(0, ncol(h_matrix)),
-        l2_norm_max = clipping,
-        offset = offset_submodel
-      )
+      if (method == "glm") {
+        submodel_fit <- glm.fit(
+          x = h_matrix,
+          y = dNt,
+          family = binomial(),
+          offset = offset_submodel,
+          intercept = FALSE
+        )
+        epsilon_n <- submodel_fit$coefficients
+      }
+      if (method == "l2") {
+        epsilon_n <- fit_ridge_constrained(
+          X = h_matrix,
+          Y = dNt,
+          beta_init = rep(0, ncol(h_matrix)),
+          l2_norm_max = clipping,
+          offset = offset_submodel
+        )
+      }
       l2_norm <- sqrt(sum(epsilon_n ^ 2))
+      if (l2_norm >= clipping) {
+        # clipping the step size
+        epsilon_n <- epsilon_n / l2_norm * clipping
+      }
 
       hazard_new_1 <- expit(
         offset_submodel_1 +
@@ -128,6 +155,7 @@ MOSS_hazard_ate <- R6Class("MOSS_hazard_ate",
       return(mean_eic)
     },
     iterate_onestep = function(
+      method = "l2",
       epsilon = 1e-2,
       max_num_interation = 1e2,
       tmle_tolerance = NULL,
@@ -169,7 +197,7 @@ MOSS_hazard_ate <- R6Class("MOSS_hazard_ate",
           print(df_debug)
         }
         # update
-        new_hazard <- self$fit_epsilon(clipping = self$epsilon)
+        new_hazard <- self$fit_epsilon(method = method, clipping = self$epsilon)
         self$density_failure <- new_hazard$hazard_new_1
         self$density_failure_0 <- new_hazard$hazard_new_0
 

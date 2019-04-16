@@ -31,8 +31,12 @@ sl_fit$density_failure_0$t <- k_grid
 
 sl_density_failure_1_marginal <- sl_fit$density_failure_1$clone(deep = TRUE)
 sl_density_failure_0_marginal <- sl_fit$density_failure_0$clone(deep = TRUE)
-sl_density_failure_1_marginal$survival <- matrix(colMeans(sl_density_failure_1_marginal$survival), nrow = 1)
-sl_density_failure_0_marginal$survival <- matrix(colMeans(sl_density_failure_0_marginal$survival), nrow = 1)
+sl_density_failure_1_marginal$survival <- matrix(
+  colMeans(sl_density_failure_1_marginal$survival), nrow = 1
+)
+sl_density_failure_0_marginal$survival <- matrix(
+  colMeans(sl_density_failure_0_marginal$survival), nrow = 1
+)
 
 sl_fit$density_failure_1$survival_to_hazard()
 sl_fit$density_failure_1$hazard_to_pdf()

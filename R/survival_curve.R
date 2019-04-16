@@ -126,8 +126,8 @@ survival_curve <- R6Class("survival_curve",
         } else {
           gg <- ggplot(df, aes(x = t, y = s)) +
             geom_line() +
-            theme_bw() +
-            ylim(c(-.1, 1.1))
+            theme_bw()
+            # ylim(c(-.1, 1.1))
         }
       }
       if (type == "hazard") {
@@ -147,9 +147,21 @@ survival_curve <- R6Class("survival_curve",
       if (type == "pdf") {}
       return(gg)
     },
-    create_ggplot_df = function() {
-      # only for marginal survival curve
-      return(data.frame(t = self$t, s = as.numeric(self$survival)))
+    create_ggplot_df = function(W = NULL) {
+      if (is.null(W)) {
+        # only for marginal survival curve
+        return(data.frame(t = self$t, s = as.numeric(self$survival)))
+      } else {
+        if (class(W) != "numeric") stop("W only be univariate vector")
+        if (length(W) != self$n()) stop("W length not correct")
+        # the first Tmax rows are for the first subject
+        df <- data.frame(
+          t = rep(self$t, self$n()),
+          W = rep(W, each = length(self$t)),
+          s = as.vector(t(self$survival))
+        )
+        return(df)
+      }
     },
     ci = function(
       A,
