@@ -78,6 +78,18 @@
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/moss_intro.html">How to use MOSS package</a>
+    </li>
+  </ul>
+</li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
@@ -110,52 +122,48 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>initial_sl_fit</span>(<span class='no'>ftime</span>, <span class='no'>ftype</span>, <span class='no'>trt</span>, <span class='no'>adjustVars</span>, <span class='no'>t_0</span>, <span class='kw'>trtOfInterest</span> <span class='kw'>=</span> <span class='fl'>0</span>:<span class='fl'>1</span>,
-  <span class='kw'>SL.trt</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"SL.glm"</span>), <span class='kw'>gtol</span> <span class='kw'>=</span> <span class='fl'>0.001</span>, <span class='kw'>SL.ctime</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"SL.glm"</span>),
-  <span class='kw'>SL.ftime</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"SL.glm"</span>))</pre>
+    <pre class="usage"><span class='fu'>initial_sl_fit</span>(<span class='no'>T_tilde</span>, <span class='no'>Delta</span>, <span class='no'>A</span>, <span class='no'>W</span>, <span class='no'>t_max</span>, <span class='kw'>sl_failure</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"SL.glm"</span>),
+  <span class='kw'>sl_censoring</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"SL.glm"</span>), <span class='kw'>sl_treatment</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"SL.glm"</span>),
+  <span class='kw'>gtol</span> <span class='kw'>=</span> <span class='fl'>0.001</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>ftime</th>
+      <th>T_tilde</th>
       <td><p>vector of last follow up time</p></td>
     </tr>
     <tr>
-      <th>ftype</th>
+      <th>Delta</th>
       <td><p>vector of censoring indicator</p></td>
     </tr>
     <tr>
-      <th>trt</th>
+      <th>A</th>
       <td><p>vector of treatment</p></td>
     </tr>
     <tr>
-      <th>adjustVars</th>
+      <th>W</th>
       <td><p>data.frame of baseline covariates</p></td>
     </tr>
     <tr>
-      <th>t_0</th>
+      <th>t_max</th>
       <td><p>the maximum time to estimate the survival probabilities</p></td>
     </tr>
     <tr>
-      <th>trtOfInterest</th>
-      <td><p>the intervention of interest</p></td>
+      <th>sl_failure</th>
+      <td><p>SuperLearner library for failure event hazard</p></td>
     </tr>
     <tr>
-      <th>SL.trt</th>
+      <th>sl_censoring</th>
+      <td><p>SuperLearner library for censoring event hazard</p></td>
+    </tr>
+    <tr>
+      <th>sl_treatment</th>
       <td><p>SuperLearner library for propensity score</p></td>
     </tr>
     <tr>
       <th>gtol</th>
       <td><p>treshold for the fitted propensity scores</p></td>
-    </tr>
-    <tr>
-      <th>SL.ctime</th>
-      <td><p>SuperLearner library for censoring event hazard</p></td>
-    </tr>
-    <tr>
-      <th>SL.ftime</th>
-      <td><p>SuperLearner library for failure event hazard</p></td>
     </tr>
     </table>
     

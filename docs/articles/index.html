@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>run ipcw based on initial fit — ipcw • MOSS</title>
+<title>Articles • MOSS</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,10 +30,7 @@
 
 
 
-<meta property="og:title" content="run ipcw based on initial fit — ipcw" />
-
-<meta property="og:description" content="run ipcw based on initial fit" />
-<meta name="twitter:card" content="summary" />
+<meta property="og:title" content="Articles" />
 
 
 
@@ -50,7 +47,7 @@
   </head>
 
   <body>
-    <div class="container template-reference-topic">
+    <div class="container template-article-index">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -111,68 +108,17 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>run ipcw based on initial fit</h1>
-    <small class="dont-index">Source: <a href='https://github.com/wilsoncai1992/MOSS/blob/master/R/ipcw_ee.R'><code>R/ipcw_ee.R</code></a></small>
-    <div class="hidden name"><code>ipcw.Rd</code></div>
+      <h1>Articles</h1>
     </div>
 
-    <div class="ref-description">
-    
-    <p>run ipcw based on initial fit</p>
-    
+    <div class="section ">
+      <h3>All vignettes</h3>
+      <p class="section-desc"></p>
+
+      <ul>
+        <li><a href="moss_intro.html">How to use MOSS package</a></li>
+      </ul>
     </div>
-
-    <pre class="usage"><span class='no'>ipcw</span></pre>
-        
-    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
-
-    <p><code>R6Class</code> object.</p>
-    
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>Object of <code>R6Class</code> with methods</p>
-    
-    <h2 class="hasAnchor" id="fields"><a class="anchor" href="#fields"></a>Fields</h2>
-
-    
-    <dl class='dl-horizontal'>
-<dt><code>A</code></dt><dd><p>vector of treatment</p></dd>
-    <dt><code>T_tilde</code></dt><dd><p>vector of last follow up time</p></dd>
-    <dt><code>Delta</code></dt><dd><p>vector of censoring indicator</p></dd>
-    <dt><code>density_failure</code></dt><dd><p>survival_curve object of predicted counterfactual
-survival curve</p></dd>
-    <dt><code>density_censor</code></dt><dd><p>survival_curve object of predicted counterfactual
-failure event survival curve</p></dd>
-    <dt><code>g1W</code></dt><dd><p>propensity score</p></dd>
-    <dt><code>A_intervene</code></dt><dd><p>the intervention of interest</p></dd>
-    <dt><code>k_grid</code></dt><dd><p>vector of interested time points</p></dd>
-</dl>
-    
-    <h2 class="hasAnchor" id="methods"><a class="anchor" href="#methods"></a>Methods</h2>
-
-    
-    <p>fit fit one time point</p>
-    
-
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'># ipcw$new(A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)
-</div></pre>
-  </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      
-      <li><a href="#format">Format</a></li>
-
-      <li><a href="#value">Value</a></li>
-
-      <li><a href="#fields">Fields</a></li>
-
-      <li><a href="#methods">Methods</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
   </div>
 </div>
 
