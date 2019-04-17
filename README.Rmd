@@ -10,15 +10,15 @@ knitr::opts_chunk$set(
 )
 ```
 
-# `R`/MOSS
+# `R`/MOSS: Semiparametric Efficient Survival Analysis
 
 [![Travis-CI Build Status](https://travis-ci.org/wilsoncai1992/MOSS.svg?branch=master)](https://travis-ci.org/wilsoncai1992/MOSS)
 [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/hagh8vidrdeacr7f?svg=true)](https://ci.appveyor.com/project/wilsoncai1992/MOSS)
 [![codecov](https://codecov.io/gh/wilsoncai1992/MOSS/branch/master/graph/badge.svg)](https://codecov.io/gh/wilsoncai1992/MOSS)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/gpl-2.0)
-<!-- [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html) -->
-<!-- [![](http://cranlogs.r-pkg.org/badges/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html) [![](http://cranlogs.r-pkg.org/badges/grand-total/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html) -->
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html)
+[![](http://cranlogs.r-pkg.org/badges/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html) [![](http://cranlogs.r-pkg.org/badges/grand-total/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html)
 
 MOSS performs ensemble machine learning and Targeted Maximum Likelihood (TMLE) to estimate the counter-factual marginal survival functions, while non-parametrically adjusting for measured confounding. TMLE approach is employed to create a doubly robust and semi-parametrically efficient estimator. Simultaneous confidence bands of the entire curve is also available for inference. User can specify what kind of static intervention on treatment (exposure).
 

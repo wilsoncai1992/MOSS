@@ -2,7 +2,7 @@ Package: MOSS
 Title: One-Step TMLE for Survival Analysis
 Version: 1.1.1
 Authors@R: c(
-    person("Wilson", "Cai", email = "wcai@berkeley.edu",
+    person("Weixin", "Cai", email = "wcai@berkeley.edu",
            role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0003-2680-3066")),
     person("Mark", "van der Laan", email = "laan@berkeley.edu",
@@ -16,17 +16,17 @@ Depends:
     R6,
     Rsolnp
 Imports:
-    tmle,
-    foreach,
     tidyr,
-    abind,
-    dplyr,
-    simcausal
 Suggests:
     testthat,
+    foreach,
     covr,
     glmnet,
     MASS,
+    simcausal,
+    dplyr,
+    abind,
+    tmle,
     knitr,
     rmarkdown
 License: GPL-2

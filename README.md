@@ -1,5 +1,5 @@
 
-# `R`/MOSS
+# `R`/MOSS: Semiparametric Efficient Survival Analysis
 
 [![Travis-CI Build
 Status](https://travis-ci.org/wilsoncai1992/MOSS.svg?branch=master)](https://travis-ci.org/wilsoncai1992/MOSS)
@@ -11,8 +11,9 @@ state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![License: GPL
 v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/gpl-2.0)
-<!-- [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html) -->
-<!-- [![](http://cranlogs.r-pkg.org/badges/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html) [![](http://cranlogs.r-pkg.org/badges/grand-total/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html) -->
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html)
+[![](http://cranlogs.r-pkg.org/badges/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html)
+[![](http://cranlogs.r-pkg.org/badges/grand-total/MOSS)](http://cran.rstudio.com/web/packages/MOSS/index.html)
 
 MOSS performs ensemble machine learning and Targeted Maximum Likelihood
 (TMLE) to estimate the counter-factual marginal survival functions,
