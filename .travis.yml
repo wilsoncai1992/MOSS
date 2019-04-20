@@ -21,9 +21,6 @@ r_packages:
   - devtools
   - covr
 
-r_github_packages:
-  - r-lib/covr
-
 ## coverage
 after_success:
   - Rscript -e "covr::codecov()"
