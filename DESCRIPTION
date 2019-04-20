@@ -16,7 +16,7 @@ Depends:
     R6,
     Rsolnp
 Imports:
-    tidyr,
+    tidyr
 Suggests:
     testthat,
     foreach,
