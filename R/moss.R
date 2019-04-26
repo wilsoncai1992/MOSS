@@ -329,22 +329,23 @@ MOSS_hazard <- R6Class("MOSS_hazard",
           intercept = FALSE
         )
         epsilon_n <- submodel_fit$coefficients
+        l2_norm <- sqrt(sum(epsilon_n ^ 2))
+        if (l2_norm >= clipping) {
+          # clipping the step size
+          epsilon_n <- epsilon_n / l2_norm * clipping
+        }
       }
-      if (method == "l2") {
-        epsilon_n <- fit_ridge_constrained(
+      if (method %in% c("l2", "l1")) {
+        epsilon_n <- fit_enet_constrained(
           Y = dNt,
           X = h_matrix,
           beta_init = rep(0, ncol(h_matrix)),
-          l2_norm_max = clipping,
-          offset = logit(as.vector(t(self$density_failure$hazard)))
+          norm_max = clipping,
+          offset = logit(as.vector(t(self$density_failure$hazard))),
+          type = method
         )
       }
 
-      l2_norm <- sqrt(sum(epsilon_n ^ 2))
-      if (l2_norm >= clipping) {
-        # clipping the step size
-        epsilon_n <- epsilon_n / l2_norm * clipping
-      }
       hazard_new <- expit(
         logit(as.vector(t(self$density_failure$hazard))) +
         as.vector(h_matrix %*% epsilon_n)

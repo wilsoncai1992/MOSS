@@ -8,6 +8,9 @@ logit <- function(x) log(x) - log(1 - x)
 norm_l2 <- function(beta) sqrt(sum(beta ^ 2))
 
 #' @keywords internal
+norm_l1 <- function(beta) sum(abs(beta))
+
+#' @keywords internal
 cross_entropy <- function(beta, y, x, offset) {
   y_is_one <- y == 1
   l_one <- -log(expit(x %*% beta))
@@ -18,25 +21,28 @@ cross_entropy <- function(beta, y, x, offset) {
 }
 
 
-#' logistic ridge regression (constrained form)
+#' logistic elastic net regression (constrained form)
 #'
 #' @param Y vector of binary outcome
 #' @param X matrix of predictor
 #' @param beta_init initial value for slope
-#' @param l2_norm_max upper constraint on l2 norm of slope
+#' @param norm_max upper constraint on l2/l1 norm of slope
 #' @param offset a vector of constant offset in the linear term
+#' @param type fit ridge regression ("l2") or lasso ("l1")
 #'
 #' @return the fitted slope
 #' @importFrom Rsolnp solnp
 #' @export
-fit_ridge_constrained <- function(Y, X, beta_init, l2_norm_max, offset = NULL) {
+fit_enet_constrained <- function(Y, X, beta_init, norm_max, offset = NULL, type = "l2") {
   if (is.null(offset)) offset <- rep(0, length(Y))
+  if (type == "l2") constraint_func <- norm_l2
+  if (type == "l1") constraint_func <- norm_l1
   ridge_fit <- Rsolnp::solnp(
     pars = beta_init,
     fun = function(b) cross_entropy(b, y = Y, x = X, offset = offset),
-    ineqfun = norm_l2,
+    ineqfun = constraint_func,
     ineqLB = 0,
-    ineqUB = l2_norm_max,
+    ineqUB = norm_max,
     control = list(trace = 0)
   )
   sol <- ridge_fit$pars

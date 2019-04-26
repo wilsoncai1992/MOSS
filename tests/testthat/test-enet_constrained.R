@@ -1,4 +1,4 @@
-context("constrained ridge regression is working")
+context("constrained enet regression is working")
 library(Rsolnp)
 library(glmnet)
 n <- 1e4
@@ -30,9 +30,10 @@ glmnet_cv_fit <- glmnet::cv.glmnet(
 sol1_2 <- coef(glmnet_cv_fit)[-1]
 
 l2_norm_max <- 16
-sol2 <- fit_ridge_constrained(
-  Y = Y, X = X, beta_init = rep(1, 13), l2_norm_max = l2_norm_max
+sol2 <- fit_enet_constrained(
+  Y = Y, X = X, beta_init = rep(1, 13), norm_max = l2_norm_max, type = "l2"
 )
+
 
 test_that("classic glmnet is working", {
   expect_true(sum(abs(beta - sol1)) < 2)
@@ -44,5 +45,17 @@ test_that("constrained ridge regression is close to glmnet", {
   expect_true(sum(abs(sol1 - sol2)) < 1)
 })
 test_that("constrained ridge regression is obeying constraint", {
-  expect_true(sqrt(sum(sol2 ^ 2)) <= l2_norm_max)
+  expect_true(sqrt(sum(sol2 ^ 2)) <= l2_norm_max + 1e-3)
+})
+
+l1_norm_max <- 16
+sol_lasso2 <- fit_enet_constrained(
+  Y = Y, X = X, beta_init = rep(1, 13), norm_max = l1_norm_max, type = "l1"
+)
+test_that("constrained l1 regression is close to glmnet", {
+  expect_true(sum(abs(beta - sol_lasso2)) < 2)
+})
+
+test_that("constrained l1 regression is obeying constraint", {
+  expect_true(sum(abs(sol_lasso2)) <= l1_norm_max + 1e-3)
 })

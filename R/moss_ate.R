@@ -83,25 +83,26 @@ MOSS_hazard_ate <- R6Class("MOSS_hazard_ate",
           intercept = FALSE
         )
         epsilon_n <- submodel_fit$coefficients
+
+        l2_norm <- sqrt(sum(epsilon_n ^ 2))
+        if (l2_norm >= clipping) {
+          # clipping the step size
+          epsilon_n <- epsilon_n / l2_norm * clipping
+        }
       }
-      if (method == "l2") {
-        epsilon_n <- fit_ridge_constrained(
+      if (method %in% c("l2", "l1")) {
+        epsilon_n <- fit_enet_constrained(
           X = h_matrix,
           Y = dNt,
           beta_init = rep(0, ncol(h_matrix)),
-          l2_norm_max = clipping,
-          offset = offset_submodel
+          norm_max = clipping,
+          offset = offset_submodel,
+          type = method
         )
-      }
-      l2_norm <- sqrt(sum(epsilon_n ^ 2))
-      if (l2_norm >= clipping) {
-        # clipping the step size
-        epsilon_n <- epsilon_n / l2_norm * clipping
       }
 
       hazard_new_1 <- expit(
-        offset_submodel_1 +
-        as.vector(h_matrix_1 %*% epsilon_n)
+        offset_submodel_1 + as.vector(h_matrix_1 %*% epsilon_n)
       )
       hazard_new_1 <- matrix(
         hazard_new_1,
@@ -110,8 +111,7 @@ MOSS_hazard_ate <- R6Class("MOSS_hazard_ate",
         byrow = TRUE
       )
       hazard_new_0 <- expit(
-        offset_submodel_0 +
-        as.vector(h_matrix_0 %*% epsilon_n)
+        offset_submodel_0 + as.vector(h_matrix_0 %*% epsilon_n)
       )
       hazard_new_0 <- matrix(
         hazard_new_0,

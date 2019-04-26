@@ -1,5 +1,4 @@
 context("methods for the survival curve")
-# set.seed(1234)
 # set.seed(11)
 source("./simulate_data.R")
 # simulation
@@ -30,10 +29,6 @@ sl_fit$density_failure_0$hazard_to_survival()
 sl_fit$density_failure_1$t <- k_grid
 sl_fit$density_failure_0$t <- k_grid
 
-# sl_density_failure_1_marginal <- sl_fit$density_failure_1$clone(deep = TRUE)
-# sl_density_failure_0_marginal <- sl_fit$density_failure_0$clone(deep = TRUE)
-# sl_density_failure_1_marginal$survival <- matrix(colMeans(sl_density_failure_1_marginal$survival), nrow = 1)
-# sl_density_failure_0_marginal$survival <- matrix(colMeans(sl_density_failure_0_marginal$survival), nrow = 1)
 test_that("sl_1 results should not be NA", {
   expect_true(all(!sapply(sl_fit$density_failure_1$survival, is.na)))
 })
@@ -143,7 +138,7 @@ test_that("moss_0 results should not be NA", {
 
 ################################################################################
 # moss hazard submodel
-moss_hazard_fit <- MOSS_hazard$new(
+moss_hazard_l2 <- MOSS_hazard$new(
   A = df$A,
   T_tilde = df$T.tilde,
   Delta = df$Delta,
@@ -153,18 +148,27 @@ moss_hazard_fit <- MOSS_hazard$new(
   A_intervene = 1,
   k_grid = k_grid
 )
-psi_moss_hazard_1 <- moss_hazard_fit$iterate_onestep(
-  epsilon = 1e-2, max_num_interation = 1e1, verbose = FALSE
+moss_hazard_l1 <- moss_hazard_l2$clone(deep = TRUE)
+psi_moss_l2_1 <- moss_hazard_l2$iterate_onestep(
+  method = "l2", epsilon = 1e-2, max_num_interation = 1e1, verbose = FALSE
 )
-moss_hazard_fit_1 <- survival_curve$new(t = k_grid, survival = psi_moss_hazard_1)
-test_that("moss_hazard_1 results should not be NA", {
-  expect_true(all(!sapply(moss_hazard_fit_1$survival, is.na)))
+moss_hazard_l2_1 <- survival_curve$new(t = k_grid, survival = psi_moss_l2_1)
+test_that("MOSS l2 submodel results should not be NA", {
+  expect_true(all(!sapply(moss_hazard_l2_1$survival, is.na)))
+})
+
+psi_moss_hazard_l1_1 <- moss_hazard_l1$iterate_onestep(
+  method = "l1", epsilon = 1e-2, max_num_interation = 1e1, verbose = FALSE
+)
+moss_hazard_l1_1 <- survival_curve$new(t = k_grid, survival = psi_moss_hazard_l1_1)
+test_that("MOSS l1 submodel results should not be NA", {
+  expect_true(all(!sapply(moss_hazard_l1_1$survival, is.na)))
 })
 
 ################################################################################
 # moss difference curve
 
-moss_hazard_ate_fit <- MOSS_hazard_ate$new(
+moss_hazard_ate_l2 <- MOSS_hazard_ate$new(
   A = df$A,
   T_tilde = df$T.tilde,
   Delta = df$Delta,
@@ -175,10 +179,19 @@ moss_hazard_ate_fit <- MOSS_hazard_ate$new(
   g1W = sl_fit$g1W,
   k_grid = k_grid
 )
-psi_moss_hazard_ate_1 <- moss_hazard_ate_fit$iterate_onestep(
-  epsilon = 1e-2, max_num_interation = 1e1, verbose = FALSE
+moss_hazard_ate_l1 <- moss_hazard_ate_l2$clone(deep = TRUE)
+psi_moss_hazard_ate_l2_1 <- moss_hazard_ate_l2$iterate_onestep(
+  method = "l2", epsilon = 1e-2, max_num_interation = 1e1, verbose = FALSE
 )
-moss_hazard_ate_fit_1 <- survival_curve$new(t = k_grid, survival = psi_moss_hazard_ate_1)
-test_that("moss_hazard_ate_1 results should not be NA", {
-  expect_true(all(!sapply(moss_hazard_ate_fit_1$survival, is.na)))
+moss_hazard_ate_fit_l2_1 <- survival_curve$new(t = k_grid, survival = psi_moss_hazard_ate_l2_1)
+test_that("MOSS ATE l2 submodel should not be NA", {
+  expect_true(all(!sapply(moss_hazard_ate_fit_l2_1$survival, is.na)))
+})
+
+psi_moss_hazard_ate_l1_1 <- moss_hazard_ate_l1$iterate_onestep(
+  method = "l1", epsilon = 1e-2, max_num_interation = 1e1, verbose = FALSE
+)
+moss_hazard_ate_fit_l1_1 <- survival_curve$new(t = k_grid, survival = psi_moss_hazard_ate_l1_1)
+test_that("MOSS ATE l1 submodel should not be NA", {
+  expect_true(all(!sapply(moss_hazard_ate_fit_l1_1$survival, is.na)))
 })
