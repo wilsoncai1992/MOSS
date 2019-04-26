@@ -28,7 +28,9 @@ evaluate_mse create data.frame that computes mse for each time point
 }
 
 \examples{
-# evaluation <- evaluate_metric$new(survival, survival_truth)
-# evaluation$evaluate_mse()
+\donttest{
+  evaluation <- evaluate_metric$new(survival, survival_truth)
+  evaluation$evaluate_mse()
+}
 }
 \keyword{data}

@@ -9,7 +9,9 @@ require("R6")
 #' @return Object of \code{\link{R6Class}} with methods
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' # ipcw$new(A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)
+#' \donttest{
+#'    ipcw$new(A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)
+#' }
 #' @field A vector of treatment
 #' @field T_tilde vector of last follow up time
 #' @field Delta vector of censoring indicator
@@ -65,7 +67,9 @@ ipcw <- R6Class("ipcw",
 #' @return Object of \code{\link{R6Class}} with methods
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' # ee$new(A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)
+#' \donttest{
+#'    ee$new(A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)
+#' }
 #' @field A vector of treatment
 #' @field T_tilde vector of last follow up time
 #' @field Delta vector of censoring indicator
@@ -138,7 +142,26 @@ ee <- R6Class("ee",
 #' @return Object of \code{\link{R6Class}} with methods
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' # repeat_t_grid$new(method, A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)
+#' \donttest{
+#'    repeat_t_grid$new(method = ipcw,
+#'      A,
+#'      T_tilde,
+#'      Delta,
+#'      density_failure,
+#'      density_censor,
+#'      g1W,
+#'      A_intervene
+#'    )
+#'    repeat_t_grid$new(method = ee,
+#'      A,
+#'      T_tilde,
+#'      Delta,
+#'      density_failure,
+#'      density_censor,
+#'      g1W,
+#'      A_intervene
+#'    )
+#' }
 #' @field method either ipcw or ee class
 #' @field A vector of treatment
 #' @field T_tilde vector of last follow up time

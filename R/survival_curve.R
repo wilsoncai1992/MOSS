@@ -9,9 +9,11 @@ library("R6")
 #' @return Object of \code{\link{R6Class}} with methods
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' # survival_curve$new(t, hazard)
-#' # survival_curve$new(t, survival)
-#' # survival_curve$new(t, pdf)
+#' \donttest{
+#'    survival_curve$new(t, hazard)
+#'    survival_curve$new(t, survival)
+#'    survival_curve$new(t, pdf)
+#' }
 #' @field t vector of time points
 #' @field hazard matrix or vector of hazard
 #' @field survival matrix or vector of survival
@@ -202,8 +204,10 @@ survival_curve <- R6Class("survival_curve",
 #' @return Object of \code{\link{R6Class}} with methods
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' # evaluation <- evaluate_metric$new(survival, survival_truth)
-#' # evaluation$evaluate_mse()
+#' \donttest{
+#'   evaluation <- evaluate_metric$new(survival, survival_truth)
+#'   evaluation$evaluate_mse()
+#' }
 #' @field survival estimated survival
 #' @field survival_truth true survival
 #' @section Methods:

@@ -46,17 +46,19 @@ iterate_onestep update the initial estimator
 }
 
 \examples{
-# MOSS_hazard_ate$new(
-#   A = A,
-#   T_tilde = T.tilde,
-#   Delta = Delta,
-#   density_failure,
-#   density_censor,
-#   density_failure_0,
-#   density_censor_0,
-#   g1W,
-#   A_intervene = 1,
-#   k_grid = 1:max(T_tilde)
-# )
+\donttest{
+  MOSS_hazard_ate$new(
+    A,
+    T_tilde,
+    Delta,
+    density_failure,
+    density_censor,
+    density_failure_0,
+    density_censor_0,
+    g1W,
+    A_intervene = 1,
+    k_grid = 1:max(T_tilde)
+  )
+}
 }
 \keyword{data}

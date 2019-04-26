@@ -44,6 +44,25 @@ fit fit all time points in `k_grid`
 }
 
 \examples{
-# repeat_t_grid$new(method, A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)
+\donttest{
+   repeat_t_grid$new(method = ipcw,
+     A,
+     T_tilde,
+     Delta,
+     density_failure,
+     density_censor,
+     g1W,
+     A_intervene
+   )
+   repeat_t_grid$new(method = ee,
+     A,
+     T_tilde,
+     Delta,
+     density_failure,
+     density_censor,
+     g1W,
+     A_intervene
+   )
+}
 }
 \keyword{data}

@@ -42,6 +42,8 @@ fit fit one time point
 }
 
 \examples{
-# ee$new(A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)
+\donttest{
+   ee$new(A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)
+}
 }
 \keyword{data}

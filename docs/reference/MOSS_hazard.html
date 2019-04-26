@@ -155,17 +155,16 @@ failure event survival curve</p></dd>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'># MOSS_hazard$new(
-#   A = A,
-#   T_tilde = T.tilde,
-#   Delta = Delta,
-#   density_failure,
-#   density_censor,
-#   g1W,
-#   A_intervene = 1,
-#   k_grid = 1:max(T_tilde)
-# )
-</div></pre>
+    <pre class="examples"><div class='input'>  <span class='no'>MOSS_hazard</span>$<span class='fu'>new</span>(
+    <span class='no'>A</span>,
+    <span class='no'>T_tilde</span>,
+    <span class='no'>Delta</span>,
+    <span class='no'>density_failure</span>,
+    <span class='no'>density_censor</span>,
+    <span class='no'>g1W</span>,
+    <span class='kw'>A_intervene</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+    <span class='kw'>k_grid</span> <span class='kw'>=</span> <span class='fl'>1</span>:<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/Extremes'>max</a></span>(<span class='no'>T_tilde</span>)
+  )</div><div class='output co'>#&gt; <span class='error'>Error in .subset2(public_bind_env, "initialize")(...): object 'A' not found</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

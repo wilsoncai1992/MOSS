@@ -8,8 +8,6 @@ require("R6")
 #' @keywords data
 #' @return Object of \code{\link{R6Class}} with methods
 #' @format \code{\link{R6Class}} object.
-#' @examples
-#' # eic$new(A, T_tilde, Delta, density_failure, density_censor, g1W, psi, A_intervene)
 #' @field A vector of treatment
 #' @field T_tilde vector of last follow up time
 #' @field Delta vector of censoring indicator

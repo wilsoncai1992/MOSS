@@ -45,7 +45,4 @@ all_t compute a matrix of EIC for all time points
 clever_covariate compute the clever covariate for one time point
 }
 
-\examples{
-# eic$new(A, T_tilde, Delta, density_failure, density_censor, g1W, psi, A_intervene)
-}
 \keyword{data}

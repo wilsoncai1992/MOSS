@@ -32,8 +32,10 @@ display plot the conditonal survival/hazard/pdf
 }
 
 \examples{
-# survival_curve$new(t, hazard)
-# survival_curve$new(t, survival)
-# survival_curve$new(t, pdf)
+\donttest{
+   survival_curve$new(t, hazard)
+   survival_curve$new(t, survival)
+   survival_curve$new(t, pdf)
+}
 }
 \keyword{data}
