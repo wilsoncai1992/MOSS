@@ -156,6 +156,24 @@ moss_hazard_l2_1 <- survival_curve$new(t = k_grid, survival = psi_moss_l2_1)
 test_that("MOSS l2 submodel results should not be NA", {
   expect_true(all(!sapply(moss_hazard_l2_1$survival, is.na)))
 })
+stoppingl2 <- mean(abs(moss_hazard_l2$compute_mean_eic(
+  psi_n = psi_moss_l2_1,
+  k_grid = moss_hazard_l2$q_best$t
+)))
+eic_fit <- eic$new(
+  A = df$A,
+  T_tilde = df$T.tilde,
+  Delta = df$Delta,
+  density_failure = sl_fit$density_failure_1,
+  density_censor = sl_fit$density_censor_1,
+  g1W = sl_fit$g1W,
+  psi = colMeans(sl_fit$density_failure_1$survival),
+  A_intervene = 1
+)$all_t(k_grid = k_grid)
+stopping0 <- mean(abs(colMeans(eic_fit)))
+test_that("MOSS l2 submodel improves the stopping criteria", {
+  expect_true(stoppingl2 < stopping0)
+})
 
 psi_moss_hazard_l1_1 <- moss_hazard_l1$iterate_onestep(
   method = "l1", epsilon = 1e-2, max_num_interation = 1e1, verbose = FALSE
@@ -163,6 +181,14 @@ psi_moss_hazard_l1_1 <- moss_hazard_l1$iterate_onestep(
 moss_hazard_l1_1 <- survival_curve$new(t = k_grid, survival = psi_moss_hazard_l1_1)
 test_that("MOSS l1 submodel results should not be NA", {
   expect_true(all(!sapply(moss_hazard_l1_1$survival, is.na)))
+})
+
+stoppingl1 <- mean(abs(moss_hazard_l1$compute_mean_eic(
+  psi_n = psi_moss_hazard_l1_1,
+  k_grid = moss_hazard_l1$q_best$t
+)))
+test_that("MOSS l1 submodel improves the stopping criteria", {
+  expect_true(stoppingl1 < stopping0)
 })
 
 ################################################################################
