@@ -80,7 +80,7 @@
       <h1>How to use MOSS package</h1>
                         <h4 class="author"><a href="https://wilsoncai1992.github.io/">Weixin Cai</a></h4>
             
-            <h4 class="date">2019-04-26</h4>
+            <h4 class="date">2019-04-29</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/wilsoncai1992/MOSS/blob/master/vignettes/moss_intro.rmd"><code>vignettes/moss_intro.rmd</code></a></small>
       <div class="hidden name"><code>moss_intro.rmd</code></div>
@@ -107,17 +107,17 @@
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(simcausal)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2">D &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/DAG.empty">DAG.empty</a></span>()</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3">D &lt;-<span class="st"> </span>D <span class="op">+</span></a>
-<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"W1"</span>, <span class="dt">distr =</span> <span class="st">"rbinom"</span>, <span class="dt">size =</span> <span class="dv">1</span>, <span class="dt">prob =</span> <span class="fl">.5</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"W"</span>, <span class="dt">distr =</span> <span class="st">"runif"</span>, <span class="dt">min =</span> <span class="dv">0</span>, <span class="dt">max =</span> <span class="fl">1.5</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"A"</span>, <span class="dt">distr =</span> <span class="st">"rbinom"</span>, <span class="dt">size =</span> <span class="dv">1</span>, <span class="dt">prob =</span> <span class="fl">.15</span> <span class="op">+</span><span class="st"> </span><span class="fl">.5</span> <span class="op">*</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(W <span class="op">&gt;</span><span class="st"> </span><span class="fl">.75</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"Trexp"</span>, <span class="dt">distr =</span> <span class="st">"rexp"</span>, <span class="dt">rate =</span> <span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="fl">.7</span> <span class="op">*</span><span class="st"> </span>W<span class="op">^</span><span class="dv">2</span> <span class="op">-</span><span class="st"> </span><span class="fl">.8</span> <span class="op">*</span><span class="st"> </span>A) <span class="op">+</span></a>
-<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"Cweib"</span>, <span class="dt">distr =</span> <span class="st">"rweibull"</span>, <span class="dt">shape =</span> <span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="fl">.5</span> <span class="op">*</span><span class="st"> </span>W, <span class="dt">scale =</span> <span class="dv">75</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"T"</span>, <span class="dt">distr =</span> <span class="st">"rconst"</span>, <span class="dt">const =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Round">round</a></span>(Trexp <span class="op">*</span><span class="st"> </span><span class="dv">2</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"C"</span>, <span class="dt">distr =</span> <span class="st">"rconst"</span>, <span class="dt">const =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Round">round</a></span>(Cweib <span class="op">*</span><span class="st"> </span><span class="dv">2</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="co"># Observed random variable (follow-up time):</span></a>
-<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"T.tilde"</span>, <span class="dt">distr =</span> <span class="st">"rconst"</span>, <span class="dt">const =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(T <span class="op">&lt;=</span><span class="st"> </span>C, T, C)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="co"># Observed random variable (censoring indicator, 1 - failure event, 0 - censored):</span></a>
-<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"Delta"</span>, <span class="dt">distr =</span> <span class="st">"rconst"</span>, <span class="dt">const =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(T <span class="op">&lt;=</span><span class="st"> </span>C, <span class="dv">1</span>, <span class="dv">0</span>))</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"W1"</span>, <span class="dt">distr =</span> <span class="st">"rbinom"</span>, <span class="dt">size =</span> <span class="dv">1</span>, <span class="dt">prob =</span> <span class="fl">.5</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"W"</span>, <span class="dt">distr =</span> <span class="st">"runif"</span>, <span class="dt">min =</span> <span class="dv">0</span>, <span class="dt">max =</span> <span class="fl">1.5</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"A"</span>, <span class="dt">distr =</span> <span class="st">"rbinom"</span>, <span class="dt">size =</span> <span class="dv">1</span>, <span class="dt">prob =</span> <span class="fl">.15</span> <span class="op">+</span><span class="st"> </span><span class="fl">.5</span> <span class="op">*</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(W <span class="op">&gt;</span><span class="st"> </span><span class="fl">.75</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"Trexp"</span>, <span class="dt">distr =</span> <span class="st">"rexp"</span>, <span class="dt">rate =</span> <span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="fl">.7</span> <span class="op">*</span><span class="st"> </span>W<span class="op">^</span><span class="dv">2</span> <span class="op">-</span><span class="st"> </span><span class="fl">.8</span> <span class="op">*</span><span class="st"> </span>A) <span class="op">+</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"Cweib"</span>, <span class="dt">distr =</span> <span class="st">"rweibull"</span>, <span class="dt">shape =</span> <span class="dv">1</span> <span class="op">+</span><span class="st"> </span><span class="fl">.5</span> <span class="op">*</span><span class="st"> </span>W, <span class="dt">scale =</span> <span class="dv">75</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"T"</span>, <span class="dt">distr =</span> <span class="st">"rconst"</span>, <span class="dt">const =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Round">round</a></span>(Trexp <span class="op">*</span><span class="st"> </span><span class="dv">2</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"C"</span>, <span class="dt">distr =</span> <span class="st">"rconst"</span>, <span class="dt">const =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Round">round</a></span>(Cweib <span class="op">*</span><span class="st"> </span><span class="dv">2</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="st">  </span><span class="co"># Observed random variable (follow-up time):</span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"T.tilde"</span>, <span class="dt">distr =</span> <span class="st">"rconst"</span>, <span class="dt">const =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(T <span class="op">&lt;=</span><span class="st"> </span>C, T, C)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb1-13" data-line-number="13"><span class="st">  </span><span class="co"># Observed random variable (censoring indicator, 1 - failure event, 0 - censored):</span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14"><span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/node">node</a></span>(<span class="st">"Delta"</span>, <span class="dt">distr =</span> <span class="st">"rconst"</span>, <span class="dt">const =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(T <span class="op">&lt;=</span><span class="st"> </span>C, <span class="dv">1</span>, <span class="dv">0</span>))</a>
 <a class="sourceLine" id="cb1-15" data-line-number="15">setD &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/simcausal/topics/set.DAG">set.DAG</a></span>(D)</a></code></pre></div>
 <pre><code>## ...automatically assigning order attribute to some nodes...</code></pre>
 <pre><code>## node W1, order:1</code></pre>
@@ -167,53 +167,33 @@
 <pre><code>## survtmle: Targeted Learning for Survival Analysis</code></pre>
 <pre><code>## Version: 1.1.1</code></pre>
 <pre><code>## Loading required package: R6</code></pre>
-<pre><code>## Loading required package: Rsolnp</code></pre>
 <pre><code>## MOSS v1.1.2: Model One-Step Survival</code></pre>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1">sl_lib_g &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SL.mean"</span>, <span class="st">"SL.glm"</span>)</a>
-<a class="sourceLine" id="cb29-2" data-line-number="2">sl_lib_censor &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SL.mean"</span>, <span class="st">"SL.glm"</span>)</a>
-<a class="sourceLine" id="cb29-3" data-line-number="3">sl_lib_failure &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SL.mean"</span>, <span class="st">"SL.glm"</span>, <span class="st">"SL.step.forward"</span>)</a>
-<a class="sourceLine" id="cb29-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb29-5" data-line-number="5">sl_fit &lt;-<span class="st"> </span><span class="kw"><a href="../reference/initial_sl_fit.html">initial_sl_fit</a></span>(</a>
-<a class="sourceLine" id="cb29-6" data-line-number="6">  <span class="dt">T_tilde =</span> df<span class="op">$</span>T.tilde,</a>
-<a class="sourceLine" id="cb29-7" data-line-number="7">  <span class="dt">Delta =</span> df<span class="op">$</span>Delta,</a>
-<a class="sourceLine" id="cb29-8" data-line-number="8">  <span class="dt">A =</span> df<span class="op">$</span>A,</a>
-<a class="sourceLine" id="cb29-9" data-line-number="9">  <span class="dt">W =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(df[, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"W"</span>, <span class="st">"W1"</span>)]),</a>
-<a class="sourceLine" id="cb29-10" data-line-number="10">  <span class="dt">t_max =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Extremes">max</a></span>(df<span class="op">$</span>T.tilde),</a>
-<a class="sourceLine" id="cb29-11" data-line-number="11">  <span class="dt">sl_treatment =</span> sl_lib_g,</a>
-<a class="sourceLine" id="cb29-12" data-line-number="12">  <span class="dt">sl_censoring =</span> sl_lib_censor,</a>
-<a class="sourceLine" id="cb29-13" data-line-number="13">  <span class="dt">sl_failure =</span> sl_lib_failure</a>
-<a class="sourceLine" id="cb29-14" data-line-number="14">)</a></code></pre></div>
-<pre><code>## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-
-## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-
-## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-
-## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
-<pre><code>## Warning: glm.fit: algorithm did not converge</code></pre>
-<pre><code>## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-
-## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-
-## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-
-## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
-<pre><code>## Warning: glm.fit: algorithm did not converge</code></pre>
-<pre><code>## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-
-## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(sl_fit)</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1">sl_lib_g &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SL.mean"</span>, <span class="st">"SL.glm"</span>)</a>
+<a class="sourceLine" id="cb28-2" data-line-number="2">sl_lib_censor &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SL.mean"</span>, <span class="st">"SL.glm"</span>)</a>
+<a class="sourceLine" id="cb28-3" data-line-number="3">sl_lib_failure &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"SL.mean"</span>, <span class="st">"SL.glm"</span>, <span class="st">"SL.step.forward"</span>)</a>
+<a class="sourceLine" id="cb28-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb28-5" data-line-number="5">sl_fit &lt;-<span class="st"> </span><span class="kw"><a href="../reference/initial_sl_fit.html">initial_sl_fit</a></span>(</a>
+<a class="sourceLine" id="cb28-6" data-line-number="6">  <span class="dt">T_tilde =</span> df<span class="op">$</span>T.tilde,</a>
+<a class="sourceLine" id="cb28-7" data-line-number="7">  <span class="dt">Delta =</span> df<span class="op">$</span>Delta,</a>
+<a class="sourceLine" id="cb28-8" data-line-number="8">  <span class="dt">A =</span> df<span class="op">$</span>A,</a>
+<a class="sourceLine" id="cb28-9" data-line-number="9">  <span class="dt">W =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(df[, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"W"</span>, <span class="st">"W1"</span>)]),</a>
+<a class="sourceLine" id="cb28-10" data-line-number="10">  <span class="dt">t_max =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Extremes">max</a></span>(df<span class="op">$</span>T.tilde),</a>
+<a class="sourceLine" id="cb28-11" data-line-number="11">  <span class="dt">sl_treatment =</span> sl_lib_g,</a>
+<a class="sourceLine" id="cb28-12" data-line-number="12">  <span class="dt">sl_censoring =</span> sl_lib_censor,</a>
+<a class="sourceLine" id="cb28-13" data-line-number="13">  <span class="dt">sl_failure =</span> sl_lib_failure</a>
+<a class="sourceLine" id="cb28-14" data-line-number="14">)</a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(sl_fit))</a></code></pre></div>
 <pre><code>## [1] "density_failure_1" "density_failure_0" "density_censor_1" 
 ## [4] "density_censor_0"  "g1W"</code></pre>
 <p>the <code>sl_fit</code> will contain the fitted conditional densities for the failure events (<code>density_failure_1</code> for treatment group, <code>density_failure_0</code> for control group), censoring events (<code>density_censor_1</code> for treatment, <code>density_censor_0</code> for control), and propensity scores (a vector <code>g1W</code>)</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1">sl_fit<span class="op">$</span>density_failure_<span class="dv">1</span><span class="op">$</span><span class="kw">hazard_to_survival</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1">sl_fit<span class="op">$</span>density_failure_<span class="dv">1</span><span class="op">$</span><span class="kw">hazard_to_survival</span>()</a></code></pre></div>
 <pre><code>## &lt;survival_curve&gt;
 ##   Public:
 ##     ci: function (A, T_tilde, Delta, density_failure, density_censor, 
 ##     clone: function (deep = FALSE) 
 ##     create_ggplot_df: function (W = NULL) 
 ##     display: function (type, W = NULL) 
-##     hazard: 0.199703701220824 0.125904830558054 0.218395423085572 0. ...
+##     hazard: 0.143156879359873 0.173100043815405 0.145828306724155 0. ...
 ##     hazard_to_pdf: function () 
 ##     hazard_to_survival: function () 
 ##     initialize: function (t, hazard = NULL, survival = NULL, pdf = NULL) 
@@ -224,15 +204,15 @@
 ##     survival: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1  ...
 ##     survival_to_hazard: function () 
 ##     survival_to_pdf: function () 
-##     t: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18</code></pre>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" data-line-number="1">sl_fit<span class="op">$</span>density_failure_<span class="dv">0</span><span class="op">$</span><span class="kw">hazard_to_survival</span>()</a></code></pre></div>
+##     t: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23</code></pre>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1">sl_fit<span class="op">$</span>density_failure_<span class="dv">0</span><span class="op">$</span><span class="kw">hazard_to_survival</span>()</a></code></pre></div>
 <pre><code>## &lt;survival_curve&gt;
 ##   Public:
 ##     ci: function (A, T_tilde, Delta, density_failure, density_censor, 
 ##     clone: function (deep = FALSE) 
 ##     create_ggplot_df: function (W = NULL) 
 ##     display: function (type, W = NULL) 
-##     hazard: 0.395114660553201 0.265475697959529 0.423572961578287 0. ...
+##     hazard: 0.280464741701716 0.332495967253715 0.285294978164756 0. ...
 ##     hazard_to_pdf: function () 
 ##     hazard_to_survival: function () 
 ##     initialize: function (t, hazard = NULL, survival = NULL, pdf = NULL) 
@@ -243,70 +223,73 @@
 ##     survival: 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1  ...
 ##     survival_to_hazard: function () 
 ##     survival_to_pdf: function () 
-##     t: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18</code></pre>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" data-line-number="1"><span class="co"># a quick hack in case there is no data where T_tilde = 1 (time start from 1)</span></a>
-<a class="sourceLine" id="cb41-2" data-line-number="2">k_grid &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Extremes">max</a></span>(df<span class="op">$</span>T.tilde)</a>
-<a class="sourceLine" id="cb41-3" data-line-number="3">sl_fit<span class="op">$</span>density_failure_<span class="dv">1</span><span class="op">$</span>t &lt;-<span class="st"> </span>k_grid</a>
-<a class="sourceLine" id="cb41-4" data-line-number="4">sl_fit<span class="op">$</span>density_failure_<span class="dv">0</span><span class="op">$</span>t &lt;-<span class="st"> </span>k_grid</a></code></pre></div>
+##     t: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23</code></pre>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="co"># a quick hack in case there is no data where T_tilde = 1 (time start from 1)</span></a>
+<a class="sourceLine" id="cb35-2" data-line-number="2">k_grid &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Extremes">max</a></span>(df<span class="op">$</span>T.tilde)</a>
+<a class="sourceLine" id="cb35-3" data-line-number="3">sl_fit<span class="op">$</span>density_failure_<span class="dv">1</span><span class="op">$</span>t &lt;-<span class="st"> </span>k_grid</a>
+<a class="sourceLine" id="cb35-4" data-line-number="4">sl_fit<span class="op">$</span>density_failure_<span class="dv">0</span><span class="op">$</span>t &lt;-<span class="st"> </span>k_grid</a></code></pre></div>
 <p>We need to call <code>hazard_to_survival</code> method to always do a tranformation from conditional hazard to conditional survival probabilities (one-to-one transformation).</p>
 </div>
 <div id="perform-tmle-adjustment-of-the-conditional-survival-fit-moss_hazard" class="section level1">
 <h1 class="hasAnchor">
 <a href="#perform-tmle-adjustment-of-the-conditional-survival-fit-moss_hazard" class="anchor"></a>perform TMLE adjustment of the conditional survival fit (<code>MOSS_hazard</code>)</h1>
 <p>First we set the inputs - T_tilde: same as before - Delta: same as before - A: same as before - density_failure: use <code>sl_fit$density_failure_1</code> if you want to estimate treatment group survival curve; use <code>sl_fit$density_failure_0</code> for control group - density_censor: use <code>sl_fit$density_censor_1</code> or <code>sl_fit$density_censor_0</code> - g1W: use <code>sl_fit$g1W</code> - A_intervene: set <code>1</code> if you want to estimate treatment group survival curve; set <code>0</code> for control group - k_grid: <code>1:max(T_tilde)</code></p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" data-line-number="1">moss_hazard_fit &lt;-<span class="st"> </span>MOSS_hazard<span class="op">$</span><span class="kw">new</span>(</a>
-<a class="sourceLine" id="cb42-2" data-line-number="2">  <span class="dt">A =</span> df<span class="op">$</span>A,</a>
-<a class="sourceLine" id="cb42-3" data-line-number="3">  <span class="dt">T_tilde =</span> df<span class="op">$</span>T.tilde,</a>
-<a class="sourceLine" id="cb42-4" data-line-number="4">  <span class="dt">Delta =</span> df<span class="op">$</span>Delta,</a>
-<a class="sourceLine" id="cb42-5" data-line-number="5">  <span class="dt">density_failure =</span> sl_fit<span class="op">$</span>density_failure_<span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb42-6" data-line-number="6">  <span class="dt">density_censor =</span> sl_fit<span class="op">$</span>density_censor_<span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb42-7" data-line-number="7">  <span class="dt">g1W =</span> sl_fit<span class="op">$</span>g1W,</a>
-<a class="sourceLine" id="cb42-8" data-line-number="8">  <span class="dt">A_intervene =</span> <span class="dv">1</span>,</a>
-<a class="sourceLine" id="cb42-9" data-line-number="9">  <span class="dt">k_grid =</span> k_grid</a>
-<a class="sourceLine" id="cb42-10" data-line-number="10">)</a></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb36-1" data-line-number="1">moss_hazard_fit &lt;-<span class="st"> </span>MOSS_hazard<span class="op">$</span><span class="kw">new</span>(</a>
+<a class="sourceLine" id="cb36-2" data-line-number="2">  <span class="dt">A =</span> df<span class="op">$</span>A,</a>
+<a class="sourceLine" id="cb36-3" data-line-number="3">  <span class="dt">T_tilde =</span> df<span class="op">$</span>T.tilde,</a>
+<a class="sourceLine" id="cb36-4" data-line-number="4">  <span class="dt">Delta =</span> df<span class="op">$</span>Delta,</a>
+<a class="sourceLine" id="cb36-5" data-line-number="5">  <span class="dt">density_failure =</span> sl_fit<span class="op">$</span>density_failure_<span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb36-6" data-line-number="6">  <span class="dt">density_censor =</span> sl_fit<span class="op">$</span>density_censor_<span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb36-7" data-line-number="7">  <span class="dt">g1W =</span> sl_fit<span class="op">$</span>g1W,</a>
+<a class="sourceLine" id="cb36-8" data-line-number="8">  <span class="dt">A_intervene =</span> <span class="dv">1</span>,</a>
+<a class="sourceLine" id="cb36-9" data-line-number="9">  <span class="dt">k_grid =</span> k_grid</a>
+<a class="sourceLine" id="cb36-10" data-line-number="10">)</a></code></pre></div>
 <p>Perform TMLE step.</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" data-line-number="1">psi_moss_hazard_<span class="dv">1</span> &lt;-<span class="st"> </span>moss_hazard_fit<span class="op">$</span><span class="kw">iterate_onestep</span>(</a>
-<a class="sourceLine" id="cb43-2" data-line-number="2">  <span class="dt">epsilon =</span> <span class="fl">1e-2</span>, <span class="dt">max_num_interation =</span> <span class="fl">1e1</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span></a>
-<a class="sourceLine" id="cb43-3" data-line-number="3">)</a></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb37-1" data-line-number="1">psi_moss_hazard_<span class="dv">1</span> &lt;-<span class="st"> </span>moss_hazard_fit<span class="op">$</span><span class="kw">iterate_onestep</span>(</a>
+<a class="sourceLine" id="cb37-2" data-line-number="2">  <span class="dt">epsilon =</span> <span class="fl">1e-2</span>, <span class="dt">max_num_interation =</span> <span class="fl">1e1</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span>, <span class="dt">method =</span> <span class="st">"l2"</span></a>
+<a class="sourceLine" id="cb37-3" data-line-number="3">)</a></code></pre></div>
 <p>TIPS: - set <code>epsilon</code> smaller if the stopping criteria fluctuation is noisy; should smoothly decrease</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" data-line-number="1">moss_hazard_fit_<span class="dv">1</span> &lt;-<span class="st"> </span>survival_curve<span class="op">$</span><span class="kw">new</span>(<span class="dt">t =</span> k_grid, <span class="dt">survival =</span> psi_moss_hazard_<span class="dv">1</span>)</a>
-<a class="sourceLine" id="cb44-2" data-line-number="2">moss_hazard_fit_<span class="dv">1</span><span class="op">$</span><span class="kw">display</span>(<span class="dt">type =</span> <span class="st">'survival'</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1">moss_hazard_fit_<span class="dv">1</span> &lt;-<span class="st"> </span>survival_curve<span class="op">$</span><span class="kw">new</span>(<span class="dt">t =</span> k_grid, <span class="dt">survival =</span> psi_moss_hazard_<span class="dv">1</span>)</a>
+<a class="sourceLine" id="cb38-2" data-line-number="2">moss_hazard_fit_<span class="dv">1</span><span class="op">$</span><span class="kw">display</span>(<span class="dt">type =</span> <span class="st">'survival'</span>)</a></code></pre></div>
 <p><img src="moss_intro_files/figure-html/unnamed-chunk-7-1.png" width="700"> You don’t have to, but this wraps the estimated survival curve <code>psi_moss_hazard_1</code> nicely with its corresponding time.</p>
 </div>
 <div id="simultaneous-confidence-band-compute_simultaneous_ci" class="section level1">
 <h1 class="hasAnchor">
 <a href="#simultaneous-confidence-band-compute_simultaneous_ci" class="anchor"></a>simultaneous confidence band (<code>compute_simultaneous_ci</code>)</h1>
 <p>use the following script to compute the standard error for each t on the survival curve.</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" data-line-number="1">survival_curve_estimate &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/vector">as.vector</a></span>(moss_hazard_fit_<span class="dv">1</span><span class="op">$</span>survival)</a>
-<a class="sourceLine" id="cb45-2" data-line-number="2">eic_fit &lt;-<span class="st"> </span>eic<span class="op">$</span><span class="kw">new</span>(</a>
-<a class="sourceLine" id="cb45-3" data-line-number="3">  <span class="dt">A =</span> df<span class="op">$</span>A,</a>
-<a class="sourceLine" id="cb45-4" data-line-number="4">  <span class="dt">T_tilde =</span> df<span class="op">$</span>T.tilde,</a>
-<a class="sourceLine" id="cb45-5" data-line-number="5">  <span class="dt">Delta =</span> df<span class="op">$</span>Delta,<span class="dt">density_failure =</span> moss_hazard_fit<span class="op">$</span>density_failure,</a>
-<a class="sourceLine" id="cb45-6" data-line-number="6">  <span class="dt">density_censor =</span> moss_hazard_fit<span class="op">$</span>density_censor,</a>
-<a class="sourceLine" id="cb45-7" data-line-number="7">  <span class="dt">g1W =</span> moss_hazard_fit<span class="op">$</span>g1W,</a>
-<a class="sourceLine" id="cb45-8" data-line-number="8">  <span class="dt">psi =</span> survival_curve_estimate,</a>
-<a class="sourceLine" id="cb45-9" data-line-number="9">  <span class="dt">A_intervene =</span> <span class="dv">1</span></a>
-<a class="sourceLine" id="cb45-10" data-line-number="10">)</a>
-<a class="sourceLine" id="cb45-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb45-12" data-line-number="12">eic_matrix &lt;-<span class="st"> </span>eic_fit<span class="op">$</span><span class="kw">all_t</span>(<span class="dt">k_grid =</span> k_grid)</a>
-<a class="sourceLine" id="cb45-13" data-line-number="13">std_err &lt;-<span class="st"> </span><span class="kw"><a href="../reference/compute_simultaneous_ci.html">compute_simultaneous_ci</a></span>(eic_matrix)</a>
-<a class="sourceLine" id="cb45-14" data-line-number="14">upper_bound &lt;-<span class="st"> </span>survival_curve_estimate <span class="op">+</span><span class="st"> </span><span class="fl">1.96</span> <span class="op">*</span><span class="st"> </span>std_err</a>
-<a class="sourceLine" id="cb45-15" data-line-number="15">lower_bound &lt;-<span class="st"> </span>survival_curve_estimate <span class="op">-</span><span class="st"> </span><span class="fl">1.96</span> <span class="op">*</span><span class="st"> </span>std_err</a>
-<a class="sourceLine" id="cb45-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb45-17" data-line-number="17"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(survival_curve_estimate)</a></code></pre></div>
-<pre><code>##  [1] 1.000000000 0.759534580 0.578538759 0.442252071 0.339150080
-##  [6] 0.260634211 0.200415169 0.153966416 0.117996035 0.090075380
-## [11] 0.068375245 0.051522908 0.038473439 0.028420183 0.020722055
-## [16] 0.014872758 0.010471971 0.007196804</code></pre>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(upper_bound)</a></code></pre></div>
-<pre><code>##  [1] 1.21093040 1.02213758 0.86141815 0.73437725 0.63304440 0.56288957
-##  [7] 0.48567598 0.41933498 0.37507419 0.33966484 0.30620970 0.25458542
-## [13] 0.24082662 0.23093616 0.21576933 0.21114509 0.18357222 0.03137034</code></pre>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(lower_bound)</a></code></pre></div>
-<pre><code>##  [1]  0.78906960  0.49693158  0.29565937  0.15012689  0.04525576
-##  [6] -0.04162114 -0.08484565 -0.11140215 -0.13908212 -0.15951408
-## [11] -0.16945921 -0.15153960 -0.16387974 -0.17409579 -0.17432522
-## [16] -0.18139957 -0.16262828 -0.01697673</code></pre>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb39-1" data-line-number="1">survival_curve_estimate &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/vector">as.vector</a></span>(moss_hazard_fit_<span class="dv">1</span><span class="op">$</span>survival)</a>
+<a class="sourceLine" id="cb39-2" data-line-number="2">eic_fit &lt;-<span class="st"> </span>eic<span class="op">$</span><span class="kw">new</span>(</a>
+<a class="sourceLine" id="cb39-3" data-line-number="3">  <span class="dt">A =</span> df<span class="op">$</span>A,</a>
+<a class="sourceLine" id="cb39-4" data-line-number="4">  <span class="dt">T_tilde =</span> df<span class="op">$</span>T.tilde,</a>
+<a class="sourceLine" id="cb39-5" data-line-number="5">  <span class="dt">Delta =</span> df<span class="op">$</span>Delta,<span class="dt">density_failure =</span> moss_hazard_fit<span class="op">$</span>density_failure,</a>
+<a class="sourceLine" id="cb39-6" data-line-number="6">  <span class="dt">density_censor =</span> moss_hazard_fit<span class="op">$</span>density_censor,</a>
+<a class="sourceLine" id="cb39-7" data-line-number="7">  <span class="dt">g1W =</span> moss_hazard_fit<span class="op">$</span>g1W,</a>
+<a class="sourceLine" id="cb39-8" data-line-number="8">  <span class="dt">psi =</span> survival_curve_estimate,</a>
+<a class="sourceLine" id="cb39-9" data-line-number="9">  <span class="dt">A_intervene =</span> <span class="dv">1</span></a>
+<a class="sourceLine" id="cb39-10" data-line-number="10">)</a>
+<a class="sourceLine" id="cb39-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb39-12" data-line-number="12">eic_matrix &lt;-<span class="st"> </span>eic_fit<span class="op">$</span><span class="kw">all_t</span>(<span class="dt">k_grid =</span> k_grid)</a>
+<a class="sourceLine" id="cb39-13" data-line-number="13">std_err &lt;-<span class="st"> </span><span class="kw"><a href="../reference/compute_simultaneous_ci.html">compute_simultaneous_ci</a></span>(eic_matrix)</a>
+<a class="sourceLine" id="cb39-14" data-line-number="14">upper_bound &lt;-<span class="st"> </span>survival_curve_estimate <span class="op">+</span><span class="st"> </span><span class="fl">1.96</span> <span class="op">*</span><span class="st"> </span>std_err</a>
+<a class="sourceLine" id="cb39-15" data-line-number="15">lower_bound &lt;-<span class="st"> </span>survival_curve_estimate <span class="op">-</span><span class="st"> </span><span class="fl">1.96</span> <span class="op">*</span><span class="st"> </span>std_err</a>
+<a class="sourceLine" id="cb39-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb39-17" data-line-number="17"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(survival_curve_estimate)</a></code></pre></div>
+<pre><code>##  [1] 1.000000000 0.785475002 0.613599337 0.477099908 0.369306980
+##  [6] 0.284576535 0.218293402 0.166668613 0.126663858 0.095784279
+## [11] 0.072068945 0.053933388 0.040130559 0.029687804 0.021829630
+## [16] 0.015948423 0.011569612 0.008335452 0.005956937 0.004215754
+## [21] 0.002943700 0.002015524 0.001338971</code></pre>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb41-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(upper_bound)</a></code></pre></div>
+<pre><code>##  [1] 1.4221353 1.2189637 1.0496080 0.9046808 0.7875546 0.7002686 0.6086275
+##  [8] 0.5500182 0.4810710 0.4507378 0.4295458 0.3879638 0.3781716 0.3729781
+## [15] 0.3713365 0.2763051 0.2665923 0.2424324 0.2361423 0.2315314 0.2284484
+## [22] 0.2269070 0.0366407</code></pre>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" data-line-number="1"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/print">print</a></span>(lower_bound)</a></code></pre></div>
+<pre><code>##  [1]  0.57786472  0.35198629  0.17759072  0.04951897 -0.04894061
+##  [6] -0.13111558 -0.17204071 -0.21668099 -0.22774326 -0.25916926
+## [11] -0.28540789 -0.28009705 -0.29791047 -0.31360248 -0.32767724
+## [16] -0.24440824 -0.24345306 -0.22576146 -0.22422842 -0.22309992
+## [21] -0.22256101 -0.22287596 -0.03396276</code></pre>
 <div id="session-information" class="section level2">
 <h2 class="hasAnchor">
 <a href="#session-information" class="anchor"></a>Session Information</h2>
@@ -325,28 +308,29 @@
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] ggplot2_3.1.1       MOSS_1.1.2          Rsolnp_1.16        
-## [4] R6_2.4.0            survtmle_1.1.1      SuperLearner_2.0-24
-## [7] nnls_1.4            simcausal_0.5.5    
+## [1] ggplot2_3.1.1       MOSS_1.1.2          R6_2.4.0           
+## [4] survtmle_1.1.1      SuperLearner_2.0-24 nnls_1.4           
+## [7] simcausal_0.5.5    
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_1.0.1        plyr_1.8.4        compiler_3.5.3   
-##  [4] pillar_1.3.1      tools_3.5.3       digest_0.6.18    
-##  [7] gtable_0.3.0      evaluate_0.13     memoise_1.1.0    
-## [10] tibble_2.1.1      lattice_0.20-38   pkgconfig_2.0.2  
-## [13] rlang_0.3.4       Matrix_1.2-17     igraph_1.2.4     
-## [16] ggsci_2.9         commonmark_1.7    parallel_3.5.3   
-## [19] yaml_2.2.0        speedglm_0.3-2    pkgdown_1.3.0    
-## [22] xfun_0.6          withr_2.1.2       stringr_1.4.0    
-## [25] dplyr_0.8.0.1     roxygen2_6.1.1    xml2_1.2.0       
-## [28] knitr_1.22        desc_1.2.0        fs_1.2.7         
-## [31] rprojroot_1.3-2   grid_3.5.3        tidyselect_0.2.5 
-## [34] glue_1.3.1        data.table_1.12.2 rmarkdown_1.12   
-## [37] tidyr_0.8.3       purrr_0.3.2       magrittr_1.5     
-## [40] scales_1.0.0      backports_1.1.4   htmltools_0.3.6  
-## [43] MASS_7.3-51.4     assertthat_0.2.1  colorspace_1.4-1 
-## [46] labeling_0.3      stringi_1.4.3     lazyeval_0.2.2   
-## [49] munsell_0.5.0     truncnorm_1.0-8   crayon_1.3.4</code></pre>
+##  [4] pillar_1.3.1      iterators_1.0.10  tools_3.5.3      
+##  [7] digest_0.6.18     gtable_0.3.0      evaluate_0.13    
+## [10] memoise_1.1.0     tibble_2.1.1      lattice_0.20-38  
+## [13] pkgconfig_2.0.2   rlang_0.3.4       foreach_1.4.4    
+## [16] Matrix_1.2-17     igraph_1.2.4      ggsci_2.9        
+## [19] commonmark_1.7    yaml_2.2.0        speedglm_0.3-2   
+## [22] pkgdown_1.3.0     xfun_0.6          withr_2.1.2      
+## [25] stringr_1.4.0     dplyr_0.8.0.1     roxygen2_6.1.1   
+## [28] xml2_1.2.0        knitr_1.22        desc_1.2.0       
+## [31] fs_1.2.7          glmnet_2.0-16     rprojroot_1.3-2  
+## [34] grid_3.5.3        tidyselect_0.2.5  glue_1.3.1       
+## [37] data.table_1.12.2 rmarkdown_1.12    tidyr_0.8.3      
+## [40] purrr_0.3.2       magrittr_1.5      codetools_0.2-16 
+## [43] scales_1.0.0      backports_1.1.4   htmltools_0.3.6  
+## [46] MASS_7.3-51.4     assertthat_0.2.1  colorspace_1.4-1 
+## [49] labeling_0.3      stringi_1.4.3     lazyeval_0.2.2   
+## [52] munsell_0.5.0     crayon_1.3.4</code></pre>
 </div>
 </div>
   </div>

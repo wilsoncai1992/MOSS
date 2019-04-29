@@ -1,6 +1,6 @@
 Package: MOSS
 Title: One-Step TMLE for Survival Analysis
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: c(
     person("Weixin", "Cai", email = "wcai@berkeley.edu",
            role = c("aut", "cre", "cph"),
@@ -13,8 +13,7 @@ Depends:
     R (>= 3.2.0),
     SuperLearner (>= 2.0.0),
     survtmle (>= 1.1.1),
-    R6,
-    Rsolnp
+    R6
 Imports:
     tidyr
 Suggests:
