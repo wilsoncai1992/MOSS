@@ -1,6 +1,6 @@
 Package: MOSS
 Title: One-Step TMLE for Survival Analysis
-Version: 1.1.2
+Version: 1.1.1
 Authors@R: c(
     person("Weixin", "Cai", email = "wcai@berkeley.edu",
            role = c("aut", "cre", "cph"),
@@ -8,7 +8,7 @@ Authors@R: c(
     person("Mark", "van der Laan", email = "laan@berkeley.edu",
            role = "aut")
     )
-Description: Estimate counterfactual survival curve under static or dynamic interventions on treatment (exposure), while at the same time adjust for measured confounding. Targeted Maximum Likelihood Estimate (TMLE) approach is employed to create a doubly robust and semi-parametrically efficient estimator. Machine Learning algorithms (SuperLearner) are implemented to all stages of the estimation. References: Van der Laan, Mark J., and Sherri Rose (2011, ISBN:1441997822); Van der Laan, Mark J., Eric C. Polley, and Alan E. Hubbard. (2007) <doi:10.2202/1544-6115.1309>; Cai, Weixin, and Mark J. van der Laan. (2018) <arXiv:1802.09479>.
+Description: Estimate counterfactual survival curve under static or dynamic interventions on treatment (exposure), while at the same time adjust for measured confounding. Targeted Maximum Likelihood Estimate ('TMLE') approach is employed to create a doubly robust and semi-parametrically efficient estimator. Machine Learning algorithms ('SuperLearner') are implemented to all stages of the estimation. References: Van der Laan, Mark J., and Sherri Rose (2011, ISBN:9781441997821); Van der Laan, Mark J., Eric C. Polley, and Alan E. Hubbard. (2007) <doi:10.2202/1544-6115.1309>; Cai, Weixin, and Mark J. van der Laan. (2018) <arXiv:1802.09479>.
 Depends:
     R (>= 3.2.0),
     SuperLearner (>= 2.0.0),
