@@ -336,38 +336,34 @@ MOSS_hazard <- R6Class("MOSS_hazard",
         }
       }
       if (method %in% c("l2", "l1")) {
-        if (method == "l2") {alpha <- 0; norm_func <- norm_l2; lambda.min.ratio = 1e-2}
-        if (method == "l1") {alpha <- 1; norm_func <- norm_l1; lambda.min.ratio = 9e-1}
-        ind <- 1
-        while (ind == 1) {
-          enet_fit <- glmnet::glmnet(
-            x = h_matrix,
-            y = dNt,
-            offset = logit(as.vector(t(self$density_failure$hazard))),
-            family = "binomial",
-            alpha = alpha,
-            standardize = FALSE,
-            intercept = FALSE,
-            lambda.min.ratio = lambda.min.ratio,
-            nlambda = 2e2
-          )
-          norms <- apply(enet_fit$beta, 2, norm_func)
-          ind <- max(which(norms <= clipping))
-          if (ind > 1) break
-          lambda.min.ratio <- (lambda.min.ratio + 1) / 2
-        }
-        # lambda_best <- enet_fit$lambda[ind]
-        epsilon_n <- enet_fit$beta[, ind]
-        # epsilon_n <- fit_enet_constrained(
-        #   Y = dNt,
-        #   X = h_matrix,
-        #   beta_init = rep(0, ncol(h_matrix)),
-        #   norm_max = clipping,
-        #   offset = logit(as.vector(t(self$density_failure$hazard))),
-        #   type = method
-        # )
+        epsilon_n <- tryCatch({
+          if (method == "l2") {alpha <- 0; norm_func <- norm_l2; lambda.min.ratio = 1e-2}
+          if (method == "l1") {alpha <- 1; norm_func <- norm_l1; lambda.min.ratio = 9e-1}
+          ind <- 1
+          while (ind == 1) {
+            enet_fit <- glmnet::glmnet(
+              x = h_matrix,
+              y = dNt,
+              offset = logit(as.vector(t(self$density_failure$hazard))),
+              family = "binomial",
+              alpha = alpha,
+              standardize = FALSE,
+              intercept = FALSE,
+              lambda.min.ratio = lambda.min.ratio,
+              nlambda = 2e2
+            )
+            norms <- apply(enet_fit$beta, 2, norm_func)
+            ind <- max(which(norms <= clipping))
+            if (ind > 1) break
+            lambda.min.ratio <- (lambda.min.ratio + 1) / 2
+          }
+          # lambda_best <- enet_fit$lambda[ind]
+          epsilon_n <- enet_fit$beta[, ind]
+        }, error = function(e) {
+          # if error, epsilon = 0
+          return(rep(0, ncol(h_matrix)))
+        })
       }
-
       hazard_new <- expit(
         logit(as.vector(t(self$density_failure$hazard))) +
         as.vector(h_matrix %*% epsilon_n)
