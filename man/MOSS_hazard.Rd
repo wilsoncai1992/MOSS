@@ -4,9 +4,8 @@
 \name{MOSS_hazard}
 \alias{MOSS_hazard}
 \title{onestep TMLE of treatment-rule specific survival curve}
-\format{\code{\link{R6Class}} object.}
-\usage{
-MOSS_hazard
+\format{
+\code{\link{R6Class}} object.
 }
 \value{
 Object of \code{\link{R6Class}} with methods
@@ -14,28 +13,6 @@ Object of \code{\link{R6Class}} with methods
 \description{
 updating the hazard using constrained step size update
 }
-\section{Fields}{
-
-\describe{
-\item{\code{A}}{vector of treatment}
-
-\item{\code{T_tilde}}{vector of last follow up time}
-
-\item{\code{Delta}}{vector of censoring indicator}
-
-\item{\code{density_failure}}{survival_curve object of predicted counterfactual
-survival curve}
-
-\item{\code{density_censor}}{survival_curve object of predicted counterfactual
-failure event survival curve}
-
-\item{\code{g1W}}{propensity score}
-
-\item{\code{A_intervene}}{the intervention of interest}
-
-\item{\code{k_grid}}{vector of interested time points}
-}}
-
 \section{Methods}{
 
 iterate_onestep update the initial estimator
@@ -56,3 +33,130 @@ iterate_onestep update the initial estimator
 }
 }
 \keyword{data}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{A}}{vector of treatment}
+
+\item{\code{T_tilde}}{vector of last follow up time}
+
+\item{\code{Delta}}{vector of censoring indicator}
+
+\item{\code{density_failure}}{survival_curve object of predicted counterfactual
+survival curve}
+
+\item{\code{density_censor}}{survival_curve object of predicted counterfactual
+failure event survival curve}
+
+\item{\code{g1W}}{propensity score}
+
+\item{\code{A_intervene}}{the intervention of interest}
+
+\item{\code{k_grid}}{vector of interested time points}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{MOSS_hazard$new()}}
+\item \href{#method-create_dNt}{\code{MOSS_hazard$create_dNt()}}
+\item \href{#method-construct_long_data}{\code{MOSS_hazard$construct_long_data()}}
+\item \href{#method-fit_epsilon}{\code{MOSS_hazard$fit_epsilon()}}
+\item \href{#method-compute_mean_eic}{\code{MOSS_hazard$compute_mean_eic()}}
+\item \href{#method-iterate_onestep}{\code{MOSS_hazard$iterate_onestep()}}
+\item \href{#method-clone}{\code{MOSS_hazard$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{MOSS_hazard$new(
+  A,
+  T_tilde,
+  Delta,
+  density_failure,
+  density_censor,
+  g1W,
+  A_intervene = NULL,
+  k_grid = NULL
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-create_dNt"></a>}}
+\if{latex}{\out{\hypertarget{method-create_dNt}{}}}
+\subsection{Method \code{create_dNt()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{MOSS_hazard$create_dNt()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-construct_long_data"></a>}}
+\if{latex}{\out{\hypertarget{method-construct_long_data}{}}}
+\subsection{Method \code{construct_long_data()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{MOSS_hazard$construct_long_data(
+  A_intervene,
+  density_failure,
+  density_censor,
+  which_A = "obs"
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-fit_epsilon"></a>}}
+\if{latex}{\out{\hypertarget{method-fit_epsilon}{}}}
+\subsection{Method \code{fit_epsilon()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{MOSS_hazard$fit_epsilon(method = "l2", clipping = Inf)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-compute_mean_eic"></a>}}
+\if{latex}{\out{\hypertarget{method-compute_mean_eic}{}}}
+\subsection{Method \code{compute_mean_eic()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{MOSS_hazard$compute_mean_eic(psi_n, k_grid)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-iterate_onestep"></a>}}
+\if{latex}{\out{\hypertarget{method-iterate_onestep}{}}}
+\subsection{Method \code{iterate_onestep()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{MOSS_hazard$iterate_onestep(
+  method = "l2",
+  epsilon = 1,
+  max_num_interation = 100,
+  tmle_tolerance = NULL,
+  verbose = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{MOSS_hazard$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

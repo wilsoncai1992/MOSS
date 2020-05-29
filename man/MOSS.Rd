@@ -4,9 +4,8 @@
 \name{MOSS}
 \alias{MOSS}
 \title{onestep TMLE of treatment-rule specific survival curve}
-\format{\code{\link{R6Class}} object.}
-\usage{
-MOSS
+\format{
+\code{\link{R6Class}} object.
 }
 \value{
 Object of \code{\link{R6Class}} with methods
@@ -14,28 +13,6 @@ Object of \code{\link{R6Class}} with methods
 \description{
 updating the pdf of the failure event
 }
-\section{Fields}{
-
-\describe{
-\item{\code{A}}{vector of treatment}
-
-\item{\code{T_tilde}}{vector of last follow up time}
-
-\item{\code{Delta}}{vector of censoring indicator}
-
-\item{\code{density_failure}}{survival_curve object of predicted counterfactual
-survival curve}
-
-\item{\code{density_censor}}{survival_curve object of predicted counterfactual
-failure event survival curve}
-
-\item{\code{g1W}}{propensity score}
-
-\item{\code{A_intervene}}{the intervention of interest}
-
-\item{\code{k_grid}}{vector of interested time points}
-}}
-
 \section{Methods}{
 
 onestep_curve update the initial estimator
@@ -56,3 +33,104 @@ onestep_curve update the initial estimator
 }
 }
 \keyword{data}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{A}}{vector of treatment}
+
+\item{\code{T_tilde}}{vector of last follow up time}
+
+\item{\code{Delta}}{vector of censoring indicator}
+
+\item{\code{density_failure}}{survival_curve object of predicted counterfactual
+survival curve}
+
+\item{\code{density_censor}}{survival_curve object of predicted counterfactual
+failure event survival curve}
+
+\item{\code{g1W}}{propensity score}
+
+\item{\code{A_intervene}}{the intervention of interest}
+
+\item{\code{k_grid}}{vector of interested time points}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{MOSS$new()}}
+\item \href{#method-onestep_update_curve}{\code{MOSS$onestep_update_curve()}}
+\item \href{#method-onestep_curve}{\code{MOSS$onestep_curve()}}
+\item \href{#method-print}{\code{MOSS$print()}}
+\item \href{#method-clone}{\code{MOSS$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{MOSS$new(
+  A,
+  T_tilde,
+  Delta,
+  density_failure,
+  density_censor,
+  g1W,
+  A_intervene,
+  k_grid = NULL
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-onestep_update_curve"></a>}}
+\if{latex}{\out{\hypertarget{method-onestep_update_curve}{}}}
+\subsection{Method \code{onestep_update_curve()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{MOSS$onestep_update_curve(density_failure, eic_fit, epsilon)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-onestep_curve"></a>}}
+\if{latex}{\out{\hypertarget{method-onestep_curve}{}}}
+\subsection{Method \code{onestep_curve()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{MOSS$onestep_curve(
+  epsilon = 1e-05,
+  max_num_interation = 100,
+  tmle_tolerance = NULL,
+  verbose = FALSE
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{MOSS$print()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{MOSS$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

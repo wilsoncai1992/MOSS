@@ -292,10 +292,15 @@ MOSS_hazard <- R6Class("MOSS_hazard",
       }
       return(as.vector(t(dNt)))
     },
-    construct_long_data = function(A_intervene, density_failure, density_censor) {
+    construct_long_data = function(A_intervene, density_failure, density_censor, which_A="obs") {
       psi_n <- colMeans(density_failure$survival)
+      if (which_A == "obs") {
+        A <- self$A
+      } else {
+        A <- self$A_intervene
+      }
       eic_fit <- eic$new(
-        A = self$A,
+        A = A,
         T_tilde = self$T_tilde,
         Delta = self$Delta,
         density_failure = density_failure,
@@ -350,23 +355,31 @@ MOSS_hazard <- R6Class("MOSS_hazard",
               standardize = FALSE,
               intercept = FALSE,
               lambda.min.ratio = lambda.min.ratio,
-              nlambda = 2e2
+              # nlambda = 2e2
+              nlambda = 1e2
             )
             norms <- apply(enet_fit$beta, 2, norm_func)
             ind <- max(which(norms <= clipping))
+            # browser()
             if (ind > 1) break
-            lambda.min.ratio <- (lambda.min.ratio + 1) / 2
+            # lambda.min.ratio <- (lambda.min.ratio + 1) / 2
+            lambda.min.ratio <- sort(enet_fit$lambda, decreasing = TRUE)[2] / max(enet_fit$lambda)
           }
-          # lambda_best <- enet_fit$lambda[ind]
           epsilon_n <- enet_fit$beta[, ind]
         }, error = function(e) {
           # if error, epsilon = 0
           return(rep(0, ncol(h_matrix)))
         })
       }
+      h_matrix_update <- self$construct_long_data(
+        A_intervene = self$A_intervene,
+        density_failure = self$density_failure,
+        density_censor = self$density_censor,
+        which_A = self$A_intervene
+      )
       hazard_new <- expit(
         logit(as.vector(t(self$density_failure$hazard))) +
-        as.vector(h_matrix %*% epsilon_n)
+        as.vector(h_matrix_update %*% epsilon_n)
       )
       hazard_new <- matrix(
         hazard_new,
@@ -447,7 +460,7 @@ MOSS_hazard <- R6Class("MOSS_hazard",
         num_iteration <- num_iteration + 1
         if (is.infinite(mean_eic_inner_prod_current) | is.na(mean_eic_inner_prod_current)) {
           warning("stopping criteria diverged. Reporting best result so far.")
-          break()
+          break
         }
         if (mean_eic_inner_prod_current < mean_eic_inner_prod_best) {
           # the update caused PnEIC to beat the current best
@@ -456,8 +469,8 @@ MOSS_hazard <- R6Class("MOSS_hazard",
           mean_eic_inner_prod_best <- mean_eic_inner_prod_current
         }
         if (num_iteration == self$max_num_interation) {
-          break()
           warning("Max number of iteration reached, stop TMLE")
+          break
         }
       }
       # always output the best candidate for final result

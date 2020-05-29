@@ -4,18 +4,30 @@
 \name{ipcw}
 \alias{ipcw}
 \title{run ipcw based on initial fit}
-\format{\code{\link{R6Class}} object.}
-\usage{
-ipcw
+\format{
+\code{\link{R6Class}} object.
 }
 \value{
 Object of \code{\link{R6Class}} with methods
 }
 \description{
 run ipcw based on initial fit
-}
-\section{Fields}{
 
+run ipcw based on initial fit
+}
+\section{Methods}{
+
+fit fit one time point
+}
+
+\examples{
+\donttest{
+   ipcw$new(A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)
+}
+}
+\keyword{data}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{A}}{vector of treatment}
 
@@ -34,16 +46,57 @@ failure event survival curve}
 \item{\code{A_intervene}}{the intervention of interest}
 
 \item{\code{k_grid}}{vector of interested time points}
-}}
-
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{k_grid}}{vector of interested time points}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
-
-fit fit one time point
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{ipcw$new()}}
+\item \href{#method-fit}{\code{ipcw$fit()}}
+\item \href{#method-clone}{\code{ipcw$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ipcw$new(A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)}\if{html}{\out{</div>}}
 }
 
-\examples{
-\donttest{
-   ipcw$new(A, T_tilde, Delta, density_failure, density_censor, g1W, A_intervene)
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-fit"></a>}}
+\if{latex}{\out{\hypertarget{method-fit}{}}}
+\subsection{Method \code{fit()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ipcw$fit(k)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ipcw$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
 }
 }
-\keyword{data}
+}

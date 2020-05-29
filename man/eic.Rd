@@ -4,18 +4,27 @@
 \name{eic}
 \alias{eic}
 \title{compute eic under the likelihood fit for each observation}
-\format{\code{\link{R6Class}} object.}
-\usage{
-eic
+\format{
+\code{\link{R6Class}} object.
 }
 \value{
 Object of \code{\link{R6Class}} with methods
 }
 \description{
 compute eic under the likelihood fit for each observation
-}
-\section{Fields}{
 
+compute eic under the likelihood fit for each observation
+}
+\section{Methods}{
+
+one_t compute a vector of EIC
+all_t compute a matrix of EIC for all time points
+clever_covariate compute the clever covariate for one time point
+}
+
+\keyword{data}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
 \describe{
 \item{\code{A}}{vector of treatment}
 
@@ -36,13 +45,86 @@ failure event survival curve}
 \item{\code{A_intervene}}{the intervention of interest}
 
 \item{\code{k_grid}}{vector of interested time points}
-}}
-
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{k_grid}}{vector of interested time points}
+}
+\if{html}{\out{</div>}}
+}
 \section{Methods}{
-
-one_t compute a vector of EIC
-all_t compute a matrix of EIC for all time points
-clever_covariate compute the clever covariate for one time point
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{eic$new()}}
+\item \href{#method-one_t}{\code{eic$one_t()}}
+\item \href{#method-all_t}{\code{eic$all_t()}}
+\item \href{#method-clever_covariate}{\code{eic$clever_covariate()}}
+\item \href{#method-clone}{\code{eic$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{eic$new(
+  A,
+  T_tilde,
+  Delta,
+  density_failure,
+  density_censor,
+  g1W,
+  psi,
+  A_intervene
+)}\if{html}{\out{</div>}}
 }
 
-\keyword{data}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-one_t"></a>}}
+\if{latex}{\out{\hypertarget{method-one_t}{}}}
+\subsection{Method \code{one_t()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{eic$one_t(k)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-all_t"></a>}}
+\if{latex}{\out{\hypertarget{method-all_t}{}}}
+\subsection{Method \code{all_t()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{eic$all_t(k_grid)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clever_covariate"></a>}}
+\if{latex}{\out{\hypertarget{method-clever_covariate}{}}}
+\subsection{Method \code{clever_covariate()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{eic$clever_covariate(k)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{eic$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

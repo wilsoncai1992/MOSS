@@ -4,28 +4,17 @@
 \name{survival_curve}
 \alias{survival_curve}
 \title{general object to hold hazard, survival, or pdf}
-\format{\code{\link{R6Class}} object.}
-\usage{
-survival_curve
+\format{
+\code{\link{R6Class}} object.
 }
 \value{
 Object of \code{\link{R6Class}} with methods
 }
 \description{
 general object to hold hazard, survival, or pdf
+
+general object to hold hazard, survival, or pdf
 }
-\section{Fields}{
-
-\describe{
-\item{\code{t}}{vector of time points}
-
-\item{\code{hazard}}{matrix or vector of hazard}
-
-\item{\code{survival}}{matrix or vector of survival}
-
-\item{\code{pdf}}{matrix or vector of pdf}
-}}
-
 \section{Methods}{
 
 display plot the conditonal survival/hazard/pdf
@@ -39,3 +28,160 @@ display plot the conditonal survival/hazard/pdf
 }
 }
 \keyword{data}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{t}}{vector of time points}
+
+\item{\code{hazard}}{matrix or vector of hazard}
+
+\item{\code{survival}}{matrix or vector of survival}
+
+\item{\code{pdf}}{matrix or vector of pdf}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{survival_curve$new()}}
+\item \href{#method-n}{\code{survival_curve$n()}}
+\item \href{#method-hazard_to_survival}{\code{survival_curve$hazard_to_survival()}}
+\item \href{#method-hazard_to_pdf}{\code{survival_curve$hazard_to_pdf()}}
+\item \href{#method-pdf_to_survival}{\code{survival_curve$pdf_to_survival()}}
+\item \href{#method-pdf_to_hazard}{\code{survival_curve$pdf_to_hazard()}}
+\item \href{#method-survival_to_pdf}{\code{survival_curve$survival_to_pdf()}}
+\item \href{#method-survival_to_hazard}{\code{survival_curve$survival_to_hazard()}}
+\item \href{#method-display}{\code{survival_curve$display()}}
+\item \href{#method-create_ggplot_df}{\code{survival_curve$create_ggplot_df()}}
+\item \href{#method-ci}{\code{survival_curve$ci()}}
+\item \href{#method-clone}{\code{survival_curve$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{survival_curve$new(t, hazard = NULL, survival = NULL, pdf = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-n"></a>}}
+\if{latex}{\out{\hypertarget{method-n}{}}}
+\subsection{Method \code{n()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{survival_curve$n()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-hazard_to_survival"></a>}}
+\if{latex}{\out{\hypertarget{method-hazard_to_survival}{}}}
+\subsection{Method \code{hazard_to_survival()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{survival_curve$hazard_to_survival()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-hazard_to_pdf"></a>}}
+\if{latex}{\out{\hypertarget{method-hazard_to_pdf}{}}}
+\subsection{Method \code{hazard_to_pdf()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{survival_curve$hazard_to_pdf()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-pdf_to_survival"></a>}}
+\if{latex}{\out{\hypertarget{method-pdf_to_survival}{}}}
+\subsection{Method \code{pdf_to_survival()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{survival_curve$pdf_to_survival()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-pdf_to_hazard"></a>}}
+\if{latex}{\out{\hypertarget{method-pdf_to_hazard}{}}}
+\subsection{Method \code{pdf_to_hazard()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{survival_curve$pdf_to_hazard()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-survival_to_pdf"></a>}}
+\if{latex}{\out{\hypertarget{method-survival_to_pdf}{}}}
+\subsection{Method \code{survival_to_pdf()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{survival_curve$survival_to_pdf()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-survival_to_hazard"></a>}}
+\if{latex}{\out{\hypertarget{method-survival_to_hazard}{}}}
+\subsection{Method \code{survival_to_hazard()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{survival_curve$survival_to_hazard()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-display"></a>}}
+\if{latex}{\out{\hypertarget{method-display}{}}}
+\subsection{Method \code{display()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{survival_curve$display(type, W = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-create_ggplot_df"></a>}}
+\if{latex}{\out{\hypertarget{method-create_ggplot_df}{}}}
+\subsection{Method \code{create_ggplot_df()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{survival_curve$create_ggplot_df(W = NULL)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ci"></a>}}
+\if{latex}{\out{\hypertarget{method-ci}{}}}
+\subsection{Method \code{ci()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{survival_curve$ci(
+  A,
+  T_tilde,
+  Delta,
+  density_failure,
+  density_censor,
+  g1W,
+  psi_n,
+  A_intervene,
+  alpha = 0.05
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{survival_curve$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

@@ -4,40 +4,17 @@
 \name{repeat_t_grid}
 \alias{repeat_t_grid}
 \title{repeat ipcw/ee for all time points}
-\format{\code{\link{R6Class}} object.}
-\usage{
-repeat_t_grid
+\format{
+\code{\link{R6Class}} object.
 }
 \value{
 Object of \code{\link{R6Class}} with methods
 }
 \description{
 repeat ipcw/ee for all time points
+
+repeat ipcw/ee for all time points
 }
-\section{Fields}{
-
-\describe{
-\item{\code{method}}{either ipcw or ee class}
-
-\item{\code{A}}{vector of treatment}
-
-\item{\code{T_tilde}}{vector of last follow up time}
-
-\item{\code{Delta}}{vector of censoring indicator}
-
-\item{\code{density_failure}}{survival_curve object of predicted counterfactual
-survival curve}
-
-\item{\code{density_censor}}{survival_curve object of predicted counterfactual
-failure event survival curve}
-
-\item{\code{g1W}}{propensity score}
-
-\item{\code{A_intervene}}{the intervention of interest}
-
-\item{\code{k_grid}}{vector of interested time points}
-}}
-
 \section{Methods}{
 
 fit fit all time points in `k_grid`
@@ -66,3 +43,106 @@ fit fit all time points in `k_grid`
 }
 }
 \keyword{data}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{method}}{either ipcw or ee class}
+
+\item{\code{A}}{vector of treatment}
+
+\item{\code{T_tilde}}{vector of last follow up time}
+
+\item{\code{Delta}}{vector of censoring indicator}
+
+\item{\code{density_failure}}{survival_curve object of predicted counterfactual
+survival curve}
+
+\item{\code{density_censor}}{survival_curve object of predicted counterfactual
+failure event survival curve}
+
+\item{\code{g1W}}{propensity score}
+
+\item{\code{A_intervene}}{the intervention of interest}
+
+\item{\code{k_grid}}{vector of interested time points}
+}
+\if{html}{\out{</div>}}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{method}}{either ipcw or ee class}
+
+\item{\code{A}}{vector of treatment}
+
+\item{\code{T_tilde}}{vector of last follow up time}
+
+\item{\code{Delta}}{vector of censoring indicator}
+
+\item{\code{density_failure}}{survival_curve object of predicted counterfactual
+survival curve}
+
+\item{\code{density_censor}}{survival_curve object of predicted counterfactual
+failure event survival curve}
+
+\item{\code{g1W}}{propensity score}
+
+\item{\code{A_intervene}}{the intervention of interest}
+
+\item{\code{k_grid}}{vector of interested time points}
+}
+\if{html}{\out{</div>}}
+}
+\section{Methods}{
+\subsection{Public methods}{
+\itemize{
+\item \href{#method-new}{\code{repeat_t_grid$new()}}
+\item \href{#method-fit}{\code{repeat_t_grid$fit()}}
+\item \href{#method-clone}{\code{repeat_t_grid$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-new"></a>}}
+\if{latex}{\out{\hypertarget{method-new}{}}}
+\subsection{Method \code{new()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{repeat_t_grid$new(
+  method,
+  A,
+  T_tilde,
+  Delta,
+  density_failure,
+  density_censor,
+  g1W,
+  A_intervene
+)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-fit"></a>}}
+\if{latex}{\out{\hypertarget{method-fit}{}}}
+\subsection{Method \code{fit()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{repeat_t_grid$fit(k_grid)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-clone}{}}}
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{repeat_t_grid$clone(deep = FALSE)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
+}

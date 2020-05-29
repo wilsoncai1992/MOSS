@@ -4,9 +4,17 @@
 \alias{initial_sl_fit}
 \title{super learner fit for failure and censoring event}
 \usage{
-initial_sl_fit(T_tilde, Delta, A, W, t_max, sl_failure = c("SL.glm"),
-  sl_censoring = c("SL.glm"), sl_treatment = c("SL.glm"),
-  gtol = 0.001)
+initial_sl_fit(
+  T_tilde,
+  Delta,
+  A,
+  W,
+  t_max,
+  sl_failure = c("SL.glm"),
+  sl_censoring = c("SL.glm"),
+  sl_treatment = c("SL.glm"),
+  gtol = 0.001
+)
 }
 \arguments{
 \item{T_tilde}{vector of last follow up time}
